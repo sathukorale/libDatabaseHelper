@@ -25,7 +25,7 @@ namespace libDatabaseHelper.forms
         public frmDatabaseEntityViewer()
         {
             InitializeComponent();
-            Utils.MakeControlAndSubControlsSensitiveToKey(this, new[] { Keys.Escape }, o => { Close(); return 0; });
+            FormUtils.MakeControlAndSubControlsSensitiveToKey(this, new[] { Keys.Escape }, o => { Close(); return 0; });
         }
 
         public Result GetItems()
@@ -127,7 +127,7 @@ namespace libDatabaseHelper.forms
         {
             if (_registeredEditorTypes.ContainsKey(_currentType))
             {
-                var status = DbEntityForm.ShowModalWindow(_registeredEditorTypes[_currentType]);
+                var status = DatabaseEntityForm.ShowModalWindow(_registeredEditorTypes[_currentType]);
 
                 Select();
                 Focus();
@@ -172,7 +172,7 @@ namespace libDatabaseHelper.forms
                 var obj = row.Tag as DatabaseEntity;
                 if (obj != null)
                 {
-                    var status = DbEntityForm.ShowModalWindow(_registeredEditorTypes[_currentType], obj);
+                    var status = DatabaseEntityForm.ShowModalWindow(_registeredEditorTypes[_currentType], obj);
 
                     Select();
                     Focus();
@@ -200,7 +200,7 @@ namespace libDatabaseHelper.forms
                 var tag = dgvDatabaseEntities.SelectedRows[0].Tag as DatabaseEntity;
                 if (_registeredEditorTypes.ContainsKey(_currentType))
                 {
-                    var status = DbEntityForm.ShowModalWindow(_registeredEditorTypes[_currentType], tag, true);
+                    var status = DatabaseEntityForm.ShowModalWindow(_registeredEditorTypes[_currentType], tag, true);
 
                     Select();
                     Focus();

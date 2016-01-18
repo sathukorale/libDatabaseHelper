@@ -1,12 +1,12 @@
 ﻿using System;
-using System.Windows.Forms;
 using System.Collections.Generic;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.IO;
+using System.Linq;
+using System.Text;
+using System.Windows.Forms;
 
 namespace libDatabaseHelper.classes.generic
 {
-    public class Utils
+    class FormUtils
     {
         struct ControlDetails
         {
@@ -22,10 +22,11 @@ namespace libDatabaseHelper.classes.generic
 
         private static ToolTip _universalToolTip = null;
         private static Dictionary<int, ControlDetails> _sensibleKeys = new Dictionary<int, ControlDetails>();
+        private static Dictionary<Control, List<Control>> _all_elements = new Dictionary<Control, List<Control>>();
 
         public static void ClearForm(Control parentControl)
         {
-            if (! parentControl.HasChildren) 
+            if (!parentControl.HasChildren)
                 return;
 
             foreach (Control control in parentControl.Controls)
@@ -44,7 +45,7 @@ namespace libDatabaseHelper.classes.generic
                         {
                             //cmb.SelectionLength = 0;
                         }
-                        catch (Exception) {}
+                        catch (Exception) { }
                     }
                 }
                 else if (control is CheckBox)
@@ -56,8 +57,6 @@ namespace libDatabaseHelper.classes.generic
                 control.Enabled = true;
             }
         }
-
-        private static Dictionary<Control, List<Control>> _all_elements = new Dictionary<Control, List<Control>>();
 
         private static List<Control> _GetAllElements(Control parentControl)
         {
@@ -84,35 +83,6 @@ namespace libDatabaseHelper.classes.generic
             }
         }
 
-        public static byte[] ObjectToByteArray(object value)
-        {
-            if (value == null)
-                return null;
-
-            using (var ms = new MemoryStream())
-            {
-                var bf = new BinaryFormatter();
-                bf.Serialize(ms, value);
-                return ms.ToArray();
-            }
-        }
-
-        public static object ByteArrayToObject(byte[] array)
-        {
-            if (array == null || array.Length <= 0)
-                return null;
-
-            using (var ms = new MemoryStream(array))
-            {
-                BinaryFormatter bf = new BinaryFormatter();
-                ms.Write(array, 0, array.Length);
-                ms.Seek(0, SeekOrigin.Begin);
-
-                object obj = bf.Deserialize(ms);
-                return obj;
-            }
-        }
-
         public static void AddToolTip(Control control, string toolTip, ToolTipIcon icon)
         {
             if (_universalToolTip == null)
@@ -125,16 +95,16 @@ namespace libDatabaseHelper.classes.generic
                 _universalToolTip.ShowAlways = true;
                 _universalToolTip.UseAnimation = true;
                 _universalToolTip.ReshowDelay = 0;
-                //_universalToolTip.ToolTipIcon = icon;
+                _universalToolTip.ToolTipIcon = icon;
             }
             _universalToolTip.SetToolTip(control, toolTip);
         }
 
         public static void MakeControlAndSubControlsSensitiveToKey(Control control, Keys[] keys, Func<Keys, int> method)
         {
-            control.KeyDown += (object sender, KeyEventArgs e) => 
+            control.KeyDown += (object sender, KeyEventArgs e) =>
             {
-                Control control_sent  = (Control)sender;
+                Control control_sent = (Control)sender;
                 if (_sensibleKeys.ContainsKey(control.GetHashCode()))
                 {
                     foreach (var key in _sensibleKeys[control.GetHashCode()].key)
@@ -152,29 +122,6 @@ namespace libDatabaseHelper.classes.generic
             {
                 MakeControlAndSubControlsSensitiveToKey(child_control, keys, method);
             }
-        }
-
-        public static bool ValidateForm(Control parentControl)
-        {
-            if (!parentControl.HasChildren)
-                return true;
-
-            foreach (Control control in parentControl.Controls)
-            {
-                if (control is TextBox)
-                {
-                    if (control.Text.Trim() == "")
-                    {
-                        control.Focus();
-                        return false;
-                    }
-                }
-                else if (control.HasChildren && ! ValidateForm(control))
-                {
-                    return false;
-                }
-            }
-            return true;
         }
     }
 }

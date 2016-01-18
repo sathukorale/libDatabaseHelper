@@ -15,7 +15,7 @@ namespace libDatabaseHelper.forms
 
         private void ClearForm()
         {
-            Utils.ClearForm(this);
+            FormUtils.ClearForm(this);
         }
 
         public static bool ShowWindow()

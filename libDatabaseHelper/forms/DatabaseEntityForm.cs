@@ -11,19 +11,19 @@ using libDatabaseHelper.classes.generic.entities;
 
 namespace libDatabaseHelper.forms
 {
-    public class DbEntityForm : Form
+    public class DatabaseEntityForm : Form
     {
         protected bool ReloadNeeded;
         protected bool Inited = false;
         protected DatabaseEntity LoadedEntity;
 
-        public delegate bool OnOkClickedEvent();
-        public event OnOkClickedEvent OnOkClicked;
-
-        private static Dictionary<Type, DbEntityForm> _listOfForms;
-
         public Type _type;
         private string[] _drag_drop_supporting_extensions;
+
+        private static Dictionary<Type, DatabaseEntityForm> _listOfForms;
+
+        public delegate bool OnOkClickedEvent();
+        public event OnOkClickedEvent OnOkClicked;
 
         public struct ReturnStatus
         {
@@ -40,7 +40,7 @@ namespace libDatabaseHelper.forms
         public void ClearForm()
         {
             ReloadNeeded = false;
-            Utils.ClearForm(this);
+            FormUtils.ClearForm(this);
         }
 
         protected virtual bool ValidateCreatedEntity(ref DatabaseEntity entity)
@@ -117,14 +117,14 @@ namespace libDatabaseHelper.forms
 
         }
 
-        public DbEntityForm GetFormInstance<T>()
+        public DatabaseEntityForm GetFormInstance<T>()
         {
             if (_listOfForms == null)
-                _listOfForms = new Dictionary<Type, DbEntityForm>();
+                _listOfForms = new Dictionary<Type, DatabaseEntityForm>();
             var presentedForm = _listOfForms[typeof(T)];
             if (presentedForm == null || presentedForm.IsDisposed)
             {
-                presentedForm = Activator.CreateInstance<T>() as DbEntityForm;
+                presentedForm = Activator.CreateInstance<T>() as DatabaseEntityForm;
                 _listOfForms.Add(typeof(T), presentedForm);
             }
             return presentedForm;
@@ -154,7 +154,7 @@ namespace libDatabaseHelper.forms
         {
             if (! Inited)
             {
-                Utils.MakeControlAndSubControlsSensitiveToKey(this, new[] { Keys.Escape }, (key) => { Close(); return 0; });
+                FormUtils.MakeControlAndSubControlsSensitiveToKey(this, new[] { Keys.Escape }, (key) => { Close(); return 0; });
                 Inited = true;
             }
         }
@@ -169,7 +169,7 @@ namespace libDatabaseHelper.forms
             return LoadedEntity;
         }
 
-        public static DbEntityForm ShowWindow<T>()
+        public static DatabaseEntityForm ShowWindow<T>()
         {
             return ShowWindow<T>(null);
         }
@@ -184,29 +184,29 @@ namespace libDatabaseHelper.forms
             return ShowModalWindow(type, null);
         }
 
-        public static DbEntityForm ShowWindow<T>(DatabaseEntity loadedEntity)
+        public static DatabaseEntityForm ShowWindow<T>(DatabaseEntity loadedEntity)
         {
             return ShowWindow(typeof (T), loadedEntity, false);
         }
 
-        public static DbEntityForm ShowWindow<T>(DatabaseEntity loadedEntity, bool loadValuesOnly)
+        public static DatabaseEntityForm ShowWindow<T>(DatabaseEntity loadedEntity, bool loadValuesOnly)
         {
             return ShowWindow(typeof(T), loadedEntity, loadValuesOnly);
         }
 
-        public static DbEntityForm ShowWindow(Type type, DatabaseEntity loadedEntity)
+        public static DatabaseEntityForm ShowWindow(Type type, DatabaseEntity loadedEntity)
         {
             return ShowWindow(type, loadedEntity, false);
         }
 
-        public static DbEntityForm ShowWindow(Type type, DatabaseEntity loadedEntity, bool loadValuesOnly)
+        public static DatabaseEntityForm ShowWindow(Type type, DatabaseEntity loadedEntity, bool loadValuesOnly)
         {
             if (_listOfForms == null)
-                _listOfForms = new Dictionary<Type, DbEntityForm>();
+                _listOfForms = new Dictionary<Type, DatabaseEntityForm>();
             var presentedForm = _listOfForms.Any(i => i.Key == type) ? _listOfForms[type] : null;
             if (presentedForm == null || presentedForm.IsDisposed)
             {
-                presentedForm = Activator.CreateInstance(type) as DbEntityForm;
+                presentedForm = Activator.CreateInstance(type) as DatabaseEntityForm;
                 _listOfForms.Add(type, presentedForm);
             }
             if (presentedForm == null)
@@ -238,11 +238,11 @@ namespace libDatabaseHelper.forms
         public static ReturnStatus ShowModalWindow(Type type, DatabaseEntity loadedEntity, bool loadValuesOnly)
         {
             if (_listOfForms == null)
-                _listOfForms = new Dictionary<Type, DbEntityForm>();
+                _listOfForms = new Dictionary<Type, DatabaseEntityForm>();
             var presentedForm = _listOfForms.ContainsKey(type) ? _listOfForms[type] : null;
             if (presentedForm == null || presentedForm.IsDisposed)
             {
-                presentedForm = Activator.CreateInstance(type) as DbEntityForm;
+                presentedForm = Activator.CreateInstance(type) as DatabaseEntityForm;
                 _listOfForms.Remove(type);
                 _listOfForms.Add(type, presentedForm);
             }

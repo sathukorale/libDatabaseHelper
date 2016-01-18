@@ -16,7 +16,7 @@ namespace libDatabaseHelper.forms
         private frmInputDialog()
         {
             InitializeComponent();
-            Utils.MakeControlAndSubControlsSensitiveToKey(this, new[] { Keys.Escape, Keys.Enter }, (key) => 
+            FormUtils.MakeControlAndSubControlsSensitiveToKey(this, new[] { Keys.Escape, Keys.Enter }, (key) => 
             {
                 if (key == Keys.Enter)
                 {
