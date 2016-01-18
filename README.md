@@ -20,6 +20,8 @@ public class TableName : DatabaseEntity
 * Implement the same for MySQL (a work in progress), SQL and Oracle
 * Implementing auto-generated primary keys.
 * Identifying column data type changes (especially when checking the table structure for any modifications)
+* Capability to store encrypted password values. 
+* On Update both the previous and the updated should be returned. 
 
 ## Issues :
 * *Pending...*
