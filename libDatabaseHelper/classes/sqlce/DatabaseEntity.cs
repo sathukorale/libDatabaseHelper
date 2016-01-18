@@ -42,6 +42,22 @@ namespace libDatabaseHelper.classes.sqlce
 
         public DatabaseEntity()
         {
+            var tableProperties = System.Attribute.GetCustomAttributes(this.GetType()).OfType<TableProperties>().FirstOrDefault(null);
+            if (tableProperties != null)
+            {
+                if (tableProperties.Registration == TableProperties.RegistrationType.RegisterOnDatabaseManager)
+                {
+                    DatabaseManager.CreateTable(this.GetType());
+                }
+                else if (tableProperties.Registration == TableProperties.RegistrationType.RegisterOnUniversalDataCollector)
+                {
+                    if (DatabaseManager.CreateTable(this.GetType()))
+                    {
+                        UniversalDataCollector.Register(this.GetType());
+                    }
+                }
+            }
+
             var columns_result = GetColumns(true);
             if (columns_result == null)
             {

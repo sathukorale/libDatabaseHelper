@@ -199,17 +199,22 @@ namespace libDatabaseHelper.classes.generic
         #region "Registration"
         public static void Register<T>()
         {
+            Register(typeof(T));
+        }
+
+        public static void Register(Type t)
+        {
             if (!_is_initialized)
             {
                 Init();
             }
 
-            if (! _entitiesPerType.ContainsKey(typeof(T)))
+            if (!_entitiesPerType.ContainsKey(t))
             {
                 var allCurrentEntities = new List<DatabaseEntity>();
-                allCurrentEntities.AddRange(DatabaseManager.Select<T>(null));
+                allCurrentEntities.AddRange(DatabaseManager.Select(t, null));
 
-                _entitiesPerType.Add(typeof(T), allCurrentEntities);
+                _entitiesPerType.Add(t, allCurrentEntities);
             }
         }
 

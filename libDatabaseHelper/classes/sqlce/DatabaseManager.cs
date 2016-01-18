@@ -137,7 +137,7 @@ namespace libDatabaseHelper.classes.sqlce
                 return false;
             }
 
-            if (!_registeredDBEntities.Contains(type))
+            if (_registeredDBEntities.Contains(type) == false)
             {
                 _registeredDBEntities.Add(type);
             }
