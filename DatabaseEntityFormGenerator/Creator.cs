@@ -76,7 +76,7 @@ namespace DatabaseEntityFormCreator
                             initCode += (initCode == "" ? "" : Environment.NewLine) + String.Format("this.lbl{0} = new System.Windows.Forms.Label();" + Environment.NewLine, column.Name);
                             initCode += String.Format("this.cmb{0} = new System.Windows.Forms.ComboBox();", column.Name);
 
-                            settingsCode += (settingsCode == "" ? "" : Environment.NewLine) + String.Format("this.lbl{0}.Text = \"{1}\";" + Environment.NewLine, column.Name, attr.DisplayName ?? column.Name);
+                            settingsCode += (settingsCode == "" ? "" : Environment.NewLine) + String.Format("this.lbl{0}.Text = \"{1}\";" + Environment.NewLine, column.Name, attr.GridDisplayName ?? column.Name);
                             settingsCode += String.Format("\t\tthis.lbl{0}.Location = new System.Drawing.Point({1}, {2});" + Environment.NewLine, column.Name, 10, y);
                             settingsCode += String.Format("\t\tthis.lbl{0}.Size = new System.Drawing.Size({1}, {2});" + Environment.NewLine, column.Name, 100, 20);
 
@@ -107,7 +107,7 @@ namespace DatabaseEntityFormCreator
                             initCode += (initCode == "" ? "" : Environment.NewLine) + String.Format("this.lbl{0} = new System.Windows.Forms.Label();" + Environment.NewLine, column.Name);
                             initCode += String.Format("this.txt{0} = new System.Windows.Forms.TextBox();", column.Name);
 
-                            settingsCode += (settingsCode == "" ? "" : Environment.NewLine) + String.Format("this.lbl{0}.Text = \"{1}\";" + Environment.NewLine, column.Name, attr.DisplayName ?? column.Name);
+                            settingsCode += (settingsCode == "" ? "" : Environment.NewLine) + String.Format("this.lbl{0}.Text = \"{1}\";" + Environment.NewLine, column.Name, attr.GridDisplayName ?? column.Name);
                             settingsCode += String.Format("\t\tthis.lbl{0}.Location = new System.Drawing.Point({1}, {2});" + Environment.NewLine, column.Name, 10, y);
                             settingsCode += String.Format("\t\tthis.lbl{0}.Size = new System.Drawing.Size({1}, {2});" + Environment.NewLine, column.Name, 100, 20);
 
@@ -135,7 +135,7 @@ namespace DatabaseEntityFormCreator
                             settingsCode += String.Format("\t\tthis.chk{0}.RightToLeft = {1};" + Environment.NewLine, column.Name, "System.Windows.Forms.RightToLeft.Yes");
                             settingsCode += String.Format("\t\tthis.chk{0}.Anchor = (System.Windows.Forms.AnchorStyles)(System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left);" + Environment.NewLine, column.Name, y / 30);
                             settingsCode += String.Format("\t\t\tthis.chk{0}.Tag = new TableColumnField({1}, typeof({2}), \"{3}\");", column.Name, "true", type.Name, column.Name);
-                            settingsCode += String.Format("\t\t\tthis.chk{0}.Text = \"{1}\";", column.Name, attr.DisplayName);
+                            settingsCode += String.Format("\t\t\tthis.chk{0}.Text = \"{1}\";", column.Name, attr.GridDisplayName);
                             settingsCode += String.Format("\t\t\tthis.chk{0}.TextAlign = System.Drawing.ContentAlignment.MiddleRight;", column.Name);
 
                             addingCode += (addingCode == "" ? "" : Environment.NewLine) + String.Format("\t\tthis.pnlControlContainer.Controls.Add(chk{0});", column.Name);
@@ -152,7 +152,7 @@ namespace DatabaseEntityFormCreator
                             initCode += (initCode == "" ? "" : Environment.NewLine) + String.Format("this.lbl{0} = new System.Windows.Forms.Label();" + Environment.NewLine, column.Name);
                             initCode += String.Format("this.dtp{0} = new System.Windows.Forms.DateTimePicker();", column.Name);
 
-                            settingsCode += (settingsCode == "" ? "" : Environment.NewLine) + String.Format("this.lbl{0}.Text = \"{1}\";" + Environment.NewLine, column.Name, attr.DisplayName ?? column.Name);
+                            settingsCode += (settingsCode == "" ? "" : Environment.NewLine) + String.Format("this.lbl{0}.Text = \"{1}\";" + Environment.NewLine, column.Name, attr.GridDisplayName ?? column.Name);
                             settingsCode += String.Format("\t\tthis.lbl{0}.Location = new System.Drawing.Point({1}, {2});" + Environment.NewLine, column.Name, 10, y);
                             settingsCode += String.Format("\t\tthis.lbl{0}.Size = new System.Drawing.Size({1}, {2});" + Environment.NewLine, column.Name, 100, 20);
 
