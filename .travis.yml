@@ -1,9 +1,4 @@
 ## Travis CI Integration
 
-language: c
-
-install:
-  - sudo apt-get install mono-devel mono-gmcs nunit-console
-script:
-  - xbuild libDatabaseHelper/libDatabaseHelper.sln
-  - nunit-console libDatabaseHelper/libDatabaseHelperUnitTests/bin/Debug/libDatabaseHelperUnitTests.dll
+language: csharp
+solution: libDatabaseHelper.sln
