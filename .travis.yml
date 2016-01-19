@@ -1,3 +1,4 @@
 ## Travis CI Integration
 
 language: csharp
+solution: libDatabaseHelper.sln
