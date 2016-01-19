@@ -12,7 +12,7 @@ namespace libDatabaseHelper.classes.generic
     public class UniversalDataCollector
     {
         private static bool _is_initialized = false;
-        private static Dictionary<Type, List<DatabaseEntity>> _entitiesPerType = new Dictionary<Type, List<DatabaseEntity>>();
+        private static Dictionary<Type, List<GenericDatabaseEntity>> _entitiesPerType = new Dictionary<Type, List<GenericDatabaseEntity>>();
 
         private static void Init()
         {
@@ -25,27 +25,27 @@ namespace libDatabaseHelper.classes.generic
                 _is_initialized = true;
             }
 
-            DatabaseEntity.OnDatabaseEntityUpdated += new DatabaseEntity.UpdateEvent(DatabaseEntity_OnDatabaseEntityUpdated);
-            DatabaseManager.OnBulkDelete += new DatabaseManager.BulkDelete(DatabaseManager_OnBulkDelete);
+            DatabaseEntity.OnDatabaseEntityUpdated += new GenericDatabaseEntity.UpdateEvent(DatabaseEntity_OnDatabaseEntityUpdated);
+            DatabaseManager.OnBulkDelete += new GenericDatabaseManager.BulkDelete(DatabaseManager_OnBulkDelete);
         }
 
         #region "Selectors"
-        public static List<DatabaseEntity> Select<T>()
+        public static List<GenericDatabaseEntity> Select<T>()
         {
             return Select(typeof(T), null);
         }
 
-        public static List<DatabaseEntity> Select<T>(Selector[] selectors)
+        public static List<GenericDatabaseEntity> Select<T>(Selector[] selectors)
         {
             return Select(typeof(T), selectors);
         }
 
-        public static List<DatabaseEntity> Select(Type type)
+        public static List<GenericDatabaseEntity> Select(Type type)
         {
             return Select(type, null);
         }
 
-        public static List<DatabaseEntity> Select(Type type, Selector[] selectors)
+        public static List<GenericDatabaseEntity> Select(Type type, Selector[] selectors)
         {
             if (selectors == null)
             {
@@ -77,7 +77,7 @@ namespace libDatabaseHelper.classes.generic
             }
         }
 
-        static void DatabaseEntity_OnDatabaseEntityUpdated(DatabaseEntity updatedEntity, Type type, DatabaseEntity.UpdateEventType event_type)
+        static void DatabaseEntity_OnDatabaseEntityUpdated(GenericDatabaseEntity updatedEntity, Type type, GenericDatabaseEntity.UpdateEventType event_type)
         {
             if (!_entitiesPerType.ContainsKey(type))
                 return;
@@ -107,15 +107,15 @@ namespace libDatabaseHelper.classes.generic
         #endregion
 
         #region "FindMatchingEntities"
-        private static List<DatabaseEntity> FindMatchingEntities<T>(Selector[] selector)
+        private static List<GenericDatabaseEntity> FindMatchingEntities<T>(Selector[] selector)
         {
             return FindMatchingEntities(typeof(T), selector);
         }
 
-        private static List<DatabaseEntity> FindMatchingEntities(Type type, Selector[] selectors)
+        private static List<GenericDatabaseEntity> FindMatchingEntities(Type type, Selector[] selectors)
         {
             var list = _entitiesPerType[type];
-            var collected = new List<DatabaseEntity>();
+            var collected = new List<GenericDatabaseEntity>();
             for (int i = 0; i < list.Count; i++)
             {
                 var entity = list[i];
@@ -134,7 +134,7 @@ namespace libDatabaseHelper.classes.generic
                     {
                         var present_val = entity.GetFieldValue(selector.Field);
                         var sent_val = selector.FieldValue1;
-                        if (FieldTools.Compare(present_val, sent_val) != -1)
+                        if (GenericFieldTools.Compare(present_val, sent_val) != -1)
                         {
                             is_entity_valid = false;
                         }
@@ -143,7 +143,7 @@ namespace libDatabaseHelper.classes.generic
                     {
                         var present_val = entity.GetFieldValue(selector.Field);
                         var sent_val = selector.FieldValue1;
-                        if (FieldTools.Compare(present_val, sent_val) != 1)
+                        if (GenericFieldTools.Compare(present_val, sent_val) != 1)
                         {
                             is_entity_valid = false;
                         }
@@ -151,7 +151,7 @@ namespace libDatabaseHelper.classes.generic
                     else if (selector.OpeartorType == Selector.Operator.Between)
                     {
                         var present_val = entity.GetFieldValue(selector.Field);
-                        if (FieldTools.Compare(present_val, selector.FieldValue1) != 1 && FieldTools.Compare(present_val, selector.FieldValue2) != -1)
+                        if (GenericFieldTools.Compare(present_val, selector.FieldValue1) != 1 && GenericFieldTools.Compare(present_val, selector.FieldValue2) != -1)
                         {
                             is_entity_valid = false;
                         }
@@ -211,8 +211,8 @@ namespace libDatabaseHelper.classes.generic
 
             if (!_entitiesPerType.ContainsKey(t))
             {
-                var allCurrentEntities = new List<DatabaseEntity>();
-                allCurrentEntities.AddRange(DatabaseManager.Select(t, null));
+                var allCurrentEntities = new List<GenericDatabaseEntity>();
+                allCurrentEntities.AddRange(GenericDatabaseManager.GetDatabaseManager(DatabaseType.SqlCE).Select(t, null));
 
                 _entitiesPerType.Add(t, allCurrentEntities);
             }
@@ -234,10 +234,11 @@ namespace libDatabaseHelper.classes.generic
             worker.DoWork += (sender, e) =>
             {
                 var type = (Type)e.Argument;
+                var tmpInstance = Activator.CreateInstance<T>() as GenericDatabaseEntity;
                 if (! _entitiesPerType.ContainsKey(type))
                 {
-                    var allCurrentEntities = new List<DatabaseEntity>();
-                    allCurrentEntities.AddRange(DatabaseManager.Select(type));
+                    var allCurrentEntities = new List<GenericDatabaseEntity>();
+                    allCurrentEntities.AddRange(GenericDatabaseManager.GetDatabaseManager(tmpInstance.GetSupportedDatabaseType()).Select(type));
                     e.Result = new object[2] { type, allCurrentEntities };
                 }
             };
@@ -249,7 +250,7 @@ namespace libDatabaseHelper.classes.generic
                     var type = (Type)result[0];
                     if (! _entitiesPerType.ContainsKey(type))
                     {
-                        _entitiesPerType.Add(type, (List<DatabaseEntity>)result[1]);
+                        _entitiesPerType.Add(type, (List<GenericDatabaseEntity>)result[1]);
                     }
                 }
             };

@@ -91,7 +91,7 @@ namespace libDatabaseHelper.forms
             //DatabaseManager.FillDataTable(type, ref tblData, selectors, 0);
             //dgvDatabaseEntities.DataSource = tblData;
 
-            DatabaseManager.FillDataGridViewAsItems(_currentType, ref dgvDatabaseEntities, selectors);
+            GenericDatabaseManager.GetDatabaseManager(DatabaseType.MySQL).FillDataGridViewAsItems(_currentType, ref dgvDatabaseEntities, selectors);
         }
 
         public static void ShowWindow(Type type, Selector[] selectors)

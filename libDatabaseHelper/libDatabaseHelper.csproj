@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
+    <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{B8720AED-93F8-4179-AFBF-F30DEC4233FA}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -51,8 +51,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="classes\generic\entities\User.cs" />
-    <Compile Include="classes\generic\entities\ApplicationError.cs" />
+    <Compile Include="classes\generic\GenericDatabaseEntity.cs" />
+    <Compile Include="classes\generic\GenericDatabaseManager.cs" />
+    <Compile Include="classes\generic\GenericFieldTools.cs" />
+    <Compile Include="classes\sqlce\entities\User.cs" />
+    <Compile Include="classes\sqlce\entities\ApplicationError.cs" />
     <Compile Include="classes\generic\ConnectionManager.cs" />
     <Compile Include="classes\generic\Exceptions.cs" />
     <Compile Include="classes\generic\Fields.cs" />

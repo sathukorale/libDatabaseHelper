@@ -9,7 +9,7 @@ using System.Windows.Forms;
 using libDatabaseHelper.forms;
 using libDatabaseHelper.Properties;
 using libDatabaseHelper.classes.sqlce;
-using libDatabaseHelper.classes.generic.entities;
+using libDatabaseHelper.classes.sqlce.entities;
 
 namespace libDatabaseHelper.classes.generic
 {
@@ -174,8 +174,8 @@ namespace libDatabaseHelper.classes.generic
             {
                 try
                 {
-                    DatabaseManager.CreateTable<User>();
-                    DatabaseManager.CreateTable<AuditEntry>();
+                    GenericDatabaseManager.GetDatabaseManager(DatabaseType.SqlCE).CreateTable<User>();
+                    GenericDatabaseManager.GetDatabaseManager(DatabaseType.SqlCE).CreateTable<AuditEntry>();
                 }
                 catch {}
 

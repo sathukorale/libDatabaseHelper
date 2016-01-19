@@ -7,7 +7,7 @@ using System.IO;
 using libDatabaseHelper.classes.generic;
 using libDatabaseHelper.classes.sqlce;
 using libDatabaseHelper.Properties;
-using libDatabaseHelper.classes.generic.entities;
+using libDatabaseHelper.classes.sqlce.entities;
 
 namespace libDatabaseHelper.forms
 {

@@ -99,7 +99,7 @@ namespace DatabaseEntityFormCreator
 
                             y += 30;
                         }
-                        else if (FieldTools.IsTypeString(column.FieldType) || FieldTools.IsTypeString(column.FieldType) || FieldTools.IsTypeFloatingPoint(column.FieldType))
+                        else if (GenericFieldTools.IsTypeString(column.FieldType) || GenericFieldTools.IsTypeString(column.FieldType) || GenericFieldTools.IsTypeFloatingPoint(column.FieldType))
                         {
                             declarationCode += (declarationCode == "" ? "" : Environment.NewLine) + String.Format("\tprivate System.Windows.Forms.Label lbl{0};" + Environment.NewLine, column.Name);
                             declarationCode += String.Format("\tprivate System.Windows.Forms.TextBox txt{0};", column.Name);

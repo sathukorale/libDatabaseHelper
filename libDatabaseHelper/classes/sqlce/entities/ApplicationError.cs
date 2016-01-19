@@ -1,6 +1,6 @@
-﻿using libDatabaseHelper.classes.sqlce;
+﻿using libDatabaseHelper.classes.generic;
 
-namespace libDatabaseHelper.classes.generic.entities
+namespace libDatabaseHelper.classes.sqlce.entities
 {
     public class ApplicationError : DatabaseEntity
     {

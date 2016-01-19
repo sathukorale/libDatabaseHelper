@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
 
-using libDatabaseHelper.classes.sqlce;
+using libDatabaseHelper.classes.generic;
 
-namespace libDatabaseHelper.classes.generic.entities
+namespace libDatabaseHelper.classes.sqlce.entities
 {
     public class User : DatabaseEntity, IComboBoxItem
     {
@@ -26,7 +26,7 @@ namespace libDatabaseHelper.classes.generic.entities
 
         public bool ValidateUser()
         {
-            var found = DatabaseManager.Select<User>(new[] {new Selector("Username", Username), new Selector("Password", Password), new Selector("CanLogin", true)});
+            var found = DatabaseManager.GetDatabaseManager(GetSupportedDatabaseType()).Select<User>(new[] {new Selector("Username", Username), new Selector("Password", Password), new Selector("CanLogin", true)});
             if (! found.Any()) 
                 return false;
             _loggedInUser = (User)found.First();

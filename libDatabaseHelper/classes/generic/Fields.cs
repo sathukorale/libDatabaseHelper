@@ -150,13 +150,13 @@ namespace libDatabaseHelper.classes.generic
                 {
                     var value = FieldValue1 is ICustomType ? (FieldValue1 as ICustomType).GetValue() : FieldValue1;
                     command.Parameters.AddWithValue("@" + Field + "1", value).DbType =
-                        FieldTools.GetType(FieldValue1.GetType());
+                        GenericFieldTools.GetType(FieldValue1.GetType());
                 }
                 if (!command.Parameters.Contains("@" + Field + "2"))
                 {
                     var value = FieldValue2 is ICustomType ? (FieldValue2 as ICustomType).GetValue() : FieldValue2;
                     command.Parameters.AddWithValue("@" + Field + "2", value).DbType =
-                        FieldTools.GetType(FieldValue2.GetType());
+                        GenericFieldTools.GetType(FieldValue2.GetType());
                 }
             }
             else
@@ -170,7 +170,7 @@ namespace libDatabaseHelper.classes.generic
                 {
                     var value = FieldValue1 is ICustomType ? (FieldValue1 as ICustomType).GetValue() : FieldValue1;
                     command.Parameters.AddWithValue("@" + Field, value).DbType =
-                        FieldTools.GetType(FieldValue1.GetType());
+                        GenericFieldTools.GetType(FieldValue1.GetType());
                 }
             }
             return selectorString;
