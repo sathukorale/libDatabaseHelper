@@ -3,6 +3,7 @@ using System.Windows.Forms;
 using System.Collections.Generic;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
+using System.Linq;
 
 namespace libDatabaseHelper.classes.generic
 {
@@ -35,6 +36,21 @@ namespace libDatabaseHelper.classes.generic
                 object obj = bf.Deserialize(ms);
                 return obj;
             }
+        }
+
+        public static string CreateFolderStructure(string file)
+        {
+            var segments = file.Split('\\').Where(i => i.Trim() != "");
+            string current_folder = "";
+            foreach (var segment in segments)
+            {
+                current_folder += segment + "\\";
+                if (!Directory.Exists(current_folder))
+                {
+                    Directory.CreateDirectory(current_folder);
+                }
+            }
+            return current_folder;
         }
     }
 }

@@ -133,7 +133,7 @@ namespace libDatabaseHelperUnitTests
         [TestInitialize]
         public void TEST_Setup()
         {
-            ConnectionManager.SetLocalDataFolder("libDBHelderSampleFolder1");
+            GenericUtils.CreateFolderStructure(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\libDBHelderSampleFolder1");
             ConnectionManager.SetConnectionString("Data Source=" + Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\libDBHelderSampleFolder1\\SampleDatabase1.sdf;Persist Security Info=False;");
 
             GenericDatabaseManager.RegisterDatbaseManager<DatabaseManager>();

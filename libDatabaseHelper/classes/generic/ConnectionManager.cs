@@ -54,6 +54,12 @@ namespace libDatabaseHelper.classes.generic
                 }
             }
 
+            var engine = new SqlCeEngine(_connectionString);
+            if (engine.Verify() == false)
+            {
+                engine.CreateDatabase();
+            }
+
             var connectionCreated = new SqlCeConnection(_connectionString);
             try
             {
@@ -70,6 +76,10 @@ namespace libDatabaseHelper.classes.generic
         public static void SetLocalDataFolder(string localDataFolder)
         {
             _localDataFolder = localDataFolder;
+            if (Directory.Exists(_localDataFolder) == false)
+            {
+                GenericUtils.CreateFolderStructure(_localDataFolder);
+            }
         }
 
         public static bool GetLocalSettings()
@@ -131,7 +141,6 @@ namespace libDatabaseHelper.classes.generic
                     catch { }
                 }
             }
-
 
             if (File.Exists(dbFilePath) == false)
             {
