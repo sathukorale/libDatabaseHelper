@@ -25,3 +25,6 @@ public class TableName : DatabaseEntity
 
 ## Issues :
 * *Pending...*
+
+## Current Build and Tests Status
+Latest Build Status (via Snap CI): [![Build Status](https://snap-ci.com/qJdv1q8E_fvKesyStj8nyhtXGwsk8nEbV0h_6g317Es/build_image)](https://snap-ci.com/sathukorale/libDatabaseHelper/branch/master)
