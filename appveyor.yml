@@ -1,14 +1,4 @@
 version: 1.0.{build}
-matrix:
-  allow_failures:
-    - configuration: Release
-      platform: x64
-      
-configuration:
-  - Release
-  
-platform:
-  - x86
   
 before_build:
   - nuget restore
