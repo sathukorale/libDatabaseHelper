@@ -6,7 +6,7 @@ using System.Windows.Forms;
 
 namespace libDatabaseHelper.classes.generic
 {
-    class FormUtils
+    public class FormUtils
     {
         struct ControlDetails
         {

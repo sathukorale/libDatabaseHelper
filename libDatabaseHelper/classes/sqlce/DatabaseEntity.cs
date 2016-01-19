@@ -22,75 +22,12 @@ namespace libDatabaseHelper.classes.sqlce
         {
         }
 
-        public new DatabaseType FetchDatbaseType()
+        protected override DatabaseType FetchDatbaseType()
         {
             return DatabaseType.SqlCE;
         }
 
-        public static string GetSelectCommandString<T>()
-        {
-            return GetSelectCommandString(typeof(T));
-        }
-
-        public static string GetSelectCommandString(Type type)
-        {
-            if (selectCommandStrings.ContainsKey(type))
-                return selectCommandStrings[type];
-
-            var cInstanceName = type.Name + "_1";
-
-            var obj = Activator.CreateInstance(type) as DatabaseEntity;
-
-            if (obj == null) return "";
-
-            var fields = obj.GetColumns(true).GetOtherColumns().Where(i => ((TableColumn)i.GetCustomAttributes(typeof(TableColumn), true)[0]).IsRetrievableFromDatabase);
-
-            var selectList = "";
-            var dict = new Dictionary<Type, int>();
-
-            foreach (var fieldInfo in fields)
-            {
-                var attr = (TableColumn)fieldInfo.GetCustomAttributes(typeof(TableColumn), true)[0];
-                selectList += (selectList == "" ? "" : ", ");
-                if (attr.ReferencedField != null && attr.ReferencedClass != null)
-                {
-                    var i = 0;
-                    if (!dict.ContainsKey(attr.ReferencedClass))
-                    {
-                        dict.Add(attr.ReferencedClass, ++i);
-                    }
-                    else
-                    {
-                        i = dict[attr.ReferencedClass];
-                        dict[attr.ReferencedClass] = ++i;
-                    }
-
-                    var cobj = (Activator.CreateInstance(attr.ReferencedClass) as IComboBoxItem);
-                    if (cobj == null)
-                    {
-                        throw new DatabaseEntityException("Invalid referee class specified. The type specified : " + attr.ReferencedClass.Name + ", should be of type IComboBoxItem");
-                    }
-
-                    selectList += "(CASE WHEN " + cInstanceName + "." + fieldInfo.Name + " IN ( SELECT " + attr.ReferencedField + " FROM " +
-                                  attr.ReferencedClass.Name + " ) THEN (SELECT " +
-                                  cobj.GetSelectQueryItems().Replace("[OBJ]", attr.ReferencedClass.Name) + " FROM " +
-                                  attr.ReferencedClass.Name + " WHERE " + cInstanceName + "." + fieldInfo.Name + " = " + attr.ReferencedClass.Name + "." +
-                                  attr.ReferencedField + " LIMIT 1) ELSE \"\" END) as [" + attr.GridDisplayName + "]";
-                }
-                else
-                {
-                    selectList += cInstanceName + "." + fieldInfo.Name + " as [" + ((attr.GridDisplayName == null || attr.GridDisplayName.Trim() == "") ? fieldInfo.Name : attr.GridDisplayName) + "]";
-                }
-            }
-
-            var selectCommand = "SELECT " + selectList + " FROM " + type.Name + " " + cInstanceName /*+ innerJoinQuery*/;
-
-            selectCommandStrings.Add(type, selectCommand);
-
-            return selectCommand;
-        }
-
-        public new bool Add()
+        public override bool Add()
         {
             ExistCondition condition;
             if (((condition = Exist(false)) & ExistCondition.None) != ExistCondition.None)
@@ -143,7 +80,7 @@ namespace libDatabaseHelper.classes.sqlce
             return true;
         }
 
-        public new bool Update()
+        public override bool Update()
         {
             ExistCondition condition;
             if ((condition = Exist()) != ExistCondition.RecordExists)
@@ -206,7 +143,7 @@ namespace libDatabaseHelper.classes.sqlce
             return true;
         }
 
-        public new bool Remove()
+        public override bool Remove()
         {
             ExistCondition condition;
             if (((condition = Exist()) & ExistCondition.RecordExists) == 0)
@@ -262,12 +199,7 @@ namespace libDatabaseHelper.classes.sqlce
             return true;
         }
 
-        public new GenericDatabaseEntity.ExistCondition Exist()
-        {
-            return Exist(true);
-        }
-
-        public new GenericDatabaseEntity.ExistCondition Exist(bool onlyCheck)
+        public override GenericDatabaseEntity.ExistCondition Exist(bool onlyCheck)
         {
             var result = GetColumns(true);
             if (result == null || result.GetPrimaryKeys() == null || !result.GetPrimaryKeys().Any())
@@ -336,6 +268,69 @@ namespace libDatabaseHelper.classes.sqlce
                 return ExistCondition.None;
 
             return (cell != null ? ExistCondition.RecordExists : 0) | (hadData ? ExistCondition.UniqueKeyExists : 0);
+        }
+
+        public static string GetSelectCommandString<T>()
+        {
+            return GetSelectCommandString(typeof(T));
+        }
+
+        public static string GetSelectCommandString(Type type)
+        {
+            if (selectCommandStrings.ContainsKey(type))
+                return selectCommandStrings[type];
+
+            var cInstanceName = type.Name + "_1";
+
+            var obj = Activator.CreateInstance(type) as DatabaseEntity;
+
+            if (obj == null) return "";
+
+            var fields = obj.GetColumns(true).GetOtherColumns().Where(i => ((TableColumn)i.GetCustomAttributes(typeof(TableColumn), true)[0]).IsRetrievableFromDatabase);
+
+            var selectList = "";
+            var dict = new Dictionary<Type, int>();
+
+            foreach (var fieldInfo in fields)
+            {
+                var attr = (TableColumn)fieldInfo.GetCustomAttributes(typeof(TableColumn), true)[0];
+                selectList += (selectList == "" ? "" : ", ");
+                if (attr.ReferencedField != null && attr.ReferencedClass != null)
+                {
+                    var i = 0;
+                    if (!dict.ContainsKey(attr.ReferencedClass))
+                    {
+                        dict.Add(attr.ReferencedClass, ++i);
+                    }
+                    else
+                    {
+                        i = dict[attr.ReferencedClass];
+                        dict[attr.ReferencedClass] = ++i;
+                    }
+
+                    var cobj = (Activator.CreateInstance(attr.ReferencedClass) as IComboBoxItem);
+                    if (cobj == null)
+                    {
+                        throw new DatabaseEntityException("Invalid referee class specified. The type specified : " + attr.ReferencedClass.Name + ", should be of type IComboBoxItem");
+                    }
+
+                    selectList += "(CASE WHEN " + cInstanceName + "." + fieldInfo.Name + " IN ( SELECT " + attr.ReferencedField + " FROM " +
+                                  attr.ReferencedClass.Name + " ) THEN (SELECT " +
+                                  cobj.GetSelectQueryItems().Replace("[OBJ]", attr.ReferencedClass.Name) + " FROM " +
+                                  attr.ReferencedClass.Name + " WHERE " + cInstanceName + "." + fieldInfo.Name + " = " + attr.ReferencedClass.Name + "." +
+                                  attr.ReferencedField + " LIMIT 1) ELSE \"\" END) as [" + attr.GridDisplayName + "]";
+                }
+                else
+                {
+                    selectList += cInstanceName + "." + fieldInfo.Name + " as [" + ((attr.GridDisplayName == null || attr.GridDisplayName.Trim() == "") ? fieldInfo.Name : attr.GridDisplayName) + "]";
+                }
+            }
+
+            var selectCommand = "SELECT " + selectList + " FROM " + type.Name + " " + cInstanceName /*+ innerJoinQuery*/;
+
+            selectCommandStrings.Add(type, selectCommand);
+
+            return selectCommand;
         }
 
         public static object Autogen(string table, string field)

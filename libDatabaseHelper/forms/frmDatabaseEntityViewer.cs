@@ -22,7 +22,7 @@ namespace libDatabaseHelper.forms
         private Selector[] _selectors;
         private Type _currentType;
 
-        public frmDatabaseEntityViewer()
+        private frmDatabaseEntityViewer()
         {
             InitializeComponent();
             FormUtils.MakeControlAndSubControlsSensitiveToKey(this, new[] { Keys.Escape }, o => { Close(); return 0; });
@@ -53,6 +53,11 @@ namespace libDatabaseHelper.forms
         public static void ShowWindow<T>(Selector[] selectors)
         {
             ShowWindow(typeof(T), selectors);
+        }
+
+        public static frmDatabaseEntityViewer ShowNonModalWindow<T>(Selector[] selectors)
+        {
+            return ShowNonModalWindow(typeof(T), selectors);
         }
 
         public static Result ShowAndGetItems<T>(Selector[] selectors)
@@ -87,11 +92,9 @@ namespace libDatabaseHelper.forms
 
             btnAddDatabaseEntity.Enabled = _registeredEditorTypes.ContainsKey(type);
 
-            //var tblData = new DataTable();
-            //DatabaseManager.FillDataTable(type, ref tblData, selectors, 0);
-            //dgvDatabaseEntities.DataSource = tblData;
 
-            GenericDatabaseManager.GetDatabaseManager(DatabaseType.MySQL).FillDataGridViewAsItems(_currentType, ref dgvDatabaseEntities, selectors);
+            var instance = Activator.CreateInstance(type) as GenericDatabaseEntity;
+            GenericDatabaseManager.GetDatabaseManager(instance.GetSupportedDatabaseType()).FillDataGridViewAsItems(_currentType, ref dgvDatabaseEntities, selectors);
         }
 
         public static void ShowWindow(Type type, Selector[] selectors)
@@ -102,6 +105,17 @@ namespace libDatabaseHelper.forms
             _presentedForms[type] = presentedForm;
             presentedForm.ViewItems(type, selectors);
             presentedForm.ShowDialog();
+        }
+
+        public static frmDatabaseEntityViewer ShowNonModalWindow(Type type, Selector[] selectors)
+        {
+            var presentedForm = _presentedForms.ContainsKey(type) ? _presentedForms[type] : null;
+            if (presentedForm == null || presentedForm.IsDisposed)
+                presentedForm = new frmDatabaseEntityViewer();
+            _presentedForms[type] = presentedForm;
+            presentedForm.ViewItems(type, selectors);
+            presentedForm.Show();
+            return presentedForm;
         }
 
         public static Result ShowAndGetItems(Type type, Selector[] selectors)

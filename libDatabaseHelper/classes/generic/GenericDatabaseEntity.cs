@@ -103,18 +103,22 @@ namespace libDatabaseHelper.classes.generic
                 throw new ArgumentException("The class GenericDatabaseEntity is either not inherited or the database type is not by the child class.");
             }
 
-            var tableProperties = System.Attribute.GetCustomAttributes(this.GetType()).OfType<TableProperties>().FirstOrDefault(null);
-            if (tableProperties != null)
+            var classAttributes = System.Attribute.GetCustomAttributes(this.GetType());
+            if (classAttributes != null)
             {
-                if (tableProperties.Registration == TableProperties.RegistrationType.RegisterOnDatabaseManager)
+                var tableProperties = classAttributes.OfType<TableProperties>().FirstOrDefault();
+                if (tableProperties != null)
                 {
-                    GenericDatabaseManager.GetDatabaseManager(_supportedDatabase).CreateTable(this.GetType());
-                }
-                else if (tableProperties.Registration == TableProperties.RegistrationType.RegisterOnUniversalDataCollector)
-                {
-                    if (GenericDatabaseManager.GetDatabaseManager(_supportedDatabase).CreateTable(this.GetType()))
+                    if (tableProperties.Registration == TableProperties.RegistrationType.RegisterOnDatabaseManager)
                     {
-                        UniversalDataCollector.Register(this.GetType());
+                        GenericDatabaseManager.GetDatabaseManager(_supportedDatabase).CreateTable(this.GetType());
+                    }
+                    else if (tableProperties.Registration == TableProperties.RegistrationType.RegisterOnUniversalDataCollector)
+                    {
+                        if (GenericDatabaseManager.GetDatabaseManager(_supportedDatabase).CreateTable(this.GetType()))
+                        {
+                            UniversalDataCollector.Register(this.GetType());
+                        }
                     }
                 }
             }
@@ -153,17 +157,17 @@ namespace libDatabaseHelper.classes.generic
             }
         }
 
-        public bool Add()
+        public virtual bool Add()
         {
             throw new NotImplementedException("The class of type GenericDatabaseEntity is not intended for direct use and should be extended by a fellow DatabaseEntity");
         }
 
-        public bool Update()
+        public virtual bool Update()
         {
             throw new NotImplementedException("The class of type GenericDatabaseEntity is not intended for direct use and should be extended by a fellow DatabaseEntity");
         }
 
-        public bool Remove()
+        public virtual bool Remove()
         {
             throw new NotImplementedException("The class of type GenericDatabaseEntity is not intended for direct use and should be extended by a fellow DatabaseEntity");
         }
@@ -173,7 +177,7 @@ namespace libDatabaseHelper.classes.generic
             return Exist(true);
         }
 
-        public ExistCondition Exist(bool onlyCheck)
+        public virtual ExistCondition Exist(bool onlyCheck)
         {
             throw new NotImplementedException("The class of type GenericDatabaseEntity is not intended for direct use and should be extended by a fellow DatabaseEntity");
         }
@@ -709,7 +713,7 @@ namespace libDatabaseHelper.classes.generic
             return _supportedDatabase;
         }
 
-        protected DatabaseType FetchDatbaseType()
+        protected virtual DatabaseType FetchDatbaseType()
         {
             throw new NotImplementedException("The class of type GenericDatabaseEntity is not intended for direct use and should be extended by a fellow DatabaseEntity");
         }

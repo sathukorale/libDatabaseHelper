@@ -5,7 +5,18 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "libDatabaseHelper", "libDat
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseEntityFormGenerator", "DatabaseEntityFormGenerator\DatabaseEntityFormGenerator.csproj", "{02823CC7-B5AF-4BB5-AFF7-970380DDA1A8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "libDatabaseHelperUnitTests", "libDatabaseHelperUnitTests\libDatabaseHelperUnitTests.csproj", "{64F3ED1B-6DC6-41AA-A975-E4E07E7659DC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{BD306C58-0B91-4FA6-AA16-4386B9C30D6E}"
+	ProjectSection(SolutionItems) = preProject
+		libDatabaseHelper.vsmdi = libDatabaseHelper.vsmdi
+		LocalTestRun.testrunconfig = LocalTestRun.testrunconfig
+	EndProjectSection
+EndProject
 Global
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = libDatabaseHelper.vsmdi
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
@@ -19,6 +30,10 @@ Global
 		{02823CC7-B5AF-4BB5-AFF7-970380DDA1A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{02823CC7-B5AF-4BB5-AFF7-970380DDA1A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{02823CC7-B5AF-4BB5-AFF7-970380DDA1A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{64F3ED1B-6DC6-41AA-A975-E4E07E7659DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{64F3ED1B-6DC6-41AA-A975-E4E07E7659DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{64F3ED1B-6DC6-41AA-A975-E4E07E7659DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{64F3ED1B-6DC6-41AA-A975-E4E07E7659DC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

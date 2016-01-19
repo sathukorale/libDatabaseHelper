@@ -6,7 +6,7 @@ using System.Text;
 namespace libDatabaseHelper.classes.generic
 {
     [System.AttributeUsage(System.AttributeTargets.Class | System.AttributeTargets.Struct, AllowMultiple = false)]
-    class TableProperties : System.Attribute
+    public class TableProperties : System.Attribute
     {
         public enum RegistrationType
         { 

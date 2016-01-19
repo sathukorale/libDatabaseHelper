@@ -52,7 +52,7 @@ namespace libDatabaseHelper.classes.generic
             return TableExist(typeof(T));
         }
 
-        public bool TableExist(Type type)
+        public virtual bool TableExist(Type type)
         {
             throw new NotImplementedException("The class of type GenericDatabaseManager is not intended for direct use and should be extended by a fellow DatabaseManager");
         }
@@ -64,7 +64,7 @@ namespace libDatabaseHelper.classes.generic
             return CreateTable(typeof(T));
         }
 
-        public bool CreateTable(Type type)
+        public virtual bool CreateTable(Type type)
         {
             throw new NotImplementedException("The class of type GenericDatabaseManager is not intended for direct use and should be extended by a fellow DatabaseManager");
         }
@@ -76,7 +76,7 @@ namespace libDatabaseHelper.classes.generic
             return DropTable(typeof(T));
         }
 
-        public bool DropTable(Type type)
+        public virtual bool DropTable(Type type)
         {
             throw new NotImplementedException("The class of type GenericDatabaseManager is not intended for direct use and should be extended by a fellow DatabaseManager");
         }
@@ -98,7 +98,7 @@ namespace libDatabaseHelper.classes.generic
             return Select(typeof(T), selectors);
         }
 
-        public GenericDatabaseEntity[] Select(Type type, Selector[] selectors)
+        public virtual GenericDatabaseEntity[] Select(Type type, Selector[] selectors)
         {
             throw new NotImplementedException("The class of type GenericDatabaseManager is not intended for direct use and should be extended by a fellow DatabaseManager");
         }
@@ -120,7 +120,7 @@ namespace libDatabaseHelper.classes.generic
             return DeleteMatching(typeof(T), selectors);
         }
 
-        public bool DeleteMatching(Type type, Selector[] selectors)
+        public virtual bool DeleteMatching(Type type, Selector[] selectors)
         {
             throw new NotImplementedException("The class of type GenericDatabaseManager is not intended for direct use and should be extended by a fellow DatabaseManager");
         }
@@ -162,7 +162,7 @@ namespace libDatabaseHelper.classes.generic
             FillDataTable(typeof(T), ref table, selectors, limit);
         }
 
-        public void FillDataTable(Type type, ref DataTable table, Selector[] selectors, int limit)
+        public virtual void FillDataTable(Type type, ref DataTable table, Selector[] selectors, int limit)
         {
             throw new NotImplementedException("The class of type GenericDatabaseManager is not intended for direct use and should be extended by a fellow DatabaseManager");
         }
