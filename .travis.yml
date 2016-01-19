@@ -7,5 +7,5 @@ install:
   - nuget install NUnit.Runners -Version 2.6.4 -OutputDirectory testrunner
 script:
   - find -name *.csproj | xargs sed -i 's/ToolsVersion="3.5"/ToolsVersion="4.5"/g'
-  - find -name *.csproj | xargs sed -i 's/<TargetFrameworkVersion>v3.5<\/TargetFrameworkVersion>/<TargetFrameworkVersion>v3.5<\/TargetFrameworkVersion>/g'
+  - find -name *.csproj | xargs sed -i 's/<TargetFrameworkVersion>v3.5<\/TargetFrameworkVersion>/<TargetFrameworkVersion>v4.5<\/TargetFrameworkVersion>/g'
   - mono ./testrunner/NUnit.Runners.2.6.4/tools/nunit-console.exe ./libDatabaseHelperUnitTests/bin/Release/libDatabaseHelperUnitTests.dll
