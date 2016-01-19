@@ -6,8 +6,13 @@ matrix:
       
 configuration:
   - 2008
-
+  
+platform:
+  - x86
+  - x64
+  
 before_build:
   - nuget restore
+  
 build:
   verbosity: minimal
