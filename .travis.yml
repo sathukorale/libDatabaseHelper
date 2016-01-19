@@ -1,6 +1,8 @@
 ## Travis CI Integration
 
 language: csharp
+mono:
+  - 3.10.0
 solution: libDatabaseHelper.sln
 install:
   - nuget restore libDatabaseHelper.sln
