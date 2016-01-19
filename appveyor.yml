@@ -1,11 +1,11 @@
 version: 1.0.{build}
 matrix:
   allow_failures:
-    - configuration: 2008
+    - configuration: Release
       platform: x64
       
 configuration:
-  - 2008
+  - Release
   
 platform:
   - x86
