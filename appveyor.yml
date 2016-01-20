@@ -13,7 +13,7 @@ deploy:
   release: myproduct-v$(appveyor_build_version)
   provider: GitHub
   auth_token:
-    secure: 35311f98390f8fc7694a55a0c5a5a662a895bd8e
+    secure: UwlUsxmCnB4x74TJI5h/rhwxxw9YVcj0rjspm6YteHgQyDf5BDTVxNRSn6Z2QLAD
   artifact: libdatabasehelper\libDatabaseHelper\bin\Release\libDatabaseHelper.dll
   draft: true
   prerelease: true
