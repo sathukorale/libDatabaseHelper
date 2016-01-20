@@ -1,8 +1,5 @@
 version: 0.0.{build}
 
-platform:
-  - x86
-
 configuration:
   - Release
 
