@@ -70,12 +70,11 @@ namespace libDatabaseHelper.classes.sqlce
             if (autogenField != null)
                 autogenField.SetValue(this, GenericFieldTools.ConvertToType(autogenField.FieldType, valReturned));
 
-            if (this is AuditEntry) 
-                return true;
-
-            AuditEntry.AddAuditEntry(this, "Added ");
-
-            base._OnDatabaseEntityUpdated(this, GetType(), UpdateEventType.Add);
+            if ((this is AuditEntry) == false)
+            {
+                AuditEntry.AddAuditEntry(this, "Added ");
+                base._OnDatabaseEntityUpdated(this, GetType(), UpdateEventType.Add);
+            }
 
             return true;
         }
@@ -133,12 +132,12 @@ namespace libDatabaseHelper.classes.sqlce
             command.CommandText = commandString;
             if (command.ExecuteNonQuery() <= 0)
                 return false;
-            if (this is AuditEntry) 
-                return true;
 
-            AuditEntry.AddAuditEntry(this, "Updated ");
-
-            base._OnDatabaseEntityUpdated(this, GetType(), UpdateEventType.Update);
+            if ((this is AuditEntry) == false)
+            {
+                AuditEntry.AddAuditEntry(this, "Added ");
+                base._OnDatabaseEntityUpdated(this, GetType(), UpdateEventType.Update);
+            }
 
             return true;
         }
@@ -189,12 +188,11 @@ namespace libDatabaseHelper.classes.sqlce
             if (command.ExecuteNonQuery() <= 0)
                 return false;
 
-            if (this is AuditEntry) 
-                return true;
-
-            AuditEntry.AddAuditEntry(this, "Removed ");
-
-            base._OnDatabaseEntityUpdated(this, GetType(), UpdateEventType.Remove);
+            if ((this is AuditEntry) == false)
+            {
+                AuditEntry.AddAuditEntry(this, "Added ");
+                base._OnDatabaseEntityUpdated(this, GetType(), UpdateEventType.Remove);
+            }
 
             return true;
         }

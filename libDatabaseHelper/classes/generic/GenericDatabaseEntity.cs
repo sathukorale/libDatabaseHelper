@@ -5,6 +5,7 @@ using System.Text;
 using System.Reflection;
 using System.Data.Common;
 using System.Windows.Forms;
+using libDatabaseHelper.classes.sqlce.entities;
 
 namespace libDatabaseHelper.classes.generic
 {
@@ -74,6 +75,7 @@ namespace libDatabaseHelper.classes.generic
         protected static Dictionary<Type, List<Reference>> referenceMap = new Dictionary<Type, List<Reference>>();
         protected static Dictionary<Type, FieldInfomation> fieldInfos = new Dictionary<Type, FieldInfomation>();
         protected static Dictionary<Type, string> selectCommandStrings = new Dictionary<Type, string>();
+        private static List<Type> _registeredTypes = new List<Type>();
 
         public delegate void UpdateEvent(GenericDatabaseEntity updatedEntity, Type type, GenericDatabaseEntity.UpdateEventType event_type);
         public static event UpdateEvent OnDatabaseEntityUpdated;
@@ -103,21 +105,34 @@ namespace libDatabaseHelper.classes.generic
                 throw new ArgumentException("The class GenericDatabaseEntity is either not inherited or the database type is not by the child class.");
             }
 
+            if (this is User)
+            {
+                Console.WriteLine("");
+            }
+
             var classAttributes = System.Attribute.GetCustomAttributes(this.GetType());
-            if (classAttributes != null)
+            if (classAttributes != null && _registeredTypes.Contains(this.GetType()) == false)
             {
                 var tableProperties = classAttributes.OfType<TableProperties>().FirstOrDefault();
                 if (tableProperties != null)
                 {
+                    _registeredTypes.Add(this.GetType());
                     if (tableProperties.Registration == TableProperties.RegistrationType.RegisterOnDatabaseManager)
                     {
-                        GenericDatabaseManager.GetDatabaseManager(_supportedDatabase).CreateTable(this.GetType());
+                        if (GenericDatabaseManager.GetDatabaseManager(_supportedDatabase).CreateTable(this.GetType()) == false)
+                        {
+                            _registeredTypes.Remove(this.GetType());
+                        }
                     }
                     else if (tableProperties.Registration == TableProperties.RegistrationType.RegisterOnUniversalDataCollector)
                     {
                         if (GenericDatabaseManager.GetDatabaseManager(_supportedDatabase).CreateTable(this.GetType()))
                         {
                             UniversalDataCollector.Register(this.GetType());
+                        }
+                        else
+                        {
+                            _registeredTypes.Remove(this.GetType());
                         }
                     }
                 }
