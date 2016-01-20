@@ -2,12 +2,13 @@
 using System.Text;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 using libDatabaseHelper.classes.sqlce;
 using libDatabaseHelper.classes.generic;
 using libDatabaseHelperUnitTests.forms;
 using libDatabaseHelper.forms;
+using System.IO;
 
 namespace libDatabaseHelperUnitTests
 {
@@ -68,7 +69,7 @@ namespace libDatabaseHelperUnitTests
     /// <summary>
     /// Summary description for GenericTests
     /// </summary>
-    [TestClass]
+    [TestFixture]
     public class GenericTests
     {
         public GenericTests()
@@ -130,11 +131,22 @@ namespace libDatabaseHelperUnitTests
         //
         #endregion
 
-        [TestInitialize]
+        [SetUp]
         public void TEST_Setup()
         {
+            ConnectionManager.CloseAllConnections();
+            var dbFile = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\libDBHelderSampleFolder1\\SampleDatabase1.sdf";
+            try
+            {
+                if (File.Exists(dbFile))
+                { 
+                    File.Delete(dbFile);
+                }
+            }
+            catch (System.Exception) {}
+
             GenericUtils.CreateFolderStructure(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\libDBHelderSampleFolder1");
-            ConnectionManager.SetConnectionString("Data Source=" + Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\libDBHelderSampleFolder1\\SampleDatabase1.sdf;Persist Security Info=False;");
+            ConnectionManager.SetConnectionString("Data Source=" + dbFile + ";Persist Security Info=False;");
 
             GenericDatabaseManager.RegisterDatbaseManager<DatabaseManager>();
 
@@ -145,7 +157,7 @@ namespace libDatabaseHelperUnitTests
             Assert.IsTrue(ConnectionManager.GetConnection() != null);
         }
 
-        [TestCleanup]
+        [TearDown]
         public void TEST_Cleanup()
         {
             GenericDatabaseManager.GetDatabaseManager(DatabaseType.SqlCE).DropTable<SampleTable1>();
@@ -158,7 +170,7 @@ namespace libDatabaseHelperUnitTests
             Assert.IsFalse(GenericDatabaseManager.GetDatabaseManager(DatabaseType.SqlCE).TableExist<InvalidSampleTable3_NoPrimaryKey>());
         }
 
-        [TestMethod]
+        [Test]
         public void CreateAndDrop_SampleTable1()
         {
             GenericDatabaseManager.GetDatabaseManager(DatabaseType.SqlCE).CreateTable<SampleTable1>();
@@ -168,7 +180,7 @@ namespace libDatabaseHelperUnitTests
             Assert.IsFalse(GenericDatabaseManager.GetDatabaseManager(DatabaseType.SqlCE).TableExist<SampleTable1>());
         }
 
-        [TestMethod]
+        [Test]
         public void CreateInsertAndDeleteSingle_SampleTable1()
         {
             GenericDatabaseManager.GetDatabaseManager(DatabaseType.SqlCE).CreateTable<SampleTable1>();
@@ -193,7 +205,7 @@ namespace libDatabaseHelperUnitTests
             Assert.IsTrue(fetched_entries.Length == 0);
         }
 
-        [TestMethod]
+        [Test]
         public void CreateInsertAndDeleteMultiple1_SampleTable1()
         {
             GenericDatabaseManager.GetDatabaseManager(DatabaseType.SqlCE).CreateTable<SampleTable1>();
@@ -221,7 +233,7 @@ namespace libDatabaseHelperUnitTests
             }
         }
 
-        [TestMethod]
+        [Test]
         public void CreateInsertAndDeleteMultiple2_SampleTable1()
         {
             GenericDatabaseManager.GetDatabaseManager(DatabaseType.SqlCE).CreateTable<SampleTable1>();
@@ -241,7 +253,7 @@ namespace libDatabaseHelperUnitTests
             Assert.IsTrue(GenericDatabaseManager.GetDatabaseManager(DatabaseType.SqlCE).Select<SampleTable1>().Length == 0);
         }
 
-        [TestMethod]
+        [Test]
         public void CreateInsertUpdateAndDeleteMultiple_SampleTable1()
         {
             GenericDatabaseManager.GetDatabaseManager(DatabaseType.SqlCE).CreateTable<SampleTable1>();
@@ -274,7 +286,7 @@ namespace libDatabaseHelperUnitTests
             Assert.IsTrue(GenericDatabaseManager.GetDatabaseManager(DatabaseType.SqlCE).Select<SampleTable1>().Length == 0);
         }
 
-        [TestMethod]
+        [Test]
         public void CreateDuplicateInsert_SampleTable1()
         {
             GenericDatabaseManager.GetDatabaseManager(DatabaseType.SqlCE).CreateTable<SampleTable1>();
@@ -309,7 +321,7 @@ namespace libDatabaseHelperUnitTests
             Assert.IsFalse(GenericDatabaseManager.GetDatabaseManager(DatabaseType.SqlCE).TableExist<SampleTable1>());
         }
 
-        [TestMethod]
+        [Test]
         public void SelectStringGenerationTest_SampleTable1_2()
         {
             var generated_string1 = DatabaseEntity.GetSelectCommandString<SampleTable1>();
@@ -319,7 +331,7 @@ namespace libDatabaseHelperUnitTests
             Assert.AreEqual(generated_string2, "SELECT SampleTable2_1.Column1 as [Column 1], SampleTable2_1.Column2 as [Column 2], (CASE WHEN SampleTable2_1.Column3 IN ( SELECT Column1 FROM SampleTable1 ) THEN (SELECT SampleTable1.Column2 FROM SampleTable1 WHERE SampleTable2_1.Column3 = SampleTable1.Column1 LIMIT 1) ELSE \"\" END) as [Column 3] FROM SampleTable2 SampleTable2_1");
         }
 
-        [TestMethod]
+        [Test]
         public void CheckEqualObjects()
         {
             var entry_1 = new SampleTable1 { Column1 = 1, Column2 = "Sample Data" };
@@ -328,7 +340,7 @@ namespace libDatabaseHelperUnitTests
             Assert.IsTrue(entry_1.Equals(entry_2));
         }
 
-        [TestMethod]
+        [Test]
         public void ReferenceCheckValidation_SampleTable2()
         {
             GenericDatabaseManager.GetDatabaseManager(DatabaseType.SqlCE).CreateTable<SampleTable1>();
@@ -350,7 +362,7 @@ namespace libDatabaseHelperUnitTests
             Assert.IsFalse(Relationship.CheckReferences(inserted_entry));
         }
 
-        [TestMethod]
+        [Test]
         public void ReferenceKeyViolationException_SampleTable1_2()
         {
             GenericDatabaseManager.GetDatabaseManager(DatabaseType.SqlCE).CreateTable<SampleTable1>();
@@ -391,7 +403,7 @@ namespace libDatabaseHelperUnitTests
             Assert.IsTrue(GenericDatabaseManager.GetDatabaseManager(DatabaseType.SqlCE).Select<SampleTable1>(new[] { new Selector("Column1", inserted_entry.Column1) }).Length == 1);
         }
 
-        [TestMethod]
+        [Test]
         public void AttemptActionsOnTableWithNoPrimaryKey_SampleTable3()
         {
             try
@@ -425,7 +437,7 @@ namespace libDatabaseHelperUnitTests
             }
         }
 
-        [TestMethod]
+        [Test]
         public void AttemptOnCreatingTableWithNoColumns_SampleTable4()
         {
             try
@@ -459,7 +471,7 @@ namespace libDatabaseHelperUnitTests
             }
         }
 
-        [TestMethod]
+        [Test]
         public void LoadingItemToDbEntityForm()
         {
             GenericDatabaseManager.GetDatabaseManager(DatabaseType.SqlCE).CreateTable<SampleTable1>();
@@ -473,7 +485,7 @@ namespace libDatabaseHelperUnitTests
             Assert.IsTrue(inserted_entry.Equals(retrieved_entry));
         }
 
-        [TestMethod]
+        [Test]
         public void LoadingItemsToDatabaseEntityViewer()
         {
             GenericDatabaseManager.GetDatabaseManager(DatabaseType.SqlCE).CreateTable<SampleTable1>();

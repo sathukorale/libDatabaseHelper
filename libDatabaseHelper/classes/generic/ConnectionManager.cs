@@ -10,6 +10,7 @@ using libDatabaseHelper.forms;
 using libDatabaseHelper.Properties;
 using libDatabaseHelper.classes.sqlce;
 using libDatabaseHelper.classes.sqlce.entities;
+using System.Data.SqlClient;
 
 namespace libDatabaseHelper.classes.generic
 {
@@ -54,9 +55,11 @@ namespace libDatabaseHelper.classes.generic
                 }
             }
 
-            var engine = new SqlCeEngine(_connectionString);
-            if (engine.Verify() == false)
+            var builder = new SqlConnectionStringBuilder(_connectionString);
+            
+            if (File.Exists(builder.DataSource) == false)
             {
+                var engine = new SqlCeEngine(_connectionString);
                 engine.CreateDatabase();
             }
 
@@ -204,22 +207,28 @@ namespace libDatabaseHelper.classes.generic
 
         public static void CloseAllConnections()
         {
-            foreach (var connection in _listOfConnections)
+            if (_listOfConnections != null)
             {
-                try
+                foreach (var connection in _listOfConnections)
                 {
-                    connection.Close();
+                    try
+                    {
+                        connection.Close();
+                    }
+                    catch { }
                 }
-                catch {}
             }
 
-            foreach (var connection in _listOfLocalConnections)
+            if (_listOfLocalConnections != null)
             {
-                try
+                foreach (var connection in _listOfLocalConnections)
                 {
-                    connection.Close();
+                    try
+                    {
+                        connection.Close();
+                    }
+                    catch { }
                 }
-                catch { }
             }
         }
     }
