@@ -1,5 +1,11 @@
-version: 1.0.{build}
-  
+version: 0.0.{build}
+
+platform:
+  - x86
+
+configuration:
+  - Release
+
 before_build:
   - nuget restore
   
