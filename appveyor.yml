@@ -6,11 +6,19 @@ configuration:
 before_build:
   - nuget restore
   
+after_build:
+  - ps: >-
+    if(![System.IO.Directory]::Exists("deploy")){
+        mkdir deploy
+    }
+    cp libDatabaseHelper\bin\Release\libDatabaseHelper.dll deploy\libDatabaseHelper.dll
+    cp DatabaseEntityFormGenerator\bin\Release\DatabaseEntityFormGenerator.exe deploy\DatabaseEntityFormGenerator.exe
+  
 build:
   verbosity: minimal
 
 artifacts:
-- path: libDatabaseHelper\bin\Release\libDatabaseHelper.dll
+- path: deploy
   name: default_setup
 
 deploy:
