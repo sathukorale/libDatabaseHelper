@@ -10,8 +10,8 @@ build:
   verbosity: minimal
 
 after_build:
+  - del /s deploy\*.pdb
   - 7z a builds_v%APPVEYOR_BUILD_VERSION%.zip deploy\*
-  - cmd: dir
   - appveyor PushArtifact builds_v%APPVEYOR_BUILD_VERSION%.zip
 
 deploy:
