@@ -12,6 +12,7 @@ build:
 artifacts:
 - path: deploy
   name: default_setup
+  type: zip
 
 deploy:
   release: myproduct-v$(appveyor_build_version)

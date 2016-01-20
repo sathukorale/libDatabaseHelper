@@ -75,6 +75,7 @@ namespace libDatabaseHelper.classes.generic
         protected static Dictionary<Type, List<Reference>> referenceMap = new Dictionary<Type, List<Reference>>();
         protected static Dictionary<Type, FieldInfomation> fieldInfos = new Dictionary<Type, FieldInfomation>();
         protected static Dictionary<Type, string> selectCommandStrings = new Dictionary<Type, string>();
+        private static Dictionary<Type, GenericDatabaseEntity> nonDisposableReferenceObjects = new Dictionary<Type, GenericDatabaseEntity>();
         private static List<Type> _registeredTypes = new List<Type>();
 
         public delegate void UpdateEvent(GenericDatabaseEntity updatedEntity, Type type, GenericDatabaseEntity.UpdateEventType event_type);
@@ -105,7 +106,7 @@ namespace libDatabaseHelper.classes.generic
                 throw new ArgumentException("The class GenericDatabaseEntity is either not inherited or the database type is not by the child class.");
             }
 
-            if (this is User)
+            if (this is AuditEntry)
             {
                 Console.WriteLine("");
             }
@@ -119,20 +120,13 @@ namespace libDatabaseHelper.classes.generic
                     _registeredTypes.Add(this.GetType());
                     if (tableProperties.Registration == TableProperties.RegistrationType.RegisterOnDatabaseManager)
                     {
-                        if (GenericDatabaseManager.GetDatabaseManager(_supportedDatabase).CreateTable(this.GetType()) == false)
-                        {
-                            _registeredTypes.Remove(this.GetType());
-                        }
+                        GenericDatabaseManager.GetDatabaseManager(_supportedDatabase).CreateTable(this.GetType());
                     }
                     else if (tableProperties.Registration == TableProperties.RegistrationType.RegisterOnUniversalDataCollector)
                     {
                         if (GenericDatabaseManager.GetDatabaseManager(_supportedDatabase).CreateTable(this.GetType()))
                         {
                             UniversalDataCollector.Register(this.GetType());
-                        }
-                        else
-                        {
-                            _registeredTypes.Remove(this.GetType());
                         }
                     }
                 }
@@ -792,6 +786,26 @@ namespace libDatabaseHelper.classes.generic
                     return false;
             }
             return true;
+        }
+
+        public static GenericDatabaseEntity GetNonDisposableRefenceObject<T>()
+        {
+            return GetNonDisposableRefenceObject(typeof(T));
+        }
+
+        public static GenericDatabaseEntity GetNonDisposableRefenceObject(Type type)
+        {
+            if (nonDisposableReferenceObjects.ContainsKey(type))
+            {
+                return nonDisposableReferenceObjects[type];
+            }
+
+            var instance = Activator.CreateInstance(type) as GenericDatabaseEntity;
+            if (instance != null)
+            {
+                nonDisposableReferenceObjects[type] = instance;
+            }
+            return instance;
         }
     }
 }

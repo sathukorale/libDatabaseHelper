@@ -20,7 +20,7 @@ namespace libDatabaseHelper.classes.sqlce
 
         public override bool TableExist(Type type)
         {
-            var entity = Activator.CreateInstance(type) as DatabaseEntity;
+            var entity = GenericDatabaseEntity.GetNonDisposableRefenceObject(type);
             if (entity == null)
                 return false;
 
@@ -112,7 +112,7 @@ namespace libDatabaseHelper.classes.sqlce
 
         public override bool CreateTable(Type type)
         {
-            var obj = Activator.CreateInstance(type) as DatabaseEntity;
+            var obj = GenericDatabaseEntity.GetNonDisposableRefenceObject(type);
             if (obj == null)
             {
                 return false;
@@ -178,7 +178,7 @@ namespace libDatabaseHelper.classes.sqlce
 
         public override bool DropTable(Type type)
         {
-            var obj = Activator.CreateInstance(type) as DatabaseEntity;
+            var obj = GenericDatabaseEntity.GetNonDisposableRefenceObject(type);
             if (obj == null)
             {
                 return false;
@@ -211,7 +211,7 @@ namespace libDatabaseHelper.classes.sqlce
 
         public override GenericDatabaseEntity[] Select(Type type, Selector[] selectors)
         {
-            var obj = Activator.CreateInstance(type) as DatabaseEntity;
+            var obj = GenericDatabaseEntity.GetNonDisposableRefenceObject(type);
             if (obj == null) return new DatabaseEntity[0];
             var result = obj.GetColumns(true);
             if (result == null || result.GetPrimaryKeys() == null || !result.GetPrimaryKeys().Any())
@@ -247,7 +247,7 @@ namespace libDatabaseHelper.classes.sqlce
 
         public override bool DeleteMatching(Type type, Selector[] selectors)
         {
-            var obj = Activator.CreateInstance(type) as DatabaseEntity;
+            var obj = GenericDatabaseEntity.GetNonDisposableRefenceObject(type);
             if (obj == null) return false;
             var result = obj.GetColumns(true);
             if (result == null || result.GetPrimaryKeys() == null || !result.GetPrimaryKeys().Any())
@@ -278,7 +278,7 @@ namespace libDatabaseHelper.classes.sqlce
 
         public override void FillDataTable(Type type, ref DataTable table, Selector[] selectors, int limit)
         {
-            var obj = Activator.CreateInstance(type) as DatabaseEntity;
+            var obj = GenericDatabaseEntity.GetNonDisposableRefenceObject(type);
             if (obj == null)
                 return;
 

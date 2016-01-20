@@ -148,7 +148,7 @@ namespace libDatabaseHelperUnitTests
             GenericUtils.CreateFolderStructure(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\libDBHelderSampleFolder1");
             ConnectionManager.SetConnectionString("Data Source=" + dbFile + ";Persist Security Info=False;");
 
-            GenericDatabaseManager.RegisterDatbaseManager<DatabaseManager>();
+            GenericDatabaseManager.RegisterDatbaseManager<DatabaseManager>(true);
 
             GenericDatabaseManager.GetDatabaseManager(DatabaseType.SqlCE).DropTable<SampleTable1>();
             GenericDatabaseManager.GetDatabaseManager(DatabaseType.SqlCE).DropTable<SampleTable2>();

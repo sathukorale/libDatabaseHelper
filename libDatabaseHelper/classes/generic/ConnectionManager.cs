@@ -184,13 +184,6 @@ namespace libDatabaseHelper.classes.generic
             _connectionString = connectionString;
             try
             {
-                try
-                {
-                    GenericDatabaseManager.GetDatabaseManager(DatabaseType.SqlCE).CreateTable<User>();
-                    GenericDatabaseManager.GetDatabaseManager(DatabaseType.SqlCE).CreateTable<AuditEntry>();
-                }
-                catch {}
-
                 using (var connection = GetLocalConnection())
                 {
                     var command = connection.CreateCommand();

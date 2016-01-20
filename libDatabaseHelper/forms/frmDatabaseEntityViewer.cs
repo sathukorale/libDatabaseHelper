@@ -92,8 +92,7 @@ namespace libDatabaseHelper.forms
 
             btnAddDatabaseEntity.Enabled = _registeredEditorTypes.ContainsKey(type);
 
-
-            var instance = Activator.CreateInstance(type) as GenericDatabaseEntity;
+            var instance = GenericDatabaseEntity.GetNonDisposableRefenceObject(type);
             GenericDatabaseManager.GetDatabaseManager(instance.GetSupportedDatabaseType()).FillDataGridViewAsItems(_currentType, ref dgvDatabaseEntities, selectors);
         }
 

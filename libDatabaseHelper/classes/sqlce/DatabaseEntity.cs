@@ -280,7 +280,7 @@ namespace libDatabaseHelper.classes.sqlce
 
             var cInstanceName = type.Name + "_1";
 
-            var obj = Activator.CreateInstance(type) as DatabaseEntity;
+            var obj = GenericDatabaseEntity.GetNonDisposableRefenceObject(type);
 
             if (obj == null) return "";
 

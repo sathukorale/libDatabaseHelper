@@ -212,7 +212,7 @@ namespace libDatabaseHelper.classes.generic
             FillDataTable(type, ref table, selectors, limit);
             grid.DataSource = table;
 
-            var databaseEntity = Activator.CreateInstance(type) as GenericDatabaseEntity;
+            var databaseEntity = GenericDatabaseEntity.GetNonDisposableRefenceObject(type);
             if (databaseEntity != null)
             {
                 var fields = databaseEntity.GetColumns(true).GetOtherColumns().Where(i => false);
@@ -293,7 +293,7 @@ namespace libDatabaseHelper.classes.generic
                 {
                     try
                     {
-                        var entity = Activator.CreateInstance(type) as GenericDatabaseEntity;
+                        var entity = GenericDatabaseEntity.GetNonDisposableRefenceObject(type);
                         if (entity == null) continue;
                         entity.Parse(reader);
                         list.Add(entity);
@@ -317,6 +317,19 @@ namespace libDatabaseHelper.classes.generic
         }
         #endregion
 
+        protected void _OnBulkDelete(Type type, Selector[] selectors)
+        { 
+            if (OnBulkDelete != null)
+            {
+                OnBulkDelete(type, selectors);
+            }
+        }
+
+        public static void RegisterDatabaseManager(GenericDatabaseManager databaseManager)
+        {
+            RegisterDatabaseManager(databaseManager, false);
+        }
+
         public static void RegisterDatbaseManager<T>()
         {
             RegisterDatabaseManager(typeof(T));
@@ -331,17 +344,27 @@ namespace libDatabaseHelper.classes.generic
             }
         }
 
-        protected void _OnBulkDelete(Type type, Selector[] selectors)
-        { 
-            if (OnBulkDelete != null)
+        public static void RegisterDatbaseManager<T>(bool forceRegistration)
+        {
+            RegisterDatabaseManager(typeof(T), forceRegistration);
+        }
+
+        public static void RegisterDatabaseManager(Type type, bool forceRegistration)
+        {
+            var instance = Activator.CreateInstance(type) as GenericDatabaseManager;
+            if (instance != null)
             {
-                OnBulkDelete(type, selectors);
+                RegisterDatabaseManager(instance);
             }
         }
 
-        public static void RegisterDatabaseManager(GenericDatabaseManager databaseManager)
-        { 
-            if (_registeredDatabaseManagers.ContainsKey(databaseManager.GetSupportedDatabase()) == false)
+        public static void RegisterDatabaseManager(GenericDatabaseManager databaseManager, bool forceRegistration)
+        {
+            if (forceRegistration)
+            {
+                _registeredDatabaseManagers[databaseManager.GetSupportedDatabase()] = databaseManager;
+            }
+            else if (_registeredDatabaseManagers.ContainsKey(databaseManager.GetSupportedDatabase()) == false)
             {
                 _registeredDatabaseManagers[databaseManager.GetSupportedDatabase()] = databaseManager;
             }

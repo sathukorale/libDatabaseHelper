@@ -42,7 +42,7 @@ namespace DatabaseEntityFormCreator
 
                 foreach (var type in matchingTypes)
                 {
-                    var instance = Activator.CreateInstance(type) as DatabaseEntity;
+                    var instance = GenericDatabaseEntity.GetNonDisposableRefenceObject(type);
 
                     if (instance == null) continue;
 
