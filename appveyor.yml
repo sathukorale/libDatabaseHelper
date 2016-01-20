@@ -14,7 +14,7 @@ deploy:
   provider: GitHub
   auth_token:
     secure: UwlUsxmCnB4x74TJI5h/rhwxxw9YVcj0rjspm6YteHgQyDf5BDTVxNRSn6Z2QLAD
-  artifact: libdatabasehelper\libDatabaseHelper\bin\Release\libDatabaseHelper.dll
+  artifact: libDatabaseHelper\bin\Release\libDatabaseHelper.dll
   draft: true
   prerelease: true
   on:
