@@ -9,10 +9,12 @@ before_build:
 build:
   verbosity: minimal
 
+after_build:
+  - 7z a builds_v$(appveyor_build_version).zip deploy\*
+
 artifacts:
-- path: deploy
+- path: builds_v$(appveyor_build_version).zip
   name: default_setup
-  type: zip
 
 deploy:
   release: myproduct-v$(appveyor_build_version)

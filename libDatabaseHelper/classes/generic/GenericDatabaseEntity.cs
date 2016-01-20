@@ -76,7 +76,6 @@ namespace libDatabaseHelper.classes.generic
         protected static Dictionary<Type, FieldInfomation> fieldInfos = new Dictionary<Type, FieldInfomation>();
         protected static Dictionary<Type, string> selectCommandStrings = new Dictionary<Type, string>();
         private static Dictionary<Type, GenericDatabaseEntity> nonDisposableReferenceObjects = new Dictionary<Type, GenericDatabaseEntity>();
-        private static List<Type> _registeredTypes = new List<Type>();
 
         public delegate void UpdateEvent(GenericDatabaseEntity updatedEntity, Type type, GenericDatabaseEntity.UpdateEventType event_type);
         public static event UpdateEvent OnDatabaseEntityUpdated;
@@ -106,64 +105,36 @@ namespace libDatabaseHelper.classes.generic
                 throw new ArgumentException("The class GenericDatabaseEntity is either not inherited or the database type is not by the child class.");
             }
 
-            if (this is AuditEntry)
-            {
-                Console.WriteLine("");
-            }
-
             var classAttributes = System.Attribute.GetCustomAttributes(this.GetType());
-            if (classAttributes != null && _registeredTypes.Contains(this.GetType()) == false)
+            if (classAttributes != null && classAttributes.Any())
             {
                 var tableProperties = classAttributes.OfType<TableProperties>().FirstOrDefault();
                 if (tableProperties != null)
                 {
-                    _registeredTypes.Add(this.GetType());
                     if (tableProperties.Registration == TableProperties.RegistrationType.RegisterOnDatabaseManager)
                     {
-                        GenericDatabaseManager.GetDatabaseManager(_supportedDatabase).CreateTable(this.GetType());
+                        nonDisposableReferenceObjects[this.GetType()] = this;
+                        if (GenericDatabaseManager.GetDatabaseManager(_supportedDatabase).CreateTable(this.GetType()) == false)
+                        {
+                            nonDisposableReferenceObjects[this.GetType()] = null; 
+                        }
                     }
                     else if (tableProperties.Registration == TableProperties.RegistrationType.RegisterOnUniversalDataCollector)
                     {
-                        if (GenericDatabaseManager.GetDatabaseManager(_supportedDatabase).CreateTable(this.GetType()))
+                        nonDisposableReferenceObjects[this.GetType()] = this;
+                        if (GenericDatabaseManager.GetDatabaseManager(_supportedDatabase).CreateTable(this.GetType()) == false)
                         {
                             UniversalDataCollector.Register(this.GetType());
+                        }
+                        else
+                        {
+                            nonDisposableReferenceObjects[this.GetType()] = null;
                         }
                     }
                 }
             }
 
-            var columns_result = GetColumns(true);
-            if (columns_result == null)
-            {
-                throw new DatabaseException(DatabaseException.ErrorType.NoColumnsFound);
-            }
-
-            var columns = columns_result.GetOtherColumns();
-            foreach (var column in columns)
-            {
-                try
-                {
-                    if (GenericFieldTools.IsTypeNumber(column.FieldType))
-                    {
-                        column.SetValue(this, -1);
-                    }
-                    else if (GenericFieldTools.IsTypeFloatingPoint(column.FieldType))
-                    {
-                        column.SetValue(this, -1);
-                    }
-                    else if (GenericFieldTools.IsDateType(column.FieldType))
-                    {
-                        column.SetValue(this, DateTime.Now);
-                    }
-                    else
-                    {
-                        column.SetValue(this, null);
-                    }
-                }
-                catch 
-                {
-                }
-            }
+            ResetValues();
         }
 
         public virtual bool Add()
@@ -205,6 +176,42 @@ namespace libDatabaseHelper.classes.generic
             }
 
             return referenceMap[GetType()].Where(referenceDetails => referenceDetails != null).Any(referenceDetails => databaseManager.Select(referenceDetails.ReferencedByClass, new[] { new Selector(referenceDetails.ReferencedByField.Name, referenceDetails.ReferredField.GetValue(this)) }).Any());
+        }
+
+        public void ResetValues()
+        {
+            var columns_result = GetColumns(true);
+            if (columns_result == null)
+            {
+                throw new DatabaseException(DatabaseException.ErrorType.NoColumnsFound);
+            }
+
+            var columns = columns_result.GetOtherColumns();
+            foreach (var column in columns)
+            {
+                try
+                {
+                    if (GenericFieldTools.IsTypeNumber(column.FieldType))
+                    {
+                        column.SetValue(this, -1);
+                    }
+                    else if (GenericFieldTools.IsTypeFloatingPoint(column.FieldType))
+                    {
+                        column.SetValue(this, -1);
+                    }
+                    else if (GenericFieldTools.IsDateType(column.FieldType))
+                    {
+                        column.SetValue(this, DateTime.Now);
+                    }
+                    else
+                    {
+                        column.SetValue(this, null);
+                    }
+                }
+                catch 
+                {
+                }
+            }
         }
 
         public GenericDatabaseEntity Parse(DbDataReader reader)

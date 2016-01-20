@@ -354,7 +354,7 @@ namespace libDatabaseHelper.classes.generic
             var instance = Activator.CreateInstance(type) as GenericDatabaseManager;
             if (instance != null)
             {
-                RegisterDatabaseManager(instance);
+                RegisterDatabaseManager(instance, forceRegistration);
             }
         }
 

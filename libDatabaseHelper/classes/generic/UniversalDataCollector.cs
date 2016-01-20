@@ -234,7 +234,7 @@ namespace libDatabaseHelper.classes.generic
             worker.DoWork += (sender, e) =>
             {
                 var type = (Type)e.Argument;
-                var tmpInstance = Activator.CreateInstance<T>() as GenericDatabaseEntity;
+                var tmpInstance = GenericDatabaseEntity.GetNonDisposableRefenceObject(typeof(T));
                 if (! _entitiesPerType.ContainsKey(type))
                 {
                     var allCurrentEntities = new List<GenericDatabaseEntity>();
