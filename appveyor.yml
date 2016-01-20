@@ -15,11 +15,10 @@ after_build:
   - appveyor PushArtifact builds_v%APPVEYOR_BUILD_VERSION%.zip
 
 deploy:
-  release: myproduct-v$(appveyor_build_version)
+  release: libDatabaseHelper-v$(appveyor_build_version)
   provider: GitHub
   auth_token:
     secure: UwlUsxmCnB4x74TJI5h/rhwxxw9YVcj0rjspm6YteHgQyDf5BDTVxNRSn6Z2QLAD
-  artifact: default_setup
   draft: true
   prerelease: true
   on:
