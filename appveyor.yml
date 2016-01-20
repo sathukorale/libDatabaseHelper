@@ -9,12 +9,16 @@ before_build:
 build:
   verbosity: minimal
 
+artifacts:
+- path: libDatabaseHelper\bin\Release\libDatabaseHelper.dll
+  name: default_setup
+
 deploy:
   release: myproduct-v$(appveyor_build_version)
   provider: GitHub
   auth_token:
     secure: UwlUsxmCnB4x74TJI5h/rhwxxw9YVcj0rjspm6YteHgQyDf5BDTVxNRSn6Z2QLAD
-  artifact: libDatabaseHelper\bin\Release\libDatabaseHelper.dll
+  artifact: default_setup
   draft: true
   prerelease: true
   on:
