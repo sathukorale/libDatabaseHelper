@@ -11,10 +11,8 @@ build:
 
 after_build:
   - 7z a builds_v%APPVEYOR_BUILD_VERSION%.zip deploy\*
-
-artifacts:
-- path: builds_v%APPVEYOR_BUILD_VERSION%.zip
-  name: default_setup
+  - cmd: dir
+  - appveyor PushArtifact builds_v%APPVEYOR_BUILD_VERSION%.zip
 
 deploy:
   release: myproduct-v$(appveyor_build_version)
