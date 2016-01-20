@@ -8,3 +8,15 @@ before_build:
   
 build:
   verbosity: minimal
+
+deploy:
+  release: myproduct-v$(appveyor_build_version)
+  provider: GitHub
+  auth_token:
+    secure: dd95b9c80e72497a87ae0fe43c0b6308a0be25f5
+  artifact: libdatabasehelper\libDatabaseHelper\bin\Release\libDatabaseHelper.dll
+  draft: true
+  prerelease: true
+  on:
+    branch: master
+    appveyor_repo_tag: false
