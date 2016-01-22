@@ -5,6 +5,9 @@ configuration:
 
 before_build:
   - nuget restore
+  
+build:
+  verbosity: minimal
 
 after_build:
   - del /s deploy\*.pdb
