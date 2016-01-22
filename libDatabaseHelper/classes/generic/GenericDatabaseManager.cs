@@ -10,11 +10,11 @@ namespace libDatabaseHelper.classes.generic
 {
     public enum DatabaseType
     {
-        SqlCE,
-        MySQL,
-        MSSQL,
-        Oracle,
-        Generic
+        SqlCE = 1,
+        MySQL = 2,
+        MSSQL = 3,
+        Oracle = 4,
+        Generic = 0
     }
 
     public class GenericDatabaseManager

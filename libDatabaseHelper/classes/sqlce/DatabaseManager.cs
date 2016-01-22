@@ -26,7 +26,7 @@ namespace libDatabaseHelper.classes.sqlce
 
             var fields = entity.GetColumns(true).GetOtherColumns().ToList();
 
-            var connection = ConnectionManager.GetConnection();
+            var connection = GenericConnectionManager.GetConnectionManager(GetSupportedDatabase()).GetConnection(type);
             var command = connection.CreateCommand();
             command.CommandText = "SELECT COLUMN_NAME, DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='" + (entity.GetType().Name) + "'";
             var reader = command.ExecuteReader();
@@ -142,7 +142,7 @@ namespace libDatabaseHelper.classes.sqlce
                 throw new DatabaseException(DatabaseException.ErrorType.NoPrimaryKeyColumnsFound);
             }
 
-            var connection = ConnectionManager.GetConnection();
+            var connection = GenericConnectionManager.GetConnectionManager(GetSupportedDatabase()).GetConnection(type);
             var command = connection.CreateCommand();
 
             var variabeDeclarations = "";
@@ -200,7 +200,7 @@ namespace libDatabaseHelper.classes.sqlce
                 throw new DatabaseException(DatabaseException.ErrorType.NoPrimaryKeyColumnsFound);
             }
 
-            var connection = ConnectionManager.GetConnection();
+            var connection = GenericConnectionManager.GetConnectionManager(GetSupportedDatabase()).GetConnection(type);
             var command = connection.CreateCommand();
 
             var createStatement = "DROP TABLE " + type.Name;
@@ -224,7 +224,7 @@ namespace libDatabaseHelper.classes.sqlce
                     .Where(i => ((TableColumn)i.GetCustomAttributes(typeof(TableColumn), true)[0]).IsRetrievableFromDatabase)
                     .Aggregate("", (current, selector) => current + ((current == "" ? "" : ", ") + selector.Name));
 
-            var connection = ConnectionManager.GetConnection();
+            var connection = GenericConnectionManager.GetConnectionManager(GetSupportedDatabase()).GetConnection(type);
             var command = connection.CreateCommand();
 
             var whereStatement = "";
@@ -255,7 +255,7 @@ namespace libDatabaseHelper.classes.sqlce
                 throw new DatabaseException(DatabaseException.ErrorType.NoPrimaryKeyColumnsFound);
             }
 
-            var connection = ConnectionManager.GetConnection();
+            var connection = GenericConnectionManager.GetConnectionManager(GetSupportedDatabase()).GetConnection(type);
             var command = connection.CreateCommand();
 
             var whereStatement = "";
@@ -284,7 +284,7 @@ namespace libDatabaseHelper.classes.sqlce
 
             var commandString = DatabaseEntity.GetSelectCommandString(type);
             var whereQuery = "";
-            var command = ConnectionManager.GetConnection().CreateCommand();
+            var command = GenericConnectionManager.GetConnectionManager(GetSupportedDatabase()).GetConnection(type).CreateCommand();
 
             if (selectors != null && selectors.Any())
             {
@@ -416,7 +416,7 @@ namespace libDatabaseHelper.classes.sqlce
                 if (filters.Count <= 0)
                     continue;
 
-                var command = ConnectionManager.GetConnection().CreateCommand();
+                var command = GenericConnectionManager.GetConnectionManager(entity.GetSupportedDatabaseType()).GetConnection(entity.GetType()).CreateCommand();
                 var selectQuery = "SELECT COUNT(*) FROM " + reference.Name + " WHERE " + filters.Aggregate("", (currentStr, item) => currentStr + (currentStr == "" ? "" : " OR ") + item.SetToCommand(ref command));
                 command.CommandText = selectQuery;
 

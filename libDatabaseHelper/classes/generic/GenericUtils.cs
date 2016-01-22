@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using System.Linq;
+using System.Data.Common;
+using System.Data;
 
 namespace libDatabaseHelper.classes.generic
 {
@@ -51,6 +53,38 @@ namespace libDatabaseHelper.classes.generic
                 }
             }
             return current_folder;
+        }
+
+        public static string GetDataSourceFromConnnectionString(string connectionString)
+        {
+            var loweredText = connectionString.ToLower();
+            var startIndex = loweredText.IndexOf("data source");
+            startIndex = loweredText.IndexOf("=", startIndex) + 1;
+            var endIndex = loweredText.IndexOf(";", startIndex);
+            if (endIndex < 0)
+            {
+                endIndex = loweredText.Length - 1;
+            }
+
+            var dataSourceLocation = connectionString.Substring(startIndex, endIndex - startIndex).Trim().Replace("\"", "").Replace("'", "");
+            return dataSourceLocation;
+        }
+
+        public static void AddWithValue(ref DbCommand command, string parameterName, object parameterValue)
+        {
+            var parameter = command.CreateParameter();
+            parameter.ParameterName = parameterName;
+            parameter.Value = parameterValue;
+            command.Parameters.Add(parameter);
+        }
+
+        public static void AddWithValue(ref DbCommand command, string parameterName, object parameterValue, DbType dbType)
+        {
+            var parameter = command.CreateParameter();
+            parameter.DbType = dbType;
+            parameter.ParameterName = parameterName;
+            parameter.Value = parameterValue;
+            command.Parameters.Add(parameter);
         }
     }
 }

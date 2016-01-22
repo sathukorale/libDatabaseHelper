@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
+    <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{B8720AED-93F8-4179-AFBF-F30DEC4233FA}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -12,6 +12,21 @@
     <AssemblyName>libDatabaseHelper</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -56,7 +71,7 @@
     <Compile Include="classes\generic\GenericFieldTools.cs" />
     <Compile Include="classes\sqlce\entities\User.cs" />
     <Compile Include="classes\sqlce\entities\ApplicationError.cs" />
-    <Compile Include="classes\generic\ConnectionManager.cs" />
+    <Compile Include="classes\generic\GenericConnectionManager.cs" />
     <Compile Include="classes\generic\Exceptions.cs" />
     <Compile Include="classes\generic\Fields.cs" />
     <Compile Include="classes\generic\FormUtils.cs" />
@@ -67,6 +82,7 @@
     <Compile Include="classes\sqlce\FieldTools.cs" />
     <Compile Include="classes\generic\UniversalDataCollector.cs" />
     <Compile Include="classes\generic\GenericUtils.cs" />
+    <Compile Include="classes\sqlce\SqlCeConnectionManager.cs" />
     <Compile Include="forms\controls\DGVCalendarEditingControl.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -155,6 +171,38 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\ico_copyentity.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\dblocaldata.sdf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 2.0 %28x86%29</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.0 %28x86%29</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.SQL.Server.Compact.3.5">
+      <Visible>False</Visible>
+      <ProductName>SQL Server Compact 3.5</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

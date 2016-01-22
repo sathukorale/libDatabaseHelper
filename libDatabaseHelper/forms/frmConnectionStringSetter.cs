@@ -8,6 +8,9 @@ namespace libDatabaseHelper.forms
     {
         private static frmConnectionStringSetter _presentedForm;
         private static bool _isValid;
+        private static DatabaseType _databaseType;
+        private static Type _entityType;
+
         public frmConnectionStringSetter()
         {
             InitializeComponent();
@@ -18,11 +21,18 @@ namespace libDatabaseHelper.forms
             FormUtils.ClearForm(this);
         }
 
-        public static bool ShowWindow()
+        public static bool ShowWindow<T>(DatabaseType type)
+        {
+            return ShowWindow(typeof(T), type);
+        }
+
+        public static bool ShowWindow(Type type, DatabaseType databaseType)
         {
             if (_presentedForm == null || _presentedForm.IsDisposed)
                 _presentedForm = new frmConnectionStringSetter();
             _isValid = false;
+            _entityType = type;
+            _databaseType = databaseType;
             _presentedForm.ClearForm();
             _presentedForm.ShowDialog();
             return _isValid;
@@ -50,10 +60,10 @@ namespace libDatabaseHelper.forms
                 return;
             }
 
-            if (ConnectionManager.CheckConnectionString(txtConnectionString.Text))
+            if (GenericConnectionManager.GetConnectionManager(_databaseType).CheckConnectionString(txtConnectionString.Text))
             {
                 _isValid = true;
-                ConnectionManager.SetConnectionString(txtConnectionString.Text);
+                GenericConnectionManager.GetConnectionManager(_databaseType).SetConnectionString(txtConnectionString.Text);
                 MessageBox.Show(this, "The application was configured with the connection string successfully", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 Hide();
             }

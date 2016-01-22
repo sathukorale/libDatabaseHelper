@@ -134,7 +134,7 @@ namespace libDatabaseHelperUnitTests
         [SetUp]
         public void TEST_Setup()
         {
-            ConnectionManager.CloseAllConnections();
+            GenericConnectionManager.CloseAllConnections();
             var dbFile = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\libDBHelderSampleFolder1\\SampleDatabase1.sdf";
             try
             {
@@ -146,7 +146,7 @@ namespace libDatabaseHelperUnitTests
             catch (System.Exception) {}
 
             GenericUtils.CreateFolderStructure(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\libDBHelderSampleFolder1");
-            ConnectionManager.SetConnectionString("Data Source=" + dbFile + ";Persist Security Info=False;");
+            GenericConnectionManager.GetConnectionManager(DatabaseType.SqlCE).SetConnectionString("Data Source=" + dbFile + ";Persist Security Info=False;");
 
             GenericDatabaseManager.RegisterDatbaseManager<DatabaseManager>(true);
 
@@ -154,7 +154,7 @@ namespace libDatabaseHelperUnitTests
             GenericDatabaseManager.GetDatabaseManager(DatabaseType.SqlCE).DropTable<SampleTable2>();
             GenericDatabaseManager.GetDatabaseManager(DatabaseType.SqlCE).DropTable<InvalidSampleTable3_NoPrimaryKey>();
 
-            Assert.IsTrue(ConnectionManager.GetConnection() != null);
+            Assert.IsTrue(GenericConnectionManager.GetConnectionManager(DatabaseType.SqlCE).GetConnection() != null);
         }
 
         [TearDown]

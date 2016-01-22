@@ -42,8 +42,8 @@
             // 
             // pnlControlContainer
             // 
-            this.pnlControlContainer.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.pnlControlContainer.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.pnlControlContainer.AutoScroll = true;
             this.pnlControlContainer.Controls.Add(this.grpCategoryDetails);
             this.pnlControlContainer.Location = new System.Drawing.Point(0, 0);
@@ -53,8 +53,8 @@
             // 
             // grpCategoryDetails
             // 
-            this.grpCategoryDetails.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.grpCategoryDetails.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.grpCategoryDetails.Controls.Add(this.txtConnectionString);
             this.grpCategoryDetails.Controls.Add(this.lblCountry);
             this.grpCategoryDetails.Location = new System.Drawing.Point(12, 14);
@@ -66,8 +66,8 @@
             // 
             // txtConnectionString
             // 
-            this.txtConnectionString.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtConnectionString.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.txtConnectionString.Location = new System.Drawing.Point(106, 25);
             this.txtConnectionString.Name = "txtConnectionString";
             this.txtConnectionString.Size = new System.Drawing.Size(369, 20);
@@ -129,6 +129,7 @@
             this.Name = "frmConnectionStringSetter";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Connection String";
+            this.TopMost = true;
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmConnectionStringSetter_FormClosing);
             this.pnlControlContainer.ResumeLayout(false);
             this.grpCategoryDetails.ResumeLayout(false);

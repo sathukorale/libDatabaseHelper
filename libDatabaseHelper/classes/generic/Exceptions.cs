@@ -40,6 +40,28 @@ namespace libDatabaseHelper.classes.generic
         }
     }
 
+    public class DatabaseConnectionException : Exception
+    {
+        public enum ConnectionErrorType
+        { 
+            InvalidConnectionString,
+            NoConnectionStringFound,
+            NoConnectionManagerFound
+        }
+
+        private readonly ConnectionErrorType _errorType;
+
+        public DatabaseConnectionException(ConnectionErrorType errorType)
+        {
+            _errorType = errorType;
+        }
+
+        public ConnectionErrorType GetErrorType()
+        {
+            return _errorType;
+        }
+    }
+
     public class DatabaseException : Exception
     {
         [Flags]

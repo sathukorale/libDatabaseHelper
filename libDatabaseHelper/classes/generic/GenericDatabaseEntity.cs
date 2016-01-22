@@ -80,7 +80,8 @@ namespace libDatabaseHelper.classes.generic
         public delegate void UpdateEvent(GenericDatabaseEntity updatedEntity, Type type, GenericDatabaseEntity.UpdateEventType event_type);
         public static event UpdateEvent OnDatabaseEntityUpdated;
 
-        private DatabaseType _supportedDatabase;
+        protected readonly DatabaseType _supportedDatabase;
+        protected readonly Type _entityType;
 
         [Flags]
         public enum ExistCondition
@@ -105,7 +106,9 @@ namespace libDatabaseHelper.classes.generic
                 throw new ArgumentException("The class GenericDatabaseEntity is either not inherited or the database type is not by the child class.");
             }
 
-            var classAttributes = System.Attribute.GetCustomAttributes(this.GetType());
+            _entityType = GetType();
+
+            var classAttributes = System.Attribute.GetCustomAttributes(_entityType);
             if (classAttributes != null && classAttributes.Any())
             {
                 var tableProperties = classAttributes.OfType<TableProperties>().FirstOrDefault();
@@ -113,22 +116,22 @@ namespace libDatabaseHelper.classes.generic
                 {
                     if (tableProperties.Registration == TableProperties.RegistrationType.RegisterOnDatabaseManager)
                     {
-                        nonDisposableReferenceObjects[this.GetType()] = this;
-                        if (GenericDatabaseManager.GetDatabaseManager(_supportedDatabase).CreateTable(this.GetType()) == false)
+                        nonDisposableReferenceObjects[_entityType] = this;
+                        if (GenericDatabaseManager.GetDatabaseManager(_supportedDatabase).CreateTable(_entityType) == false)
                         {
-                            nonDisposableReferenceObjects[this.GetType()] = null; 
+                            nonDisposableReferenceObjects[_entityType] = null; 
                         }
                     }
                     else if (tableProperties.Registration == TableProperties.RegistrationType.RegisterOnUniversalDataCollector)
                     {
-                        nonDisposableReferenceObjects[this.GetType()] = this;
-                        if (GenericDatabaseManager.GetDatabaseManager(_supportedDatabase).CreateTable(this.GetType()) == false)
+                        nonDisposableReferenceObjects[_entityType] = this;
+                        if (GenericDatabaseManager.GetDatabaseManager(_supportedDatabase).CreateTable(_entityType) == false)
                         {
-                            UniversalDataCollector.Register(this.GetType());
+                            UniversalDataCollector.Register(_entityType);
                         }
                         else
                         {
-                            nonDisposableReferenceObjects[this.GetType()] = null;
+                            nonDisposableReferenceObjects[_entityType] = null;
                         }
                     }
                 }
@@ -713,15 +716,6 @@ namespace libDatabaseHelper.classes.generic
             {
                 OnDatabaseEntityUpdated(updatedEntity, type, event_type);
             }
-        }
-
-        protected void SetDatabaseType(DatabaseType dbType)
-        {
-            if (dbType == DatabaseType.Generic)
-            {
-                throw new ArgumentException("A database cannot be of type generic !");
-            }
-            _supportedDatabase = dbType;
         }
 
         public DatabaseType GetSupportedDatabaseType()

@@ -6,6 +6,7 @@ using System.Data.SqlServerCe;
 using System.Reflection;
 
 using libDatabaseHelper.classes.sqlce;
+using System.Data.Common;
 
 namespace libDatabaseHelper.classes.generic
 {
@@ -139,7 +140,7 @@ namespace libDatabaseHelper.classes.generic
             OpeartorType = operatorType;
         }
 
-        public string SetToCommand(ref SqlCeCommand command)
+        public string SetToCommand(ref DbCommand command)
         {
             var selectorString = "";
             if (OpeartorType == Operator.Between)
@@ -149,14 +150,12 @@ namespace libDatabaseHelper.classes.generic
                 if (!command.Parameters.Contains("@" + Field + "1"))
                 {
                     var value = FieldValue1 is ICustomType ? (FieldValue1 as ICustomType).GetValue() : FieldValue1;
-                    command.Parameters.AddWithValue("@" + Field + "1", value).DbType =
-                        GenericFieldTools.GetType(FieldValue1.GetType());
+                    GenericUtils.AddWithValue(ref command, "@" + Field + "1", value, GenericFieldTools.GetType(FieldValue1.GetType()));
                 }
                 if (!command.Parameters.Contains("@" + Field + "2"))
                 {
                     var value = FieldValue2 is ICustomType ? (FieldValue2 as ICustomType).GetValue() : FieldValue2;
-                    command.Parameters.AddWithValue("@" + Field + "2", value).DbType =
-                        GenericFieldTools.GetType(FieldValue2.GetType());
+                    GenericUtils.AddWithValue(ref command, "@" + Field + "2", value, GenericFieldTools.GetType(FieldValue2.GetType()));
                 }
             }
             else
@@ -169,8 +168,7 @@ namespace libDatabaseHelper.classes.generic
                 if (!command.Parameters.Contains("@" + Field))
                 {
                     var value = FieldValue1 is ICustomType ? (FieldValue1 as ICustomType).GetValue() : FieldValue1;
-                    command.Parameters.AddWithValue("@" + Field, value).DbType =
-                        GenericFieldTools.GetType(FieldValue1.GetType());
+                    GenericUtils.AddWithValue(ref command, "@" + Field, value, GenericFieldTools.GetType(FieldValue1.GetType()));
                 }
             }
             return selectorString;
