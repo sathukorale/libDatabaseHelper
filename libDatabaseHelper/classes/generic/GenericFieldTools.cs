@@ -99,8 +99,8 @@ namespace libDatabaseHelper.classes.generic
             }
             else if (IsTypeNumber(obj1.GetType()))
             {
-                var number1 = (long)obj1;
-                var number2 = (long)obj1;
+                var number1 = Convert.ToInt64(obj1);
+                var number2 = Convert.ToInt64(obj2);
                 return number1 == number2 ? 0 : ((number1 < number2 ? -1 : 1));
             }
             else if (IsTypeFloatingPoint(obj1.GetType()))

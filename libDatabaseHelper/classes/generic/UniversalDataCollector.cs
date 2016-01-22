@@ -29,6 +29,14 @@ namespace libDatabaseHelper.classes.generic
             DatabaseManager.OnBulkDelete += new GenericDatabaseManager.BulkDelete(DatabaseManager_OnBulkDelete);
         }
 
+        public static void CleanUp()
+        {
+            foreach (var entityListRecord in _entitiesPerType)
+            {
+                entityListRecord.Value.Clear();
+            }
+        }
+
         #region "Selectors"
         public static List<GenericDatabaseEntity> Select<T>()
         {
