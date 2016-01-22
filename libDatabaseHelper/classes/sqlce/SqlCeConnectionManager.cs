@@ -38,7 +38,7 @@ namespace libDatabaseHelper.classes.sqlce
                 connection.Open();
                 connection.Close();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return false;
             }
