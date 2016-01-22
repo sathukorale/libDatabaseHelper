@@ -5,13 +5,6 @@ configuration:
 
 before_build:
   - nuget restore
-    
-build_script:
-  -ps: |
-    nuget restore
-    "Building project with Coverity..."
-    ov-build.exe --dir cov-int msbuild "libDatabaseHelper.sln" /verbosity:minimal /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
-    dir
 
 after_build:
   - del /s deploy\*.pdb
