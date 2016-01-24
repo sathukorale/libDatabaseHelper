@@ -188,18 +188,4 @@ namespace libDatabaseHelper.classes.generic
             ReferredField = fieldReferred;
         }
     }
-
-    public class ColumnResults
-    {
-        public List<FieldInfo> Ids;
-        public List<FieldInfo> AllFieldInfos;
-        public List<FieldInfo> FieldInfos;
-
-        public ColumnResults(List<FieldInfo> ids, List<FieldInfo> allFields, List<FieldInfo> filteredFields)
-        {
-            Ids = ids;
-            AllFieldInfos = allFields;
-            FieldInfos = filteredFields;
-        }
-    }
 }

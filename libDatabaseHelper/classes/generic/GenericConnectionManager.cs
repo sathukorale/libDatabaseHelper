@@ -5,6 +5,7 @@ using System.Data;
 using System.Data.SqlServerCe;
 using System.IO;
 using System.Windows.Forms;
+using System.Linq;
 
 using libDatabaseHelper.forms;
 using libDatabaseHelper.Properties;
@@ -18,39 +19,33 @@ namespace libDatabaseHelper.classes.generic
     [TableProperties(Registration=libDatabaseHelper.classes.generic.TableProperties.RegistrationType.RegisterOnDatabaseManager)]
     public class GenericConnectionDetails : DatabaseEntity
     {
-        [TableColumn(true, true)]
-        public int DatabaseType;
-
         [TableColumn(true, true, 100)]
         public string TypeName;
 
-        [TableColumn(true, true, 200)]
-        public string TypeAssembly;
+        [TableColumn(false, true)]
+        public int DatabaseType;
 
         [TableColumn(false, true)]
         public string ConnectionString;
-
-        public Type GetReferencedType()
-        {
-            return null;
-        }
     }
 
     class NullType {}
 
     public class GenericConnectionManager
     {
-        private static string _localDataFolder;
-        private Dictionary<Type, string>                                    _connectionStrings;
-        private Dictionary<Type, List<DbConnection>>                        _databaseConnections;
-        private static Dictionary<DatabaseType, GenericConnectionManager>   _registeredConnectionManagers = new Dictionary<DatabaseType, GenericConnectionManager>();
         private DatabaseType _databaseType;
+        protected Dictionary<Type, string> _connectionStrings;
+        protected Dictionary<string, List<DbConnection>> _databaseConnections;
+        
+        protected static string _localDataFolder;
+        private static Dictionary<DatabaseType, GenericConnectionManager> _registeredConnectionManagers = new Dictionary<DatabaseType, GenericConnectionManager>();
+        protected Dictionary<string, GenericConnectionDetails> _loadedConnectionDetails = new Dictionary<string,GenericConnectionDetails>();
 
         public GenericConnectionManager(DatabaseType supportedDatabase)
         {
             _databaseType = supportedDatabase;
             _connectionStrings = new Dictionary<Type, string>();
-            _databaseConnections = new Dictionary<Type, List<DbConnection>>();
+            _databaseConnections = new Dictionary<string, List<DbConnection>>();
         }
 
         #region "GetConnection"
@@ -75,8 +70,9 @@ namespace libDatabaseHelper.classes.generic
             {
                 if (LicenseManager.UsageMode != LicenseUsageMode.Designtime)
                 {
-                    MessageBox.Show("The application was not configured with a connection string. Can you please enter the connection string in the next dialog.", "Connection String Not Found", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                    return (frmConnectionStringSetter.ShowWindow(t, _databaseType) ? GetConnection() : null);
+                    return null;
+                    //MessageBox.Show("The application was not configured with a connection string. Can you please enter the connection string in the next dialog.", "Connection String Not Found", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    /*return (frmConnectionStringSetter.ShowWindow(t, _databaseType) ? GetConnection() : null);*/ 
                 }
                 else
                 {
@@ -86,13 +82,13 @@ namespace libDatabaseHelper.classes.generic
 
             if (_databaseConnections == null)
             {
-                _databaseConnections = new Dictionary<Type, List<DbConnection>>();
+                _databaseConnections = new Dictionary<string, List<DbConnection>>();
             }
             else
             {
-                if (_databaseConnections.ContainsKey(t))
+                if (_databaseConnections.ContainsKey(connectionString))
                 {
-                    var connections = _databaseConnections[t];
+                    var connections = _databaseConnections[connectionString];
                     foreach (var record in connections)
                     {
                         var connection = record;
@@ -104,7 +100,7 @@ namespace libDatabaseHelper.classes.generic
                 }
                 else
                 {
-                    _databaseConnections[t] = new List<DbConnection>();
+                    _databaseConnections[connectionString] = new List<DbConnection>();
                 }
             }
 
@@ -115,9 +111,9 @@ namespace libDatabaseHelper.classes.generic
             }
             catch (System.Exception) {}
 
-            if (connectionCreated.State == ConnectionState.Open && _databaseConnections[t].Contains(connectionCreated) == false)
+            if (connectionCreated.State == ConnectionState.Open && _databaseConnections[connectionString].Contains(connectionCreated) == false)
             {
-                _databaseConnections[t].Add(connectionCreated);
+                _databaseConnections[connectionString].Add(connectionCreated);
             }
 
             return connectionCreated;
@@ -135,7 +131,7 @@ namespace libDatabaseHelper.classes.generic
             return GetConnectionString(typeof(T));
         }
 
-        public string GetConnectionString(Type type)
+        public virtual string GetConnectionString(Type type)
         {
             if (_connectionStrings.ContainsKey(type) == false)
             {
@@ -168,12 +164,16 @@ namespace libDatabaseHelper.classes.generic
                 if (connectionSuccessful == false)
                 {
                     var dbFilePath = GenericUtils.GetDataSourceFromConnnectionString(connectionString);
-                    File.WriteAllBytes(dbFilePath, Properties.Resources.dblocaldata);
-
-                    if (CheckConnectionString(connectionString) == false)
+                    try
                     {
-                        return;
+                        File.WriteAllBytes(dbFilePath, Properties.Resources.dblocaldata);
+
+                        if (CheckConnectionString(connectionString) == false)
+                        {
+                            return;
+                        }
                     }
+                    catch { Console.WriteLine(""); }
                 }
 
                 try
@@ -181,8 +181,7 @@ namespace libDatabaseHelper.classes.generic
                     _connectionStrings[type] = connectionString;
                     var connectionData = new GenericConnectionDetails() { 
                         DatabaseType = (int)_databaseType,
-                        TypeName = type.Name,
-                        TypeAssembly = type.Assembly.FullName,
+                        TypeName = type.Namespace + "." + type.Name,
                         ConnectionString = connectionString
                     };
                     if (connectionData.Exist() == GenericDatabaseEntity.ExistCondition.None)
@@ -209,6 +208,11 @@ namespace libDatabaseHelper.classes.generic
         {
             throw new NotImplementedException("");
         }
+
+        protected virtual void InstallDefaultClasses()
+        {
+            throw new NotImplementedException("");
+        }
         #endregion
 
         public void CloseConnections()
@@ -226,6 +230,7 @@ namespace libDatabaseHelper.classes.generic
                         catch (System.Exception) { }
                     }
                 }
+                _databaseConnections.Clear();
             }
         }
 
@@ -245,15 +250,17 @@ namespace libDatabaseHelper.classes.generic
             var connectionManager = Activator.CreateInstance(t) as GenericConnectionManager;
             if (connectionManager != null)
             {
-                if (connectionManager.GetSupportedDatabaseType() == DatabaseType.SqlCE)
+                if (_registeredConnectionManagers.ContainsKey(connectionManager.GetSupportedDatabaseType()))
                 {
-                    var dbFilePath = (_localDataFolder ?? "") + "dblocaldata.sdf";
-                    var password = "KsvKgHk%9=ANb2g@w7Bu6m?txU$h3V";
-                    var connectionString = "Data Source='" + dbFilePath + "';Encrypt Database=True;Password='" + password + "';File Mode=shared read;Persist Security Info=False;";
-
-                    connectionManager.SetConnectionString<GenericConnectionDetails>(connectionString);
+                    try
+                    {
+                        _registeredConnectionManagers[connectionManager.GetSupportedDatabaseType()].CloseConnections();
+                    }
+                    catch { }
                 }
+
                 _registeredConnectionManagers[connectionManager.GetSupportedDatabaseType()] = connectionManager;
+                connectionManager.InstallDefaultClasses();
             }
         }
         #endregion
@@ -264,7 +271,7 @@ namespace libDatabaseHelper.classes.generic
             {
                 if (databaseType == DatabaseType.SqlCE)
                 {
-                    RegisterConnectionManager<SqlCeConnectionManager>();
+                    RegisterConnectionManager<ConnectionManager>();
                     return GetConnectionManager(DatabaseType.SqlCE);
                 }
                 throw new DatabaseConnectionException(DatabaseConnectionException.ConnectionErrorType.NoConnectionManagerFound);
@@ -296,6 +303,7 @@ namespace libDatabaseHelper.classes.generic
                     }
                     catch (System.Exception) { }
                 }
+                _registeredConnectionManagers.Clear();
             }
         }
     }

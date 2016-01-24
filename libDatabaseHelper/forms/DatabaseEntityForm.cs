@@ -355,20 +355,10 @@ namespace libDatabaseHelper.forms
                             MessageBox.Show(
                                 "Unexpected scenario detected. This will be logged with the action details. The application was not able to process the action you requested !",
                                 "Program Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            AuditEntry.AddAuditEntry(new ApplicationError
-                            {
-                                Entity = entity,
-                                ExceptionString = ex.Message
-                            }, "ApplicationError");
                         }
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
-                        AuditEntry.AddAuditEntry(new ApplicationError
-                        {
-                            Entity = entity,
-                            ExceptionString = ex.Message
-                        }, "ApplicationError");
                     }
                     LoadedEntity = entity;
                     if (!status) return;

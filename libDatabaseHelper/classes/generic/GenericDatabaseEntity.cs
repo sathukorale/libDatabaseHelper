@@ -108,7 +108,7 @@ namespace libDatabaseHelper.classes.generic
 
             _entityType = GetType();
 
-            var classAttributes = System.Attribute.GetCustomAttributes(_entityType);
+            /*var classAttributes = System.Attribute.GetCustomAttributes(_entityType);
             if (classAttributes != null && classAttributes.Any())
             {
                 var tableProperties = classAttributes.OfType<TableProperties>().FirstOrDefault();
@@ -135,7 +135,7 @@ namespace libDatabaseHelper.classes.generic
                         }
                     }
                 }
-            }
+            }*/
 
             ResetValues();
         }

@@ -68,7 +68,7 @@
       <DependentUpon>frmSampleTable2.cs</DependentUpon>
     </Compile>
     <Compile Include="forms\WindowsControlTestFramework.cs" />
-    <Compile Include="GenericTests.cs" />
+    <Compile Include="SqlCETests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

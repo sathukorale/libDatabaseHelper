@@ -69,8 +69,6 @@
     <Compile Include="classes\generic\GenericDatabaseEntity.cs" />
     <Compile Include="classes\generic\GenericDatabaseManager.cs" />
     <Compile Include="classes\generic\GenericFieldTools.cs" />
-    <Compile Include="classes\sqlce\entities\User.cs" />
-    <Compile Include="classes\sqlce\entities\ApplicationError.cs" />
     <Compile Include="classes\generic\GenericConnectionManager.cs" />
     <Compile Include="classes\generic\Exceptions.cs" />
     <Compile Include="classes\generic\Fields.cs" />
@@ -79,10 +77,11 @@
     <Compile Include="classes\generic\TableProperties.cs" />
     <Compile Include="classes\sqlce\DatabaseEntity.cs" />
     <Compile Include="classes\sqlce\DatabaseManager.cs" />
+    <Compile Include="classes\sqlce\entities\AuditEntry.cs" />
     <Compile Include="classes\sqlce\FieldTools.cs" />
     <Compile Include="classes\generic\UniversalDataCollector.cs" />
     <Compile Include="classes\generic\GenericUtils.cs" />
-    <Compile Include="classes\sqlce\SqlCeConnectionManager.cs" />
+    <Compile Include="classes\sqlce\ConnectionManager.cs" />
     <Compile Include="forms\controls\DGVCalendarEditingControl.cs">
       <SubType>Component</SubType>
     </Compile>

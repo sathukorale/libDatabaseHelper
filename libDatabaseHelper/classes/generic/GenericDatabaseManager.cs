@@ -330,7 +330,7 @@ namespace libDatabaseHelper.classes.generic
             RegisterDatabaseManager(databaseManager, false);
         }
 
-        public static void RegisterDatbaseManager<T>()
+        public static void RegisterDatabaseManager<T>()
         {
             RegisterDatabaseManager(typeof(T));
         }
@@ -344,7 +344,7 @@ namespace libDatabaseHelper.classes.generic
             }
         }
 
-        public static void RegisterDatbaseManager<T>(bool forceRegistration)
+        public static void RegisterDatabaseManager<T>(bool forceRegistration)
         {
             RegisterDatabaseManager(typeof(T), forceRegistration);
         }

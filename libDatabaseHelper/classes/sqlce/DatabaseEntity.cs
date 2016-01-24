@@ -70,7 +70,7 @@ namespace libDatabaseHelper.classes.sqlce
             if (autogenField != null)
                 autogenField.SetValue(this, GenericFieldTools.ConvertToType(autogenField.FieldType, valReturned));
 
-            if ((this is AuditEntry) == false)
+            if ((this is AuditEntry) == false && (this is GenericConnectionDetails) == false)
             {
                 AuditEntry.AddAuditEntry(this, "Added ");
                 base._OnDatabaseEntityUpdated(this, GetType(), UpdateEventType.Add);
@@ -133,9 +133,9 @@ namespace libDatabaseHelper.classes.sqlce
             if (command.ExecuteNonQuery() <= 0)
                 return false;
 
-            if ((this is AuditEntry) == false)
+            if ((this is AuditEntry) == false && (this is GenericConnectionDetails) == false)
             {
-                AuditEntry.AddAuditEntry(this, "Added ");
+                AuditEntry.AddAuditEntry(this, "Updated ");
                 base._OnDatabaseEntityUpdated(this, GetType(), UpdateEventType.Update);
             }
 
@@ -188,9 +188,9 @@ namespace libDatabaseHelper.classes.sqlce
             if (command.ExecuteNonQuery() <= 0)
                 return false;
 
-            if ((this is AuditEntry) == false)
+            if ((this is AuditEntry) == false && (this is GenericConnectionDetails) == false)
             {
-                AuditEntry.AddAuditEntry(this, "Added ");
+                AuditEntry.AddAuditEntry(this, "Removed ");
                 base._OnDatabaseEntityUpdated(this, GetType(), UpdateEventType.Remove);
             }
 
