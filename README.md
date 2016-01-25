@@ -1,4 +1,4 @@
-# libDatabaseHelper
+# libDatabaseHelper ([![Build status](https://ci.appveyor.com/api/projects/status/ngauchthppm736ge?svg=true)](https://ci.appveyor.com/project/sathukorale1379/libdatabasehelper-07t0j))
 A simple C# .NET library to quicken the development of database accessing/related applications. With the use of this library you can make the management of the database tables and the corresponding code respresenting the tables much easier, faster and manageable. For example if you have multiple classes, each representing a table on the database, you do not have to write the same code on thoses classes for doing the same thing(for example, the add, remove or update methods). You can even make the creation of windows forms, for editing or displaying entities much easier (the included generator will literally generate a generic form for you). In summary, the library is developed in the thought of making interactions with different databases much easier and friendlier.
 
 ## Example Usage :
