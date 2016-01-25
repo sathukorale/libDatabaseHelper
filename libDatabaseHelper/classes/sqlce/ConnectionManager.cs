@@ -63,11 +63,21 @@ namespace libDatabaseHelper.classes.sqlce
             }
             catch {}
 
+            var connectionCretead = CreateConnection(null, connectionString);
+            if (connectionCretead != null && connectionCretead.State == System.Data.ConnectionState.Open)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        protected override DbConnection CreateConnection(Type t, string connectionString)
+        {
+            SqlCeConnection connection = null;
             try
             {
-                var connection = new SqlCeConnection(connectionString);
+                connection = new SqlCeConnection(connectionString);
                 connection.Open();
-                connection.Close();
             }
             catch (System.Data.SqlServerCe.SqlCeInvalidDatabaseFormatException)
             {
@@ -75,44 +85,21 @@ namespace libDatabaseHelper.classes.sqlce
                 {
                     var engine = new SqlCeEngine(connectionString);
                     engine.Upgrade();
+
+                    try
+                    {
+                        connection = new SqlCeConnection(connectionString);
+                        connection.Open();
+                    }
+                    catch (System.Exception){}
                 }
-                catch (System.Exception ex) 
-                { 
+                catch (System.Exception ex)
+                {
                     Console.WriteLine("Attempt on Upgrading SQL CE Database Failed (Reason = \"" + ex.Message + "\")");
-                    return false;
-                }
-
-                try
-                {
-                    var connection = new SqlCeConnection(connectionString);
-                    connection.Open();
-                    connection.Close();
-                }
-                catch (System.Exception)
-                {
-                    return false;
                 }
             }
-            catch (Exception)
-            {
-                return false;
-            }
-            return true;
-        }
-
-        protected override DbConnection CreateConnection(Type t, string connectionString)
-        {
-            try
-            {
-                var connectionCreated = new SqlCeConnection(connectionString);
-                connectionCreated.Open();
-                return connectionCreated;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Unable to connect with conenction string = \"" + connectionString + "\" due to : " + ex.Message);
-                return null;/*(frmConnectionStringSetter.ShowWindow(t, GetSupportedDatabaseType()) ? GetConnection() : null)*/ ;
-            }
+            catch (Exception) {}
+            return connection;
         }
 
         public void LoadConnectionData()
