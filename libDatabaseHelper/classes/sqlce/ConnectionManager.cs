@@ -84,8 +84,9 @@ namespace libDatabaseHelper.classes.sqlce
                 connectionCreated.Open();
                 return connectionCreated;
             }
-            catch
+            catch (Exception ex)
             {
+                Console.WriteLine("Unable to connect with conenction string = \"" + connectionString + "\" due to : " + ex.Message);
                 return null;/*(frmConnectionStringSetter.ShowWindow(t, GetSupportedDatabaseType()) ? GetConnection() : null)*/ ;
             }
         }
