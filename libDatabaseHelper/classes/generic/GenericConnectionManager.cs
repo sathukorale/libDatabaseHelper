@@ -272,7 +272,7 @@ namespace libDatabaseHelper.classes.generic
                 if (databaseType == DatabaseType.SqlCE)
                 {
                     RegisterConnectionManager<ConnectionManager>();
-                    return GetConnectionManager(DatabaseType.SqlCE);
+                    return GetConnectionManager(databaseType);
                 }
                 throw new DatabaseConnectionException(DatabaseConnectionException.ConnectionErrorType.NoConnectionManagerFound);
             }

@@ -69,6 +69,30 @@ namespace libDatabaseHelper.classes.sqlce
                 connection.Open();
                 connection.Close();
             }
+            catch (System.Data.SqlServerCe.SqlCeInvalidDatabaseFormatException)
+            {
+                try
+                {
+                    var engine = new SqlCeEngine(connectionString);
+                    engine.Upgrade();
+                }
+                catch (System.Exception ex) 
+                { 
+                    Console.WriteLine("Attempt on Upgrading SQL CE Database Failed (Reason = \"" + ex.Message + "\")");
+                    return false;
+                }
+
+                try
+                {
+                    var connection = new SqlCeConnection(connectionString);
+                    connection.Open();
+                    connection.Close();
+                }
+                catch (System.Exception)
+                {
+                    return false;
+                }
+            }
             catch (Exception)
             {
                 return false;
