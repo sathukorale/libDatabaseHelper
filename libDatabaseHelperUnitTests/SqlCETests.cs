@@ -114,21 +114,15 @@ namespace libDatabaseHelperUnitTests
             //
         }
 
-        private TestContext testContextInstance;
-
         /// <summary>
         ///Gets or sets the test context which provides
         ///information about and functionality for the current test run.
         ///</summary>
-        public TestContext TestContext
+        public TestContext testContext
         {
             get
             {
-                return testContextInstance;
-            }
-            set
-            {
-                testContextInstance = value;
+                return NUnit.Framework.TestContext.CurrentContext;
             }
         }
 
@@ -235,6 +229,7 @@ namespace libDatabaseHelperUnitTests
             UniversalDataCollector.CleanUp();
             GenericConnectionManager.CloseAllConnections();
             PerformCleanUp();
+            Console.WriteLine("- " + testContext.Test.FullName + " :" + (testContext.Result.State == TestState.Success ? " [PASSED] " : " [FAILED] "));
             Console.WriteLine("========================================= [TEST END] =========================================");
         }
 
