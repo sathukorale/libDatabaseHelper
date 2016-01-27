@@ -41,6 +41,20 @@ Which will generate the following table for you,
 
 The code below should give a brief example as to how you can work with _TableName_ in retrieving, updating, modifying and deleting data.
 
+```cs
+var entry = new TableName { PrimaryKeyField = "KeyValue1", OtherField1 = "NormalValue1", OtherField2 = 1 };
+entry.Add(); // Adding the entry into the database
+
+var selectors = new[] { new Selector("PrimaryKeyField", entry.PrimaryKeyField) }; // Filters, that usually go after the where clause of a select statement
+var fetched_entries = GenericDatabaseManager.GetDatabaseManager(DatabaseType.SqlCE).Select<TableName>(selectors); // Selected entries from the database
+var fetched_entry = fetched_entries.FirstOrDefault() as TableName;
+
+fetched_entry.OtherField1 = "Updated Value";
+fetched_entry.Update(); // Updating the entry on the database
+
+fetched_entry.Remove(); // Removing the entry from the database
+```
+
 ## TODO List : 
 * Extend the library to support MySQL, MS SQL, Oracle and SQLite
 * Implement the functionality to have auto-generated primary keys.
