@@ -66,6 +66,7 @@ namespace libDatabaseHelper.classes.sqlce
             var connectionCretead = CreateConnection(null, connectionString);
             if (connectionCretead != null && connectionCretead.State == System.Data.ConnectionState.Open)
             {
+                connectionCretead.Close();
                 return true;
             }
             return false;
