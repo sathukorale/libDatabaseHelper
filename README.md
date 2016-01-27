@@ -17,7 +17,7 @@ public class TableName : DatabaseEntity
   public int OtherField2; // A normal integer field
 }
 ```
-You can create the corresponding table with
+You can create the above table using the following lines. However the lines below, should come before any code that deals with the table or the class _TableName_.
 
 ```cs
 var dbFile = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\libDBHelderSampleFolder1\\SampleDatabase1.sdf";
@@ -36,7 +36,7 @@ Which will generate the following table for you,
 | Primary Key | True            | False       | False       |
 | Data Type   | NVarChar        | NVarChar    | Integer     |
 
-
+The code below should give a brief example as to how you can work with _TableName_ in retrieving, updating, modifying and deleting data.
 
 ## TODO List : 
 * Extend the library to support MySQL, MS SQL, Oracle and SQLite
