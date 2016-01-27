@@ -20,6 +20,9 @@ public class TableName : DatabaseEntity
 You can create the above table using the following lines. However the lines below, should come before any code that deals with the table or the class _TableName_.
 
 ```cs
+GenericConnectionManager.RegisterConnectionManager<libDatabaseHelper.classes.sqlce.ConnectionManager>(); // Installing the ConnectionManager that will be handling the SQL CE connections
+GenericDatabaseManager.RegisterDatabaseManager<libDatabaseHelper.classes.sqlce.DatabaseManager>(); // Installing the DatabaseManager that will be handling SQL CE DatabaseEntities.
+
 var dbFile = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\libDBHelderSampleFolder1\\SampleDatabase1.sdf";
 
 // Setting the default connection string for any sql ce databases (Alternatively you can set for one specific type)
