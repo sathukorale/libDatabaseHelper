@@ -1,7 +1,7 @@
 # libDatabaseHelper ([![Build status](https://ci.appveyor.com/api/projects/status/0iepmbwxl4uonvr5/branch/master?svg=true)](https://ci.appveyor.com/project/sathukorale1379/libdatabasehelper/branch/master), [![Coverity Status](https://scan.coverity.com/projects/7734/badge.svg)](https://scan.coverity.com/projects/sathukorale-libdatabasehelper)) 
 A simple C# .NET library to quicken the development of database accessing/related applications. With the use of this library you can make the management of the database tables and the corresponding code respresenting the tables much easier, faster and manageable. For example if you have multiple classes, each representing a table on the database, you do not have to write the same code on thoses classes for doing the same thing(for example, the add, remove or update methods). You can even make the creation of windows forms, for editing or displaying entities much easier (the included generator will literally generate a generic form for you). In summary, the library is developed in the thought of making interactions with different databases much easier and friendlier.
 
-## Example Usage :
+## Example :
 ```cs
 public class TableName : DatabaseEntity
 {
@@ -17,11 +17,9 @@ public class TableName : DatabaseEntity
 ```
 
 ## TODO List : 
-* Implement the same for MySQL (a work in progress), SQL and Oracle
-* Implementing auto-generated primary keys.
-* Identifying column data type changes (especially when checking the table structure for any modifications)
-* Capability to store encrypted password values. 
-* On Update both the previous and the updated should be returned. 
-
-## Issues :
-* *Pending...*
+* Extend the library to support MySQL, MS SQL, Oracle and SQLite
+* Implement the functionality to have auto-generated primary keys.
+* Update the library to detect column data-type chanegs so that the tables can be modified, to suit the data type specified.
+* The library does not support, storing encrypted data/passwords (however the developer can go around and develop his own extension). The capability to store encrypted data should be introduced.
+* Most of the database exceptions are not captured via the library, even though the code attempts to prevent some causes of database exceptions (checking constraints and references, etc). Meastures should be applied to either capture these exceptions or prevent them prior execution
+* The DatabaseEntityFormGenerator needs to be updated to generate customized forms (themes etc.)
