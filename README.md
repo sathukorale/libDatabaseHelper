@@ -2,6 +2,8 @@
 A simple C# .NET library to quicken the development of database accessing/related applications. With the use of this library you can make the management of the database tables and the corresponding code respresenting the tables much easier, faster and manageable. For example if you have multiple classes, each representing a table on the database, you do not have to write the same code on thoses classes for doing the same thing(for example, the add, remove or update methods). You can even make the creation of windows forms, for editing or displaying entities much easier (the included generator will literally generate a generic form for you). In summary, the library is developed in the thought of making interactions with different databases much easier and friendlier.
 
 ## Example :
+
+Take this class for instance. The class _TableName_ will repsent the table _TableName_ on the database, and fields (with TableColumn attribute on top) represents the columns.
 ```cs
 public class TableName : DatabaseEntity
 {
@@ -15,6 +17,26 @@ public class TableName : DatabaseEntity
   public int OtherField2; // A normal integer field
 }
 ```
+You can create the corresponding table with
+
+```cs
+var dbFile = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\libDBHelderSampleFolder1\\SampleDatabase1.sdf";
+
+// Setting the default connection string for any sql ce databases (Alternatively you can set for one specific type)
+GenericConnectionManager.GetConnectionManager(DatabaseType.SqlCE).SetConnectionString("Data Source=" + dbFile + ";Persist Security Info=False;");
+
+// Creating the table in the specified database
+GenericDatabaseManager.GetDatabaseManager(DatabaseType.SqlCE).CreateTable<TableName>();
+```
+
+Which will generate the following table for you,
+
+| *           | PrimaryKeyField | OtherField1 | OtherField2 |
+|-------------|:---------------:|:-----------:|:-----------:|
+| Primary Key | True            | False       | False       |
+| Data Type   | NVarChar        | NVarChar    | Integer     |
+
+
 
 ## TODO List : 
 * Extend the library to support MySQL, MS SQL, Oracle and SQLite
