@@ -62,3 +62,9 @@ fetched_entry.Remove(); // Removing the entry from the database
 * The library does not support, storing encrypted data/passwords (however the developer can go around and develop his own extension). The capability to store encrypted data should be introduced.
 * Most of the database exceptions are not captured via the library, even though the code attempts to prevent some causes of database exceptions (checking constraints and references, etc). Meastures should be applied to either capture these exceptions or prevent them prior execution
 * The DatabaseEntityFormGenerator needs to be updated to generate customized forms (themes etc.)
+
+## Requirements : 
+* Windows (atleast for the moment, due to certain limitations)
+* .NET 3.5 (The oldest version supported is .NET 3.5)
+* The following list libraries will depend on the supported database list
+  * SQL Compact Edition 3.5
