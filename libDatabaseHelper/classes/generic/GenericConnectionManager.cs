@@ -107,9 +107,12 @@ namespace libDatabaseHelper.classes.generic
             var connectionCreated = CreateConnection(t, connectionString);
             try
             {
-                connectionCreated.Open();
+                if (connectionCreated.State == ConnectionState.Closed)
+                {
+                    connectionCreated.Open();
+                }
             }
-            catch (System.Exception) {}
+            catch (System.Exception ex) { Console.WriteLine("Unable to Open Database Connection. Error Details : " + ex.Message); }
 
             if (connectionCreated.State == ConnectionState.Open && _databaseConnections[connectionString].Contains(connectionCreated) == false)
             {

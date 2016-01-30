@@ -57,11 +57,17 @@ namespace libDatabaseHelper.classes.sqlce
 
                 if (File.Exists(builder.DataSource) == false)
                 {
+                    var containingFolder = builder.DataSource.Substring(0, builder.DataSource.LastIndexOf("\\"));
+                    if (Directory.Exists(containingFolder) == false)
+                    {
+                        GenericUtils.CreateFolderStructure(containingFolder);
+                    }
+
                     var engine = new SqlCeEngine(connectionString);
                     engine.CreateDatabase();
                 }
             }
-            catch {}
+            catch (Exception ex) { Console.WriteLine("Unable to create SQL CE database automatically. The database should be created manually. Error Details : " + ex.Message);  }
 
             var connectionCretead = CreateConnection(null, connectionString);
             if (connectionCretead != null && connectionCretead.State == System.Data.ConnectionState.Open)
@@ -99,7 +105,7 @@ namespace libDatabaseHelper.classes.sqlce
                     Console.WriteLine("Attempt on Upgrading SQL CE Database Failed (Reason = \"" + ex.Message + "\")");
                 }
             }
-            catch (Exception) {}
+            catch (Exception ex) { Console.WriteLine("Unexpected Error Occurred ! Error Details : " + ex.Message); }
             return connection;
         }
 
