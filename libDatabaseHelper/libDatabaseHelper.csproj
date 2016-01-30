@@ -27,6 +27,8 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>libDatabaseHelper.signer.pfx</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -204,6 +206,7 @@
     <None Include="Resources\ico_copyentity.ico" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="libDatabaseHelper.signer.pfx" />
     <None Include="Resources\dblocaldata.sdf">
     </None>
   </ItemGroup>
