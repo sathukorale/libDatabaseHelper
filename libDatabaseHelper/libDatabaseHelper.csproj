@@ -107,6 +107,7 @@
     <Compile Include="classes\generic\Exceptions.cs" />
     <Compile Include="classes\generic\Fields.cs" />
     <Compile Include="classes\generic\FormUtils.cs" />
+    <Compile Include="classes\generic\Relationship.cs" />
     <Compile Include="classes\generic\TableColumn.cs" />
     <Compile Include="classes\generic\TableProperties.cs" />
     <Compile Include="classes\sqlce\DatabaseEntity.cs" />

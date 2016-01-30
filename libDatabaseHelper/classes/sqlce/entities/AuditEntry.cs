@@ -17,7 +17,7 @@ namespace libDatabaseHelper.classes.sqlce.entities
         [TableColumn()]
         public string Message;
 
-        public static AuditEntry AddAuditEntry(DatabaseEntity entity, string message)
+        public static AuditEntry AddAuditEntry(GenericDatabaseEntity entity, string message)
         {
             var entry = new AuditEntry
             {

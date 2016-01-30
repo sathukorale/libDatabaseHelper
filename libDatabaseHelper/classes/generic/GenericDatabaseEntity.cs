@@ -140,19 +140,113 @@ namespace libDatabaseHelper.classes.generic
             ResetValues();
         }
 
-        public virtual bool Add()
+        public bool Add()
         {
-            throw new NotImplementedException("The class of type GenericDatabaseEntity is not intended for direct use and should be extended by a fellow DatabaseEntity");
+            ExistCondition condition;
+            if (((condition = Exist(false)) & ExistCondition.None) != ExistCondition.None)
+            {
+                throw new DatabaseException((DatabaseException.ErrorType)condition, condition);
+            }
+
+            var result = GetColumns(true);
+            if (result == null || !result.GetOtherColumns().Any())
+            {
+                throw new DatabaseException(DatabaseException.ErrorType.NoColumnsFound);
+            }
+
+            var connection = GenericConnectionManager.GetConnectionManager(_supportedDatabase).GetConnection(_entityType);
+            var command = connection.CreateCommand();
+
+            if (OnAdd(command) == false)
+            {
+                return false;
+            }
+
+            if ((this is AuditEntry) == false && (this is GenericConnectionDetails) == false)
+            {
+                AuditEntry.AddAuditEntry(this, "Added ");
+                _OnDatabaseEntityUpdated(this, GetType(), UpdateEventType.Add);
+            }
+
+            return true;
         }
 
-        public virtual bool Update()
+        public bool Update()
         {
-            throw new NotImplementedException("The class of type GenericDatabaseEntity is not intended for direct use and should be extended by a fellow DatabaseEntity");
+            ExistCondition condition;
+            if ((condition = Exist()) != ExistCondition.RecordExists)
+            {
+                throw new DatabaseException((DatabaseException.ErrorType)condition, condition);
+            }
+
+            var result = GetColumns(true);
+            if (result == null || !result.GetOtherColumns().Any())
+            {
+                throw new DatabaseException(DatabaseException.ErrorType.NoColumnsFound);
+            }
+            if (!result.GetPrimaryKeys().Any())
+            {
+                throw new DatabaseException(DatabaseException.ErrorType.NoPrimaryKeyColumnsFound);
+            }
+
+            var connection = GenericConnectionManager.GetConnectionManager(_supportedDatabase).GetConnection(_entityType);
+            var command = connection.CreateCommand();
+
+            if (OnUpdate(command) == false)
+            {
+                return false;
+            }
+
+            if ((this is AuditEntry) == false && (this is GenericConnectionDetails) == false)
+            {
+                AuditEntry.AddAuditEntry(this, "Updated ");
+                _OnDatabaseEntityUpdated(this, GetType(), UpdateEventType.Update);
+            }
+
+            return true;
         }
 
-        public virtual bool Remove()
+        public bool Remove()
         {
-            throw new NotImplementedException("The class of type GenericDatabaseEntity is not intended for direct use and should be extended by a fellow DatabaseEntity");
+            ExistCondition condition;
+            if (((condition = Exist()) & ExistCondition.RecordExists) == 0)
+            {
+                throw new DatabaseException(DatabaseException.ErrorType.NonExistingRecord, condition);
+            }
+            if (Relationship.CheckReferences(this))
+            {
+                throw new DatabaseException(DatabaseException.ErrorType.ReferenceKeyViolation, condition);
+            }
+            var result = GetColumns();
+            if (result == null || !result.GetOtherColumns().Any())
+            {
+                throw new DatabaseException(DatabaseException.ErrorType.NoColumnsFound);
+            }
+            if (!result.GetPrimaryKeys().Any())
+            {
+                throw new DatabaseException(DatabaseException.ErrorType.NoPrimaryKeyColumnsFound);
+            }
+
+            if (IsReferenced())
+            {
+                throw new DatabaseException(DatabaseException.ErrorType.NoPrimaryKeyColumnsFound);
+            }
+
+            var connection = GenericConnectionManager.GetConnectionManager(_supportedDatabase).GetConnection(_entityType);
+            var command = connection.CreateCommand();
+
+            if (OnRemove(command) == false)
+            {
+                return false;
+            }
+
+            if ((this is AuditEntry) == false && (this is GenericConnectionDetails) == false)
+            {
+                AuditEntry.AddAuditEntry(this, "Removed ");
+                _OnDatabaseEntityUpdated(this, GetType(), UpdateEventType.Remove);
+            }
+
+            return true;
         }
 
         public ExistCondition Exist()
@@ -160,10 +254,27 @@ namespace libDatabaseHelper.classes.generic
             return Exist(true);
         }
 
+        #region "Methods to Override"
         public virtual ExistCondition Exist(bool onlyCheck)
         {
             throw new NotImplementedException("The class of type GenericDatabaseEntity is not intended for direct use and should be extended by a fellow DatabaseEntity");
         }
+
+        protected virtual bool OnAdd(DbCommand command)
+        {
+            throw new NotImplementedException("The class of type GenericDatabaseEntity is not intended for direct use and should be extended by a fellow DatabaseEntity");
+        }
+
+        protected virtual bool OnUpdate(DbCommand command)
+        {
+            throw new NotImplementedException("The class of type GenericDatabaseEntity is not intended for direct use and should be extended by a fellow DatabaseEntity");
+        }
+
+        protected virtual bool OnRemove(DbCommand command)
+        {
+            throw new NotImplementedException("The class of type GenericDatabaseEntity is not intended for direct use and should be extended by a fellow DatabaseEntity");
+        }
+        #endregion
 
         public bool IsReferenced()
         {
