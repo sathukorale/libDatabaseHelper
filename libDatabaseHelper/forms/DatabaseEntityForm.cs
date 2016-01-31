@@ -5,9 +5,7 @@ using System.Windows.Forms;
 using System.IO;
 
 using libDatabaseHelper.classes.generic;
-using libDatabaseHelper.classes.sqlce;
 using libDatabaseHelper.Properties;
-using libDatabaseHelper.classes.sqlce.entities;
 
 namespace libDatabaseHelper.forms
 {
@@ -15,7 +13,7 @@ namespace libDatabaseHelper.forms
     {
         protected bool ReloadNeeded;
         protected bool Inited = false;
-        protected DatabaseEntity LoadedEntity;
+        protected GenericDatabaseEntity LoadedEntity;
 
         public Type _type;
         private string[] _drag_drop_supporting_extensions;
@@ -27,10 +25,10 @@ namespace libDatabaseHelper.forms
 
         public struct ReturnStatus
         {
-            public DatabaseEntity EntityUpdated;
+            public GenericDatabaseEntity EntityUpdated;
             public bool UpdateState;
 
-            public ReturnStatus(DatabaseEntity updatedEntity, bool updateState)
+            public ReturnStatus(GenericDatabaseEntity updatedEntity, bool updateState)
             {
                 EntityUpdated = updatedEntity;
                 UpdateState = updateState;
@@ -43,7 +41,7 @@ namespace libDatabaseHelper.forms
             FormUtils.ClearForm(this);
         }
 
-        protected virtual bool ValidateCreatedEntity(ref DatabaseEntity entity)
+        protected virtual bool ValidateCreatedEntity(ref GenericDatabaseEntity entity)
         {
             return true;
         }
@@ -130,7 +128,7 @@ namespace libDatabaseHelper.forms
             return presentedForm;
         }
 
-        private void LoadToForm(DatabaseEntity loadedEntity, bool loadValuesOnly)
+        private void LoadToForm(GenericDatabaseEntity loadedEntity, bool loadValuesOnly)
         {
             if (loadedEntity != null)
             {
@@ -164,7 +162,7 @@ namespace libDatabaseHelper.forms
             return ReloadNeeded;
         }
 
-        public DatabaseEntity GetLoadedEntity()
+        public GenericDatabaseEntity GetLoadedEntity()
         {
             return LoadedEntity;
         }
@@ -184,22 +182,22 @@ namespace libDatabaseHelper.forms
             return ShowModalWindow(type, null);
         }
 
-        public static DatabaseEntityForm ShowWindow<T>(DatabaseEntity loadedEntity)
+        public static DatabaseEntityForm ShowWindow<T>(GenericDatabaseEntity loadedEntity)
         {
             return ShowWindow(typeof (T), loadedEntity, false);
         }
 
-        public static DatabaseEntityForm ShowWindow<T>(DatabaseEntity loadedEntity, bool loadValuesOnly)
+        public static DatabaseEntityForm ShowWindow<T>(GenericDatabaseEntity loadedEntity, bool loadValuesOnly)
         {
             return ShowWindow(typeof(T), loadedEntity, loadValuesOnly);
         }
 
-        public static DatabaseEntityForm ShowWindow(Type type, DatabaseEntity loadedEntity)
+        public static DatabaseEntityForm ShowWindow(Type type, GenericDatabaseEntity loadedEntity)
         {
             return ShowWindow(type, loadedEntity, false);
         }
 
-        public static DatabaseEntityForm ShowWindow(Type type, DatabaseEntity loadedEntity, bool loadValuesOnly)
+        public static DatabaseEntityForm ShowWindow(Type type, GenericDatabaseEntity loadedEntity, bool loadValuesOnly)
         {
             if (_listOfForms == null)
                 _listOfForms = new Dictionary<Type, DatabaseEntityForm>();
@@ -220,22 +218,22 @@ namespace libDatabaseHelper.forms
             return presentedForm;
         }
 
-        public static ReturnStatus ShowModalWindow<T>(DatabaseEntity loadedEntity)
+        public static ReturnStatus ShowModalWindow<T>(GenericDatabaseEntity loadedEntity)
         {
             return ShowModalWindow<T>(loadedEntity, false);
         }
 
-        public static ReturnStatus ShowModalWindow<T>(DatabaseEntity loadedEntity, bool loadValuesOnly)
+        public static ReturnStatus ShowModalWindow<T>(GenericDatabaseEntity loadedEntity, bool loadValuesOnly)
         {
             return ShowModalWindow(typeof(T), loadedEntity, loadValuesOnly);
         }
 
-        public static ReturnStatus ShowModalWindow(Type type, DatabaseEntity loadedEntity)
+        public static ReturnStatus ShowModalWindow(Type type, GenericDatabaseEntity loadedEntity)
         {
             return ShowModalWindow(type, loadedEntity, false);
         }
 
-        public static ReturnStatus ShowModalWindow(Type type, DatabaseEntity loadedEntity, bool loadValuesOnly)
+        public static ReturnStatus ShowModalWindow(Type type, GenericDatabaseEntity loadedEntity, bool loadValuesOnly)
         {
             if (_listOfForms == null)
                 _listOfForms = new Dictionary<Type, DatabaseEntityForm>();
@@ -285,14 +283,14 @@ namespace libDatabaseHelper.forms
             return false;
         }
 
-        public DatabaseEntity GetUpdatedEntity()
+        public GenericDatabaseEntity GetUpdatedEntity()
         {
             return GetUpdatedEntity(false);
         }
 
-        public DatabaseEntity GetUpdatedEntity(bool create_new)
+        public GenericDatabaseEntity GetUpdatedEntity(bool create_new)
         {
-            var entity = (create_new ? null : LoadedEntity) ?? Activator.CreateInstance(_type) as DatabaseEntity;
+            var entity = (create_new ? null : LoadedEntity) ?? Activator.CreateInstance(_type) as GenericDatabaseEntity;
             entity.ValidateForm(this);
             return entity;
         }

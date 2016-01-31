@@ -220,7 +220,8 @@ namespace libDatabaseHelper.classes.generic
             if (!_entitiesPerType.ContainsKey(t))
             {
                 var allCurrentEntities = new List<GenericDatabaseEntity>();
-                allCurrentEntities.AddRange(GenericDatabaseManager.GetDatabaseManager(DatabaseType.SqlCE).Select(t, null));
+                var referenceEntity = DatabaseEntity.GetNonDisposableRefenceObject(t);
+                allCurrentEntities.AddRange(GenericDatabaseManager.GetDatabaseManager(referenceEntity.GetSupportedDatabaseType()).Select(t, null));
 
                 _entitiesPerType.Add(t, allCurrentEntities);
             }

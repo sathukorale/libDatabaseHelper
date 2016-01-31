@@ -46,7 +46,9 @@ namespace libDatabaseHelper.classes.generic
         { 
             InvalidConnectionString,
             NoConnectionStringFound,
-            NoConnectionManagerFound
+            NoConnectionManagerFound,
+            NoDatabaseFound,
+            NoDatabaseSpecified
         }
 
         private readonly ConnectionErrorType _errorType;

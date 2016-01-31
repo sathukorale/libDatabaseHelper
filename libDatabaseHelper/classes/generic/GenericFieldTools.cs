@@ -88,6 +88,11 @@ namespace libDatabaseHelper.classes.generic
             return (type == TypeString || type == TypeSString);
         }
 
+        public static bool IsTypeBool(Type type)
+        {
+            return (type == TypeBool || type == TypeBoolean);
+        }
+
         public static int Compare(object obj1, object obj2)
         {
             if (IsDateType(obj1.GetType()))
@@ -111,6 +116,19 @@ namespace libDatabaseHelper.classes.generic
                 return Math.Abs(diff) < 0.00001 ? 0 : (number1 < number2 ? -1 : 1);
             }
             return Int32.MinValue;
+        }
+
+        public static string GetDefaultValue(Type type)
+        {
+            if (GenericFieldTools.IsTypeBool(type))
+            {
+                return "false";
+            }
+            else if (GenericFieldTools.IsTypeNumber(type))
+            {
+                return "-1";
+            }
+            return "''";
         }
 
         public static object ConvertToType(Type type, object value)

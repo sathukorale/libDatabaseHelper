@@ -80,6 +80,7 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="MySql.Data, Version=6.9.8.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -110,6 +111,10 @@
     <Compile Include="classes\generic\Relationship.cs" />
     <Compile Include="classes\generic\TableColumn.cs" />
     <Compile Include="classes\generic\TableProperties.cs" />
+    <Compile Include="classes\mysql\ConnectionManager.cs" />
+    <Compile Include="classes\mysql\DatabaseEntity.cs" />
+    <Compile Include="classes\mysql\DatabaseManager.cs" />
+    <Compile Include="classes\mysql\FieldTools.cs" />
     <Compile Include="classes\sqlce\DatabaseEntity.cs" />
     <Compile Include="classes\sqlce\DatabaseManager.cs" />
     <Compile Include="classes\sqlce\entities\AuditEntry.cs" />

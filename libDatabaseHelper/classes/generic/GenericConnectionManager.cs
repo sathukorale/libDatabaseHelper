@@ -196,7 +196,7 @@ namespace libDatabaseHelper.classes.generic
                         connectionData.Update();
                     }
                 }
-                catch (System.Exception) { }
+                catch (System.Exception ex) { Console.WriteLine(ex.Message); }
             }
         }
         #endregion
@@ -214,7 +214,6 @@ namespace libDatabaseHelper.classes.generic
 
         protected virtual void InstallDefaultClasses()
         {
-            throw new NotImplementedException("");
         }
         #endregion
 
@@ -274,8 +273,10 @@ namespace libDatabaseHelper.classes.generic
             {
                 if (databaseType == DatabaseType.SqlCE)
                 {
-                    RegisterConnectionManager<ConnectionManager>();
-                    return GetConnectionManager(databaseType);
+                    GenericConnectionManager.RegisterConnectionManager<ConnectionManager>();
+                    GenericDatabaseManager.RegisterDatabaseManager<DatabaseManager>(true);
+
+                    return _registeredConnectionManagers[databaseType];
                 }
                 throw new DatabaseConnectionException(DatabaseConnectionException.ConnectionErrorType.NoConnectionManagerFound);
             }
