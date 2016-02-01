@@ -368,6 +368,15 @@ namespace libDatabaseHelper.classes.generic
             {
                 _registeredDatabaseManagers[databaseManager.GetSupportedDatabase()] = databaseManager;
             }
+
+            if (databaseManager.GetSupportedDatabase() == DatabaseType.SqlCE)
+            {
+                try
+                {
+                    (GenericConnectionManager.GetConnectionManager(DatabaseType.SqlCE) as libDatabaseHelper.classes.sqlce.ConnectionManager).LoadConnectionData();
+                }
+                catch {}
+            }
         }
 
         public static GenericDatabaseManager GetDatabaseManager(DatabaseType dbType)
@@ -377,6 +386,11 @@ namespace libDatabaseHelper.classes.generic
                 return null;
             }
             return _registeredDatabaseManagers[dbType];
+        }
+
+        public static void UnregisterAllDatabaseManagers()
+        {
+            _registeredDatabaseManagers.Clear();
         }
     }
 }

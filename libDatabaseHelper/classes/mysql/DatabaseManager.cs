@@ -34,6 +34,7 @@ namespace libDatabaseHelper.classes.mysql
             if (!reader.HasRows)
             {
                 reader.Close();
+                command.Dispose();
                 return false;
             }
 
@@ -106,6 +107,8 @@ namespace libDatabaseHelper.classes.mysql
                 }
             }
 
+            command.Dispose();
+
             return true;
         }
 
@@ -170,7 +173,9 @@ namespace libDatabaseHelper.classes.mysql
             var createStatement = "CREATE TABLE IF NOT EXISTS " + obj.GetType().Name + "(" + variabeDeclarations + primaryVariabeDeclarations + ")";
 
             command.CommandText = createStatement;
-            return command.ExecuteNonQuery() >= 0;
+            var executionResult = command.ExecuteNonQuery();
+            command.Dispose();
+            return executionResult >= 0;
         }
 
         public override bool DropTable(Type type)
@@ -203,7 +208,9 @@ namespace libDatabaseHelper.classes.mysql
             var createStatement = "DROP TABLE " + type.Name;
 
             command.CommandText = createStatement;
-            return command.ExecuteNonQuery() >= 0;
+            var executionResult = command.ExecuteNonQuery();
+            command.Dispose();
+            return executionResult >= 0;
         }
 
         public override GenericDatabaseEntity[] Select(Type type, Selector[] selectors)
@@ -238,8 +245,10 @@ namespace libDatabaseHelper.classes.mysql
             command.CommandText = selectStatement;
 
             var reader = command.ExecuteReader();
+            var results = ParseDataReader(type, reader);
+            command.Dispose();
 
-            return ParseDataReader(type, reader);
+            return results;
         }
 
         public override bool DeleteMatching(Type type, Selector[] selectors)
@@ -264,8 +273,10 @@ namespace libDatabaseHelper.classes.mysql
             var selectStatement = "DELETE FROM " + obj.GetType().Name +
                                      (selectors != null && selectors.Any() ? (" WHERE " + whereStatement) : "");
             command.CommandText = selectStatement;
+            var executionResult = command.ExecuteNonQuery();
+            command.Dispose();
 
-            if (command.ExecuteNonQuery() >= 0)
+            if (executionResult >= 0)
             {
                 _OnBulkDelete(type, selectors);
                 return true;
@@ -313,6 +324,7 @@ namespace libDatabaseHelper.classes.mysql
             if (!reader.Read())
             {
                 reader.Close();
+                command.Dispose();
                 return;
             }
 
@@ -340,6 +352,7 @@ namespace libDatabaseHelper.classes.mysql
             while (reader.Read());
             reader.Close();
             frmLoadingDialog.HideWindow();
+            command.Dispose();
         }
     }
 }

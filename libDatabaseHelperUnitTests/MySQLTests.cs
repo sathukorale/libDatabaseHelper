@@ -168,9 +168,8 @@ namespace libDatabaseHelperUnitTests.mysql
         public void TEST_Setup()
         {
             Console.WriteLine("======================================== [TEST START] ========================================");
-            GenericConnectionManager.CloseAllConnections();
+            GenericUtils.CleanupEverything();
             PerformCleanUp();
-            UniversalDataCollector.CleanUp();
 
             GenericConnectionManager.RegisterConnectionManager<ConnectionManager>();
             GenericDatabaseManager.RegisterDatabaseManager<DatabaseManager>(true);
@@ -196,9 +195,9 @@ namespace libDatabaseHelperUnitTests.mysql
             GenericDatabaseManager.GetDatabaseManager(DatabaseType.MySQL).DropTable<InvalidSampleTable3_NoPrimaryKey>();
             Assert.IsFalse(GenericDatabaseManager.GetDatabaseManager(DatabaseType.MySQL).TableExist<InvalidSampleTable3_NoPrimaryKey>());
 
-            UniversalDataCollector.CleanUp();
-            GenericConnectionManager.CloseAllConnections();
+            GenericUtils.CleanupEverything();
             PerformCleanUp();
+
             Console.WriteLine("- " + testContext.Test.FullName + " :" + (testContext.Result.State == TestState.Success ? " [PASSED] " : " [FAILED] "));
             Console.WriteLine("========================================= [TEST END] =========================================");
         }

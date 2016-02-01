@@ -20,45 +20,14 @@ namespace libDatabaseHelper.classes.mysql
         {
         }
 
-        public override string GetConnectionString(Type type)
-        {
-            if (_connectionStrings.ContainsKey(type) == false)
-            {
-                var entityType = type.Namespace + "." + type.Name;
-                if (_loadedConnectionDetails.ContainsKey(entityType))
-                {
-                    _connectionStrings[type] = _loadedConnectionDetails[entityType].ConnectionString;
-                }
-                else
-                {
-                    if (_connectionStrings.ContainsKey(typeof(NullType)) == false)
-                    {
-                        var nullType = typeof(NullType);
-                        entityType = nullType.Namespace + "." + nullType.Name;
-                        if (_loadedConnectionDetails.ContainsKey(entityType))
-                        {
-                            _connectionStrings[nullType] = _loadedConnectionDetails[entityType].ConnectionString;
-                        }
-                        else
-                        {
-                            throw new DatabaseConnectionException(DatabaseConnectionException.ConnectionErrorType.NoConnectionStringFound);
-                        }
-                    }
-                    return _connectionStrings[typeof(NullType)];
-                }
-            }
-            return _connectionStrings[type];
-        }
-
         public override bool CheckConnectionString(string connectionString)
         {
+            MySqlConnection connection = null;
+            Exception exceptionThrown = null;
             try
             {
-                var connection = new MySqlConnection(connectionString);
+                connection = new MySqlConnection(connectionString);
                 connection.Open();
-                connection.Close();
-
-                return true;
             }
             catch (MySqlException ex)
             {
@@ -73,10 +42,10 @@ namespace libDatabaseHelper.classes.mysql
                         madeConnectionString = connectionString.Substring(0, index) + connectionString.Substring(connectionString.IndexOf(";", index) + 1);
                         try
                         {
-                            var connection = new MySqlConnection(madeConnectionString);
+                            connection = new MySqlConnection(madeConnectionString);
                             connection.Open();
-                            var command = connection.CreateCommand();
 
+                            var command = connection.CreateCommand();
                             command.CommandText = "CREATE DATABASE IF NOT EXISTS " + builder.Database;
                             command.ExecuteNonQuery();
 
@@ -84,24 +53,42 @@ namespace libDatabaseHelper.classes.mysql
 
                             connection = new MySqlConnection(connectionString);
                             connection.Open();
-                            connection.Close();
-
-                            return true;
                         }
                         catch (MySqlException)
                         {
-                            throw new DatabaseConnectionException(DatabaseConnectionException.ConnectionErrorType.NoDatabaseFound);
+                            exceptionThrown = new DatabaseConnectionException(DatabaseConnectionException.ConnectionErrorType.NoDatabaseFound);
+                        }
+                        catch (Exception ex_inner)
+                        {
+                            exceptionThrown = ex_inner;
                         }
                     }
                     else
                     {
-                        throw new DatabaseConnectionException(DatabaseConnectionException.ConnectionErrorType.NoDatabaseSpecified);
+                        exceptionThrown = new DatabaseConnectionException(DatabaseConnectionException.ConnectionErrorType.NoDatabaseSpecified);
                     }
                 }
-                throw new DatabaseConnectionException(DatabaseConnectionException.ConnectionErrorType.InvalidConnectionString);
+                else
+                {
+                    exceptionThrown = new DatabaseConnectionException(DatabaseConnectionException.ConnectionErrorType.InvalidConnectionString);
+                }
             }
-            catch (Exception ex) { Console.WriteLine("Unable to create SQL CE database automatically. The database should be created manually. Error Details : " + ex.Message); }
-            return false;
+            catch (Exception ex_outer) 
+            {
+                Console.WriteLine("Unable to create MySQL database automatically. The database should be created manually. Error Details : " + ex_outer.Message);
+                exceptionThrown = ex_outer;
+            }
+
+            if (connection != null && connection.State != System.Data.ConnectionState.Closed)
+            {
+                try
+                {
+                    connection.Close();
+                }
+                catch (Exception) {}
+            }
+
+            return exceptionThrown == null;
         }
 
         protected override DbConnection CreateConnection(Type t, string connectionString)

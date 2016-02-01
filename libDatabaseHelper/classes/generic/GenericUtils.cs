@@ -86,5 +86,13 @@ namespace libDatabaseHelper.classes.generic
             parameter.Value = parameterValue;
             command.Parameters.Add(parameter);
         }
+
+        public static void CleanupEverything()
+        {
+            UniversalDataCollector.CleanUp();
+            GenericConnectionManager.CloseAllConnections();
+            GenericDatabaseEntity.CleanupNonDisposableReferenceObjects();
+            GenericDatabaseManager.UnregisterAllDatabaseManagers();
+        }
     }
 }

@@ -75,7 +75,7 @@ namespace libDatabaseHelper.classes.generic
         protected static Dictionary<Type, List<Reference>> referenceMap = new Dictionary<Type, List<Reference>>();
         protected static Dictionary<Type, FieldInfomation> fieldInfos = new Dictionary<Type, FieldInfomation>();
         protected static Dictionary<Type, string> selectCommandStrings = new Dictionary<Type, string>();
-        private static Dictionary<Type, GenericDatabaseEntity> nonDisposableReferenceObjects = new Dictionary<Type, GenericDatabaseEntity>();
+        private static Dictionary<Type, GenericDatabaseEntity> _nonDisposableReferenceObjects = new Dictionary<Type, GenericDatabaseEntity>();
 
         public delegate void UpdateEvent(GenericDatabaseEntity updatedEntity, Type type, GenericDatabaseEntity.UpdateEventType event_type);
         public static event UpdateEvent OnDatabaseEntityUpdated;
@@ -907,17 +907,22 @@ namespace libDatabaseHelper.classes.generic
 
         public static GenericDatabaseEntity GetNonDisposableRefenceObject(Type type)
         {
-            if (nonDisposableReferenceObjects.ContainsKey(type))
+            if (_nonDisposableReferenceObjects.ContainsKey(type))
             {
-                return nonDisposableReferenceObjects[type];
+                return _nonDisposableReferenceObjects[type];
             }
 
             var instance = Activator.CreateInstance(type) as GenericDatabaseEntity;
             if (instance != null)
             {
-                nonDisposableReferenceObjects[type] = instance;
+                _nonDisposableReferenceObjects[type] = instance;
             }
             return instance;
+        }
+
+        public static void CleanupNonDisposableReferenceObjects()
+        {
+            _nonDisposableReferenceObjects.Clear();
         }
     }
 }

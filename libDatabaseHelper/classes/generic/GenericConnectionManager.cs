@@ -9,15 +9,13 @@ using System.Linq;
 
 using libDatabaseHelper.forms;
 using libDatabaseHelper.Properties;
-using libDatabaseHelper.classes.sqlce;
-using libDatabaseHelper.classes.sqlce.entities;
 using System.Data.SqlClient;
 using System.Data.Common;
 
 namespace libDatabaseHelper.classes.generic
 {
     [TableProperties(Registration=libDatabaseHelper.classes.generic.TableProperties.RegistrationType.RegisterOnDatabaseManager)]
-    public class GenericConnectionDetails : DatabaseEntity
+    public class GenericConnectionDetails : libDatabaseHelper.classes.sqlce.DatabaseEntity
     {
         [TableColumn(true, true, 100)]
         public string TypeName;
@@ -66,18 +64,19 @@ namespace libDatabaseHelper.classes.generic
             {
                 connectionString = GetConnectionString(t);
             }
-            catch (DatabaseConnectionException)
+            catch (DatabaseConnectionException ex)
             {
-                if (LicenseManager.UsageMode != LicenseUsageMode.Designtime)
+                throw ex;
+                /*if (LicenseManager.UsageMode != LicenseUsageMode.Designtime)
                 {
                     return null;
-                    //MessageBox.Show("The application was not configured with a connection string. Can you please enter the connection string in the next dialog.", "Connection String Not Found", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                    /*return (frmConnectionStringSetter.ShowWindow(t, _databaseType) ? GetConnection() : null);*/ 
+                    MessageBox.Show("The application was not configured with a connection string. Can you please enter the connection string in the next dialog.", "Connection String Not Found", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    return (frmConnectionStringSetter.ShowWindow(t, _databaseType) ? GetConnection() : null);
                 }
                 else
                 {
                     return null;
-                }
+                }*/
             }
 
             if (_databaseConnections == null)
@@ -104,9 +103,10 @@ namespace libDatabaseHelper.classes.generic
                 }
             }
 
-            var connectionCreated = CreateConnection(t, connectionString);
+            DbConnection connectionCreated = null;
             try
             {
+                connectionCreated = CreateConnection(t, connectionString);
                 if (connectionCreated.State == ConnectionState.Closed)
                 {
                     connectionCreated.Open();
@@ -114,7 +114,7 @@ namespace libDatabaseHelper.classes.generic
             }
             catch (System.Exception ex) { Console.WriteLine("Unable to Open Database Connection. Error Details : " + ex.Message); }
 
-            if (connectionCreated.State == ConnectionState.Open && _databaseConnections[connectionString].Contains(connectionCreated) == false)
+            if (connectionCreated != null && connectionCreated.State == ConnectionState.Open && _databaseConnections[connectionString].Contains(connectionCreated) == false)
             {
                 _databaseConnections[connectionString].Add(connectionCreated);
             }
@@ -140,7 +140,21 @@ namespace libDatabaseHelper.classes.generic
             {
                 if (_connectionStrings.ContainsKey(typeof(NullType)) == false)
                 {
-                    throw new DatabaseConnectionException(DatabaseConnectionException.ConnectionErrorType.NoConnectionStringFound);
+                    if (_databaseType == DatabaseType.SqlCE)
+                    {
+                        throw new DatabaseConnectionException(DatabaseConnectionException.ConnectionErrorType.NoConnectionStringFound);
+                    }
+
+                    try
+                    {
+                        string connectionString = GetConnectionManager(DatabaseType.SqlCE).GetConnectionString(type);
+                        _connectionStrings[type] = connectionString;
+                        return connectionString;
+                    }
+                    catch (DatabaseConnectionException)
+                    {
+                        throw new DatabaseConnectionException(DatabaseConnectionException.ConnectionErrorType.NoConnectionStringFound);
+                    }
                 }
                 return _connectionStrings[typeof(NullType)];
             }
@@ -249,6 +263,16 @@ namespace libDatabaseHelper.classes.generic
 
         public static void RegisterConnectionManager(Type t)
         {
+            if (_registeredConnectionManagers.ContainsKey(DatabaseType.SqlCE) == false)
+            {
+                var sqlCeConnectionManager = Activator.CreateInstance<libDatabaseHelper.classes.sqlce.ConnectionManager>();
+
+                _registeredConnectionManagers[DatabaseType.SqlCE] = sqlCeConnectionManager;
+                sqlCeConnectionManager.InstallDefaultClasses();
+
+                GenericDatabaseManager.RegisterDatabaseManager<libDatabaseHelper.classes.sqlce.DatabaseManager>();
+            }
+
             var connectionManager = Activator.CreateInstance(t) as GenericConnectionManager;
             if (connectionManager != null)
             {
@@ -273,8 +297,8 @@ namespace libDatabaseHelper.classes.generic
             {
                 if (databaseType == DatabaseType.SqlCE)
                 {
-                    GenericConnectionManager.RegisterConnectionManager<ConnectionManager>();
-                    GenericDatabaseManager.RegisterDatabaseManager<DatabaseManager>(true);
+                    GenericConnectionManager.RegisterConnectionManager<libDatabaseHelper.classes.sqlce.ConnectionManager>();
+                    GenericDatabaseManager.RegisterDatabaseManager<libDatabaseHelper.classes.sqlce.DatabaseManager>(true);
 
                     return _registeredConnectionManagers[databaseType];
                 }

@@ -54,6 +54,7 @@ namespace libDatabaseHelper.classes.mysql
 
             command.CommandText = "SELECT LAST_INSERT_ID()";
             var valReturned = command.ExecuteScalar();
+            command.Dispose();
 
             if (autogenField != null)
                 autogenField.SetValue(this, GenericFieldTools.ConvertToType(autogenField.FieldType, valReturned));
@@ -97,10 +98,10 @@ namespace libDatabaseHelper.classes.mysql
             var commandString = "UPDATE " + GetType().Name + " SET " + valueParamString + " WHERE " +
                                    primaryValueParamString;
             command.CommandText = commandString;
-            if (command.ExecuteNonQuery() <= 0)
-                return false;
+            var executionResult = command.ExecuteNonQuery();
+            command.Dispose();
 
-            return true;
+            return (executionResult > 0);
         }
 
         protected override bool OnRemove(DbCommand command)
@@ -121,10 +122,10 @@ namespace libDatabaseHelper.classes.mysql
 
             var commandString = "DELETE FROM " + GetType().Name + " WHERE " + primaryValueParamString;
             command.CommandText = commandString;
-            if (command.ExecuteNonQuery() <= 0)
-                return false;
+            var executionResult = command.ExecuteNonQuery();
+            command.Dispose();
 
-            return true;
+            return (executionResult > 0);
         }
 
         public override GenericDatabaseEntity.ExistCondition Exist(bool onlyCheck)
@@ -173,8 +174,10 @@ namespace libDatabaseHelper.classes.mysql
 
             if (uniqueValueParamString == "")
             {
+                command.Dispose();
                 return cell == null ? ExistCondition.None : ExistCondition.RecordExists;
             }
+
             commandString = "SELECT * FROM " + GetType().Name + " WHERE " + (cell != null ? ("( " + inversePrimaryValueString + ") AND (") : "(") + uniqueValueParamString + ")";
             command.CommandText = commandString;
             var reader = command.ExecuteReader();
@@ -191,6 +194,8 @@ namespace libDatabaseHelper.classes.mysql
                 }
                 reader.Close();
             }
+
+            command.Dispose();
 
             if (cell == null && !hadData)
                 return ExistCondition.None;
@@ -259,16 +264,6 @@ namespace libDatabaseHelper.classes.mysql
             selectCommandStrings.Add(type, selectCommand);
 
             return selectCommand;
-        }
-
-        public object Autogen(string table, string field)
-        {
-            var connection = GenericConnectionManager.GetConnectionManager(_supportedDatabase).GetConnection(_entityType);
-            var command = connection.CreateCommand();
-
-            var commandText = "SELECT " + field + " FROM " + table + " ORDER BY " + field + " DESC LIMIT 1";
-            command.CommandText = commandText;
-            return command.ExecuteScalar();
         }
     }
 }

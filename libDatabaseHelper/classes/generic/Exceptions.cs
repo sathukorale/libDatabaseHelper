@@ -48,7 +48,8 @@ namespace libDatabaseHelper.classes.generic
             NoConnectionStringFound,
             NoConnectionManagerFound,
             NoDatabaseFound,
-            NoDatabaseSpecified
+            NoDatabaseSpecified,
+            UnableToConnectToTheDatabase
         }
 
         private readonly ConnectionErrorType _errorType;

@@ -29,7 +29,13 @@ namespace libDatabaseHelper.classes.sqlce
 
             var fields = entity.GetColumns(true).GetOtherColumns().ToList();
 
-            var connection = GenericConnectionManager.GetConnectionManager(GetSupportedDatabase()).GetConnection(type);
+            var manager = GenericConnectionManager.GetConnectionManager(GetSupportedDatabase());
+            var connection = manager.GetConnection(type);
+            if (connection == null || connection.State != ConnectionState.Open)
+            {
+                throw new DatabaseConnectionException(DatabaseConnectionException.ConnectionErrorType.UnableToConnectToTheDatabase);
+            }
+
             var command = connection.CreateCommand();
             command.CommandText = "SELECT COLUMN_NAME, DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='" + (entity.GetType().Name) + "'";
             var reader = command.ExecuteReader();
@@ -37,6 +43,8 @@ namespace libDatabaseHelper.classes.sqlce
             if (!reader.Read())
             {
                 reader.Close();
+                command.Dispose();
+
                 return false;
             }
 
@@ -110,6 +118,8 @@ namespace libDatabaseHelper.classes.sqlce
                 }
             }
 
+            command.Dispose();
+
             return true;
         }
 
@@ -146,6 +156,11 @@ namespace libDatabaseHelper.classes.sqlce
             }
 
             var connection = GenericConnectionManager.GetConnectionManager(GetSupportedDatabase()).GetConnection(type);
+            if (connection == null || connection.State != ConnectionState.Open)
+            {
+                throw new DatabaseConnectionException(DatabaseConnectionException.ConnectionErrorType.UnableToConnectToTheDatabase);
+            }
+
             var command = connection.CreateCommand();
 
             var variabeDeclarations = "";
@@ -176,7 +191,10 @@ namespace libDatabaseHelper.classes.sqlce
             var createStatement = "CREATE TABLE " + obj.GetType().Name + "(" + variabeDeclarations + primaryVariabeDeclarations + ")";
 
             command.CommandText = createStatement;
-            return command.ExecuteNonQuery() >= 0;
+            var executionResult = command.ExecuteNonQuery();
+            command.Dispose();
+
+            return executionResult >= 0;
         }
 
         public override bool DropTable(Type type)
@@ -209,7 +227,10 @@ namespace libDatabaseHelper.classes.sqlce
             var createStatement = "DROP TABLE " + type.Name;
 
             command.CommandText = createStatement;
-            return command.ExecuteNonQuery() >= 0;
+            var executionResult = command.ExecuteNonQuery();
+            command.Dispose();
+
+            return executionResult >= 0;
         }
 
         public override GenericDatabaseEntity[] Select(Type type, Selector[] selectors)
@@ -244,8 +265,9 @@ namespace libDatabaseHelper.classes.sqlce
             command.CommandText = selectStatement;
 
             var reader = command.ExecuteReader();
-
-            return ParseDataReader(type, reader);
+            var results = ParseDataReader(type, reader);
+            command.Dispose();
+            return results;
         }
 
         public override bool DeleteMatching(Type type, Selector[] selectors)
@@ -270,8 +292,10 @@ namespace libDatabaseHelper.classes.sqlce
             var selectStatement = "DELETE FROM " + obj.GetType().Name +
                                      (selectors != null && selectors.Any() ? (" WHERE " + whereStatement) : "");
             command.CommandText = selectStatement;
+            var executionResult = command.ExecuteNonQuery();
+            command.Dispose();
 
-            if (command.ExecuteNonQuery() >= 0)
+            if (executionResult >= 0)
             {
                 _OnBulkDelete(type, selectors);
                 return true;
@@ -324,6 +348,7 @@ namespace libDatabaseHelper.classes.sqlce
             if (!reader.Read())
             {
                 reader.Close();
+                command.Dispose();
                 return;
             }
 
@@ -351,6 +376,7 @@ namespace libDatabaseHelper.classes.sqlce
             while (reader.Read());
             reader.Close();
             frmLoadingDialog.HideWindow();
+            command.Dispose();
         }
     }
 }
