@@ -122,7 +122,7 @@
 {
 	try
 	{
-		var items = DatabaseManager.Select&amp;lt;{1}&amp;gt;(null);
+		var items = DatabaseManager.Select&lt;{1}&gt;(null);
 		cmb{0}.Items.Clear();
 		cmb{0}.Items.AddRange(items);
 	}
@@ -130,27 +130,27 @@
 }</value>
   </data>
   <data name="DBEntityForm_AutogenCode" xml:space="preserve">
-    <value>using libDatabaseEntityHelper.forms;
-using libDatabaseEntityHelper.classes.generic;
-using libDatabaseEntityHelper.classes.sqlce;
-using libDatabaseEntityHelper.forms.controls;
+    <value>using libDatabaseHelper.forms;
+using libDatabaseHelper.classes.generic;
+using libDatabaseHelper.classes.sqlce;
+using libDatabaseHelper.forms.controls;
 
 namespace NAMESPACE
 {
     partial class CLASS_NAME
     {
-        /// &amp;lt;summary&amp;gt;
+        /// &lt;summary&gt;
         /// Required designer variable.
-        /// &amp;lt;/summary&amp;gt;
+        /// &lt;/summary&gt;
         private System.ComponentModel.IContainer components = null;
 
-        /// &amp;lt;summary&amp;gt;
+        /// &lt;summary&gt;
         /// Clean up any resources being used.
-        /// &amp;lt;/summary&amp;gt;
-        /// &amp;lt;param name="disposing"&amp;gt;true if managed resources should be disposed; otherwise, false.&amp;lt;/param&amp;gt;
+        /// &lt;/summary&gt;
+        /// &lt;param name="disposing"&gt;true if managed resources should be disposed; otherwise, false.&lt;/param&gt;
         protected override void Dispose(bool disposing)
         {
-            if (disposing &amp;amp;&amp;amp; (components != null))
+            if (disposing &amp;&amp; (components != null))
             {
                 components.Dispose();
             }
@@ -159,10 +159,10 @@ namespace NAMESPACE
 
         #region Windows Form Designer generated code
 
-        /// &amp;lt;summary&amp;gt;
+        /// &lt;summary&gt;
         /// Required method for Designer support - do not modify
         /// the contents of this method with the code editor.
-        /// &amp;lt;/summary&amp;gt;
+        /// &lt;/summary&gt;
         private void InitializeComponent()
         {
 			this.btnReset = new System.Windows.Forms.Button();
@@ -226,7 +226,7 @@ namespace NAMESPACE
             this.Controls.Add(this.btnOK);
             this.Controls.Add(this.btnCancel);
             this.Name = "CLASS_NAME";
-            this.Text = "Form1";
+            this.Text = "CLASS_NAME";
             this.pnlControlContainer.ResumeLayout(false);
             this.pnlControlContainer.PerformLayout();
             this.ResumeLayout(false);
@@ -253,14 +253,14 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 
-using libDatabaseEntityHelper.forms;
-using libDatabaseEntityHelper.classes.generic;
-using libDatabaseEntityHelper.classes.sqlce;
-using libDatabaseEntityHelper.forms.controls;
+using libDatabaseHelper.forms;
+using libDatabaseHelper.classes.generic;
+using libDatabaseHelper.classes.sqlce;
+using libDatabaseHelper.forms.controls;
 
 namespace NAMESPACE
 {
-    public partial class CLASS_NAME : DbEntityForm
+    public partial class CLASS_NAME : DatabaseEntityForm
     {
         public CLASS_NAME()
         {

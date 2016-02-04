@@ -65,7 +65,7 @@ namespace DatabaseEntityFormGenerator.Properties {
         ///{
         ///	try
         ///	{
-        ///		var items = DatabaseManager.Select&amp;lt;{1}&amp;gt;(null);
+        ///		var items = DatabaseManager.Select&lt;{1}&gt;(null);
         ///		cmb{0}.Items.Clear();
         ///		cmb{0}.Items.AddRange(items);
         ///	}
@@ -79,23 +79,24 @@ namespace DatabaseEntityFormGenerator.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to using libDatabaseEntityHelper.forms;
-        ///using libDatabaseEntityHelper.classes.generic;
-        ///using libDatabaseEntityHelper.classes.sqlce;
-        ///using libDatabaseEntityHelper.forms.controls;
+        ///   Looks up a localized string similar to using libDatabaseHelper.forms;
+        ///using libDatabaseHelper.classes.generic;
+        ///using libDatabaseHelper.classes.sqlce;
+        ///using libDatabaseHelper.forms.controls;
         ///
         ///namespace NAMESPACE
         ///{
         ///    partial class CLASS_NAME
         ///    {
-        ///        /// &amp;lt;summary&amp;gt;
+        ///        /// &lt;summary&gt;
         ///        /// Required designer variable.
-        ///        /// &amp;lt;/summary&amp;gt;
+        ///        /// &lt;/summary&gt;
         ///        private System.ComponentModel.IContainer components = null;
         ///
-        ///        /// &amp;lt;summary&amp;gt;
+        ///        /// &lt;summary&gt;
         ///        /// Clean up any resources being used.
-        ///        /// &amp;lt;/summa [rest of string was truncated]&quot;;.
+        ///        /// &lt;/summary&gt;
+        ///        /// &lt;param name=&quot;disposing&quot;&gt;true [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string DBEntityForm_AutogenCode {
             get {
@@ -113,18 +114,18 @@ namespace DatabaseEntityFormGenerator.Properties {
         ///using System.Text;
         ///using System.Windows.Forms;
         ///
-        ///using libDatabaseEntityHelper.forms;
-        ///using libDatabaseEntityHelper.classes.generic;
-        ///using libDatabaseEntityHelper.classes.sqlce;
-        ///using libDatabaseEntityHelper.forms.controls;
+        ///using libDatabaseHelper.forms;
+        ///using libDatabaseHelper.classes.generic;
+        ///using libDatabaseHelper.classes.sqlce;
+        ///using libDatabaseHelper.forms.controls;
         ///
         ///namespace NAMESPACE
         ///{
-        ///    public partial class CLASS_NAME : DbEntityForm
+        ///    public partial class CLASS_NAME : DatabaseEntityForm
         ///    {
         ///        public CLASS_NAME()
         ///        {
-        ///            In [rest of string was truncated]&quot;;.
+        ///            InitializeComponent( [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string DBEntityForm_UserCode {
             get {

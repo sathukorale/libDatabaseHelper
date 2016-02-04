@@ -115,6 +115,11 @@ namespace libDatabaseHelper.forms
 
         }
 
+        public Type GetExtendedType()
+        {
+            return _type;
+        }
+
         public DatabaseEntityForm GetFormInstance<T>()
         {
             if (_listOfForms == null)

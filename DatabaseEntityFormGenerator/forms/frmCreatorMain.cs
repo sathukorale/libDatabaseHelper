@@ -16,10 +16,11 @@ namespace DatabaseEntityFormCreator
             InitializeComponent();
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void btnCreateForms_Click(object sender, EventArgs e)
         {
             using (var ofd = new OpenFileDialog())
             {
+                ofd.Title = "Please Select the .NET Library Containing, the Classes Extending DatabaseEntity";
                 ofd.Filter = "Compiled DLL Files|*.dll";
                 if (ofd.ShowDialog() == DialogResult.OK)
                 {

@@ -29,7 +29,7 @@ namespace DatabaseEntityFormCreator
 
             if (!matchingTypes.Any())
             {
-                MessageBox.Show("Unable to find any classes that inherits \"Database Entity\" !",
+                MessageBox.Show("Unable to find any classes that extends \"Database Entity\" !",
                     "No Supported Classes Found", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }

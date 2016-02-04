@@ -78,7 +78,7 @@
             // btnCopyEntity
             // 
             this.btnCopyEntity.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnCopyEntity.BackgroundImage = global::libDatabaseHelper.Properties.Resources.ico_removerecord;
+            this.btnCopyEntity.BackgroundImage = global::libDatabaseHelper.Properties.Resources.ico_copyentity;
             this.btnCopyEntity.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.btnCopyEntity.Location = new System.Drawing.Point(482, 14);
             this.btnCopyEntity.Name = "btnCopyEntity";

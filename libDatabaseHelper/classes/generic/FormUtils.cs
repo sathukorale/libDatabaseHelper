@@ -83,6 +83,11 @@ namespace libDatabaseHelper.classes.generic
             }
         }
 
+        public static void AddToolTip(Control control, string toolTip)
+        {
+            AddToolTip(control, toolTip, ToolTipIcon.None);
+        }
+
         public static void AddToolTip(Control control, string toolTip, ToolTipIcon icon)
         {
             if (_universalToolTip == null)

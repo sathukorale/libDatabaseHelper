@@ -60,7 +60,7 @@ namespace DatabaseEntityFormCreator
 
         private void btnDone_Click(object sender, EventArgs e)
         {
-            _types = chklstMatchingTypes.Items.OfType<DbeType>().Select(i => i.GetType()).ToArray();
+            _types = chklstMatchingTypes.CheckedItems.OfType<DbeType>().Select(i => i.GetType()).ToArray();
             Hide();
         }
     }

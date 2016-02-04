@@ -90,6 +90,10 @@ namespace libDatabaseHelper.forms
             _currentType = type;
             _selectors = selectors;
 
+            FormUtils.AddToolTip(btnAddDatabaseEntity, "Add New " + _currentType.Name);
+            FormUtils.AddToolTip(btnRemoveDatabaseEntity, "Remove Selected " + _currentType.Name + "(s)");
+            FormUtils.AddToolTip(btnCopyEntity, "Copy Selected " + _currentType.Name);
+
             btnAddDatabaseEntity.Enabled = _registeredEditorTypes.ContainsKey(type);
 
             var instance = GenericDatabaseEntity.GetNonDisposableRefenceObject(type);
@@ -126,6 +130,20 @@ namespace libDatabaseHelper.forms
             presentedForm.ViewItems(type, selectors);
             presentedForm.ShowDialog();
             return presentedForm.GetItems();
+        }
+
+        public static void RegisterEditor<T>()
+        {
+            var instance = Activator.CreateInstance<T>() as DatabaseEntityForm;
+            if (instance == null)
+            {
+                throw new InvalidCastException("Unable to Register Editor Window, Since the Registered Window is not of the Type DatabaseEntityForm.");
+            }
+
+            if (!_registeredEditorTypes.ContainsKey(instance.GetExtendedType()))
+            {
+                _registeredEditorTypes.Add(instance.GetExtendedType(), typeof(T));
+            }
         }
 
         public static void RegisterEditor<T>(Type frmType)

@@ -33,9 +33,9 @@
             // 
             // btnCreateForm
             // 
-            this.btnCreateForm.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnCreateForm.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.btnCreateForm.Location = new System.Drawing.Point(14, 16);
             this.btnCreateForm.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.btnCreateForm.Name = "btnCreateForm";
@@ -43,7 +43,7 @@
             this.btnCreateForm.TabIndex = 0;
             this.btnCreateForm.Text = "Create Form(s)";
             this.btnCreateForm.UseVisualStyleBackColor = true;
-            this.btnCreateForm.Click += new System.EventHandler(this.button1_Click);
+            this.btnCreateForm.Click += new System.EventHandler(this.btnCreateForms_Click);
             // 
             // frmCreatorMain
             // 
@@ -54,6 +54,7 @@
             this.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.MaximizeBox = false;
             this.Name = "frmCreatorMain";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Form Creator";
