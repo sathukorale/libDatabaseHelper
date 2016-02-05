@@ -102,7 +102,8 @@ namespace libDatabaseHelper.classes.mysql
                     command.CommandText = "ALTER TABLE " + type.Name + " ADD ( " + columnsToAdd + " )";
                     command.ExecuteNonQuery();
 
-                    command.CommandText = "UPDATE " + type.Name + " SET " + column.Name + "=" + (GenericFieldTools.GetDefaultValue(column.FieldType));
+                    var defaultFieldValues = ((GenericFieldTools.IsTypeNumber(column.FieldType) || GenericFieldTools.IsTypeFloatingPoint(column.FieldType)) ? "-1" : (GenericFieldTools.IsTypeBool(column.FieldType) ? "0" : "''"));
+                    command.CommandText = "UPDATE " + type.Name + " SET " + column.Name + "=" + defaultFieldValues;
                     command.ExecuteNonQuery();
                 }
             }

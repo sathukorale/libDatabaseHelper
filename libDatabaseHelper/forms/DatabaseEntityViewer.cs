@@ -13,19 +13,32 @@ namespace libDatabaseHelper.forms
         public DatabaseEntity[] ViewedItems;
     };
 
-    public partial class frmDatabaseEntityViewer : Form
+    public partial class DatabaseEntityViewer : Form
     {
-        private static Dictionary<Type, frmDatabaseEntityViewer> _presentedForms = new Dictionary<Type, frmDatabaseEntityViewer>();
+        private static Dictionary<Type, DatabaseEntityViewer> _presentedForms = new Dictionary<Type, DatabaseEntityViewer>();
         private static Dictionary<Type, Type> _registeredEditorTypes = new Dictionary<Type, Type>();
 
         private bool _isUpdated;
         private Selector[] _selectors;
         private Type _currentType;
 
-        private frmDatabaseEntityViewer()
+        private DatabaseEntityViewer()
         {
             InitializeComponent();
             FormUtils.MakeControlAndSubControlsSensitiveToKey(this, new[] { Keys.Escape }, o => { Close(); return 0; });
+
+            GenericDatabaseEntity.OnDatabaseEntityUpdated += new GenericDatabaseEntity.UpdateEvent(DatabaseEntity_OnDatabaseEntityUpdated);
+            GenericDatabaseManager.OnBulkDelete += new GenericDatabaseManager.BulkDelete(GenericDatabaseManager_OnBulkDelete);
+        }
+
+        void GenericDatabaseManager_OnBulkDelete(Type type, Selector[] selectors)
+        {
+            ViewItems(_currentType, _selectors);
+        }
+
+        void DatabaseEntity_OnDatabaseEntityUpdated(GenericDatabaseEntity updatedEntity, Type type, GenericDatabaseEntity.UpdateEventType event_type)
+        {
+            ViewItems(_currentType, _selectors);
         }
 
         public Result GetItems()
@@ -55,7 +68,7 @@ namespace libDatabaseHelper.forms
             ShowWindow(typeof(T), selectors);
         }
 
-        public static frmDatabaseEntityViewer ShowNonModalWindow<T>(Selector[] selectors)
+        public static DatabaseEntityViewer ShowNonModalWindow<T>(Selector[] selectors)
         {
             return ShowNonModalWindow(typeof(T), selectors);
         }
@@ -74,7 +87,7 @@ namespace libDatabaseHelper.forms
         {
             var presentedForm = _presentedForms.ContainsKey(type) ? _presentedForms[type] : null;
             if (presentedForm == null || presentedForm.IsDisposed)
-                presentedForm = new frmDatabaseEntityViewer();
+                presentedForm = new DatabaseEntityViewer();
             _presentedForms[type] = presentedForm;
             presentedForm.ViewItems(type, selectors);
             presentedForm.ShowDialog();
@@ -104,17 +117,17 @@ namespace libDatabaseHelper.forms
         {
             var presentedForm = _presentedForms.ContainsKey(type) ? _presentedForms[type] : null;
             if (presentedForm == null || presentedForm.IsDisposed)
-                presentedForm = new frmDatabaseEntityViewer();
+                presentedForm = new DatabaseEntityViewer();
             _presentedForms[type] = presentedForm;
             presentedForm.ViewItems(type, selectors);
             presentedForm.ShowDialog();
         }
 
-        public static frmDatabaseEntityViewer ShowNonModalWindow(Type type, Selector[] selectors)
+        public static DatabaseEntityViewer ShowNonModalWindow(Type type, Selector[] selectors)
         {
             var presentedForm = _presentedForms.ContainsKey(type) ? _presentedForms[type] : null;
             if (presentedForm == null || presentedForm.IsDisposed)
-                presentedForm = new frmDatabaseEntityViewer();
+                presentedForm = new DatabaseEntityViewer();
             _presentedForms[type] = presentedForm;
             presentedForm.ViewItems(type, selectors);
             presentedForm.Show();
@@ -125,7 +138,7 @@ namespace libDatabaseHelper.forms
         {
             var presentedForm = _presentedForms.ContainsKey(type) ? _presentedForms[type] : null;
             if (presentedForm == null || presentedForm.IsDisposed)
-                presentedForm = new frmDatabaseEntityViewer();
+                presentedForm = new DatabaseEntityViewer();
             _presentedForms[type] = presentedForm;
             presentedForm.ViewItems(type, selectors);
             presentedForm.ShowDialog();
@@ -165,7 +178,6 @@ namespace libDatabaseHelper.forms
 
                 if (status.UpdateState)
                 {
-                    ViewItems(_currentType, _selectors);
                     _isUpdated = true;
                 }
             }

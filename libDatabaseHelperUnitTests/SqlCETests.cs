@@ -576,7 +576,7 @@ namespace libDatabaseHelperUnitTests.sqlce
                 Assert.AreEqual(newly_fetched_entry.Column2, sample_text);
             }
 
-            var form = frmDatabaseEntityViewer.ShowNonModalWindow<SampleTable1>(null);
+            var form = DatabaseEntityViewer.ShowNonModalWindow<SampleTable1>(null);
             form.Close();
 
             Assert.IsTrue(GenericDatabaseManager.GetDatabaseManager(DatabaseType.SqlCE).DeleteAll<SampleTable1>());

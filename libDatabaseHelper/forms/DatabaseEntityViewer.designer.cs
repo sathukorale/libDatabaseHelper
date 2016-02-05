@@ -1,6 +1,6 @@
 ﻿namespace libDatabaseHelper.forms
 {
-    partial class frmDatabaseEntityViewer
+    partial class DatabaseEntityViewer
     {
         /// <summary>
         /// Required designer variable.
@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmDatabaseEntityViewer));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DatabaseEntityViewer));
             this.btnAddDatabaseEntity = new System.Windows.Forms.Button();
             this.btnRemoveDatabaseEntity = new System.Windows.Forms.Button();
             this.dgvDatabaseEntities = new System.Windows.Forms.DataGridView();
