@@ -113,7 +113,7 @@ namespace libDatabaseHelper.classes.sqlce
                     command.CommandText = "ALTER TABLE " + type.Name + " ADD COLUMN " + columnToAdd;
                     command.ExecuteNonQuery();
 
-                    command.CommandText = "UPDATE TABLE " + type.Name + " SET " + columnToAdd + "=" + (GenericFieldTools.IsTypeNumber(column.FieldType) ? "-1" : ("''"));
+                    command.CommandText = "UPDATE TABLE " + type.Name + " SET " + column.Name + "=" + (GenericFieldTools.IsTypeNumber(column.FieldType) ? "-1" : ("''"));
                     command.ExecuteNonQuery();
                 }
             }
