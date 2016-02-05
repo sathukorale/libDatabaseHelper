@@ -293,7 +293,7 @@ namespace libDatabaseHelper.classes.generic
                 {
                     try
                     {
-                        var entity = GenericDatabaseEntity.GetNonDisposableRefenceObject(type);
+                        var entity = Activator.CreateInstance(type) as GenericDatabaseEntity;
                         if (entity == null) continue;
                         entity.Parse(reader);
                         list.Add(entity);
