@@ -19,8 +19,24 @@ namespace libDatabaseHelper.classes.generic
         protected TransactionObject(DbCommand command)
         {
             _command                = command;
-            _connection             = command.Connection;
-            _transaction            = _connection.BeginTransaction(IsolationLevel.ReadCommitted);
+            _connection = command.Connection;
+
+            try
+            {
+                _transaction = _connection.BeginTransaction(IsolationLevel.ReadCommitted);
+            }
+            catch (System.Exception ex)
+            {
+                // This is bug with the MySQL Connector, which is tracked via : https://bugs.mysql.com/bug.php?id=71502
+                if (ex.Message == "Nested transactions are not supported.")
+                {
+                    _connection.Close();
+                    _connection.Open();
+                }
+
+                _transaction = _connection.BeginTransaction();
+            }
+
             _isCommitted            = false;
             _isRegularCommitAllowed = true;
 
@@ -31,7 +47,23 @@ namespace libDatabaseHelper.classes.generic
         {
             _command                = connection.CreateCommand();
             _connection             = connection;
-            _transaction            = _connection.BeginTransaction(IsolationLevel.ReadCommitted);
+
+            try
+            {
+                _transaction = _connection.BeginTransaction(IsolationLevel.ReadCommitted);
+            }
+            catch (System.Exception ex)
+            {
+                // This is bug with the MySQL Connector, which is tracked via : https://bugs.mysql.com/bug.php?id=71502
+                if (ex.Message == "Nested transactions are not supported.")
+                {
+                    _connection.Close();
+                    _connection.Open();
+                }
+
+                _transaction = _connection.BeginTransaction();
+            }
+
             _isCommitted            = false;
             _isRegularCommitAllowed = true;
 
