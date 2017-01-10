@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace libDatabaseHelper.classes.generic
@@ -30,6 +27,19 @@ namespace libDatabaseHelper.classes.generic
 
         public ValidationException(Control control, string message)
         {
+            Control parent = control;
+            while ((parent = FormUtils.GetFirstParentOfType<TabPage>(parent)) != null)
+            {
+                var tabPage = parent as TabPage;
+                var tabControl = parent.Parent as TabControl;
+                if (tabPage != null && tabControl != null)
+                {
+                    tabControl.SelectedTab = tabPage;
+
+                    tabPage.Select();
+                    tabPage.Focus();
+                }
+            }
             control.Focus();
             _message = message;
         }

@@ -554,7 +554,7 @@ namespace libDatabaseHelperUnitTests.mysql
         }
 
         [Test]
-        public void RegisteringEntityTypeOnUniversalDataCollector()
+        public void RegisteringEntityTypeOnUniversalDataModel()
         {
             GenericDatabaseManager.GetDatabaseManager(DatabaseType.MySQL).CreateTable<SampleTable1>();
             GenericDatabaseManager.GetDatabaseManager(DatabaseType.MySQL).CreateTable<SampleTable2>();
@@ -562,8 +562,8 @@ namespace libDatabaseHelperUnitTests.mysql
             Assert.IsTrue(GenericDatabaseManager.GetDatabaseManager(DatabaseType.MySQL).TableExist<SampleTable1>());
             Assert.IsTrue(GenericDatabaseManager.GetDatabaseManager(DatabaseType.MySQL).TableExist<SampleTable2>());
 
-            UniversalDataCollector.Register<SampleTable1>();
-            UniversalDataCollector.Register<SampleTable2>();
+            UniversalDataModel.Register<SampleTable1>();
+            UniversalDataModel.Register<SampleTable2>();
 
             for (int i = 0; i < 20; i++)
             {
@@ -574,12 +574,12 @@ namespace libDatabaseHelperUnitTests.mysql
                 inserted_entry2.Add();
             }
 
-            Assert.IsTrue(UniversalDataCollector.Select<SampleTable1>().Count == 20);
-            Assert.IsTrue(UniversalDataCollector.Select<SampleTable2>().Count == 20);
+            Assert.IsTrue(UniversalDataModel.Select<SampleTable1>().Count == 20);
+            Assert.IsTrue(UniversalDataModel.Select<SampleTable2>().Count == 20);
         }
 
         [Test]
-        public void UniversalDataCollectorDataModelUpdateCheck()
+        public void UniversalDataModelDataModelUpdateCheck()
         {
             GenericDatabaseManager.GetDatabaseManager(DatabaseType.MySQL).CreateTable<SampleTable1>();
             GenericDatabaseManager.GetDatabaseManager(DatabaseType.MySQL).CreateTable<SampleTable2>();
@@ -587,8 +587,8 @@ namespace libDatabaseHelperUnitTests.mysql
             Assert.IsTrue(GenericDatabaseManager.GetDatabaseManager(DatabaseType.MySQL).TableExist<SampleTable1>());
             Assert.IsTrue(GenericDatabaseManager.GetDatabaseManager(DatabaseType.MySQL).TableExist<SampleTable2>());
 
-            UniversalDataCollector.Register<SampleTable1>();
-            UniversalDataCollector.Register<SampleTable2>();
+            UniversalDataModel.Register<SampleTable1>();
+            UniversalDataModel.Register<SampleTable2>();
 
             for (int i = 0; i < 20; i++)
             {
@@ -599,37 +599,37 @@ namespace libDatabaseHelperUnitTests.mysql
                 inserted_entry2.Add();
             }
 
-            Assert.IsTrue(UniversalDataCollector.Select<SampleTable1>().Count == 20);
-            Assert.IsTrue(UniversalDataCollector.Select<SampleTable2>().Count == 20);
+            Assert.IsTrue(UniversalDataModel.Select<SampleTable1>().Count == 20);
+            Assert.IsTrue(UniversalDataModel.Select<SampleTable2>().Count == 20);
 
             GenericDatabaseManager.GetDatabaseManager(DatabaseType.MySQL).DeleteMatching<SampleTable1>(new[] { new Selector("Column1", 80, Selector.Operator.LessThan) });
 
-            Assert.IsTrue(UniversalDataCollector.Select<SampleTable2>().Count == 20);
-            var other_results = UniversalDataCollector.Select<SampleTable1>();
+            Assert.IsTrue(UniversalDataModel.Select<SampleTable2>().Count == 20);
+            var other_results = UniversalDataModel.Select<SampleTable1>();
             Assert.IsTrue(other_results.Count == 12);
 
             var second_entry = other_results[1] as SampleTable1;
 
             Assert.IsTrue(other_results.First().Remove());
 
-            Assert.IsTrue(UniversalDataCollector.Select<SampleTable1>().Count == 11);
-            Assert.IsTrue(UniversalDataCollector.Select<SampleTable2>().Count == 20);
+            Assert.IsTrue(UniversalDataModel.Select<SampleTable1>().Count == 11);
+            Assert.IsTrue(UniversalDataModel.Select<SampleTable2>().Count == 20);
 
             second_entry.Column2 = "Does this work";
             Assert.IsTrue(second_entry.Update());
 
-            Assert.IsTrue(UniversalDataCollector.Select<SampleTable1>().Count == 11);
-            Assert.IsTrue(UniversalDataCollector.Select<SampleTable2>().Count == 20);
+            Assert.IsTrue(UniversalDataModel.Select<SampleTable1>().Count == 11);
+            Assert.IsTrue(UniversalDataModel.Select<SampleTable2>().Count == 20);
 
-            var grabbed_entry = UniversalDataCollector.Select<SampleTable1>(new []{new Selector("Column1", 90)})[0] as SampleTable1;
+            var grabbed_entry = UniversalDataModel.Select<SampleTable1>(new []{new Selector("Column1", 90)})[0] as SampleTable1;
 
             Assert.IsTrue(second_entry.Equals(grabbed_entry));
 
             GenericDatabaseManager.GetDatabaseManager(DatabaseType.MySQL).DeleteAll<SampleTable1>();
-            Assert.IsTrue(UniversalDataCollector.Select<SampleTable1>().Count == 0);
+            Assert.IsTrue(UniversalDataModel.Select<SampleTable1>().Count == 0);
 
             GenericDatabaseManager.GetDatabaseManager(DatabaseType.MySQL).DeleteAll<SampleTable2>();
-            Assert.IsTrue(UniversalDataCollector.Select<SampleTable2>().Count == 0);
+            Assert.IsTrue(UniversalDataModel.Select<SampleTable2>().Count == 0);
         }
 
         [Test]

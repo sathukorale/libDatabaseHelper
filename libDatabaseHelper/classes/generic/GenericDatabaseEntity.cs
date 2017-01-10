@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Reflection;
 using System.Data.Common;
 using System.Windows.Forms;
 using libDatabaseHelper.classes.sqlce.entities;
+using System.Data;
+using libDatabaseHelper.classes.sqlce;
 
 namespace libDatabaseHelper.classes.generic
 {
@@ -75,9 +76,12 @@ namespace libDatabaseHelper.classes.generic
         protected static Dictionary<Type, List<Reference>> referenceMap = new Dictionary<Type, List<Reference>>();
         protected static Dictionary<Type, FieldInfomation> fieldInfos = new Dictionary<Type, FieldInfomation>();
         protected static Dictionary<Type, string> selectCommandStrings = new Dictionary<Type, string>();
+        protected static Dictionary<Type, string> insertCommandStrings = new Dictionary<Type, string>();
+        protected static Dictionary<Type, string> updateCommandStrings = new Dictionary<Type, string>();
+        protected static Dictionary<Type, string> deleteCommandStrings = new Dictionary<Type, string>();
         private static Dictionary<Type, GenericDatabaseEntity> _nonDisposableReferenceObjects = new Dictionary<Type, GenericDatabaseEntity>();
 
-        public delegate void UpdateEvent(GenericDatabaseEntity updatedEntity, Type type, GenericDatabaseEntity.UpdateEventType event_type);
+        public delegate void UpdateEvent(GenericDatabaseEntity updatedEntity, Type type, GenericDatabaseEntity.UpdateEventType eventType);
         public static event UpdateEvent OnDatabaseEntityUpdated;
 
         protected readonly DatabaseType _supportedDatabase;
@@ -140,10 +144,10 @@ namespace libDatabaseHelper.classes.generic
             ResetValues();
         }
 
-        public bool Add()
+        public bool Add(TransactionObject transaction = null)
         {
             ExistCondition condition;
-            if (((condition = Exist(false)) & ExistCondition.None) != ExistCondition.None)
+            if (((condition = Exist(false, transaction)) & ExistCondition.None) != ExistCondition.None)
             {
                 throw new DatabaseException((DatabaseException.ErrorType)condition, condition);
             }
@@ -154,27 +158,34 @@ namespace libDatabaseHelper.classes.generic
                 throw new DatabaseException(DatabaseException.ErrorType.NoColumnsFound);
             }
 
-            var connection = GenericConnectionManager.GetConnectionManager(_supportedDatabase).GetConnection(_entityType);
-            var command = connection.CreateCommand();
+            if (transaction == null)
+            {
+                var connection = GenericConnectionManager.GetConnectionManager(_supportedDatabase).GetConnection(_entityType);
+                transaction = TransactionObject.CreateTransactionObject(_supportedDatabase, connection);
+            }
 
-            if (OnAdd(command) == false)
+            if (OnAdd(transaction) == false)
             {
                 return false;
             }
 
             if ((this is AuditEntry) == false && (this is GenericConnectionDetails) == false)
             {
-                AuditEntry.AddAuditEntry(this, "Added ");
-                _OnDatabaseEntityUpdated(this, GetType(), UpdateEventType.Add);
+                try
+                {
+                    AuditEntry.AddAuditEntry(this, "Added ");
+                    _OnDatabaseEntityUpdated(this, GetType(), UpdateEventType.Add);
+                }
+                catch { }
             }
 
             return true;
         }
 
-        public bool Update()
+        public bool Update(TransactionObject transaction = null)
         {
             ExistCondition condition;
-            if ((condition = Exist()) != ExistCondition.RecordExists)
+            if ((condition = Exist(transaction)) != ExistCondition.RecordExists)
             {
                 throw new DatabaseException((DatabaseException.ErrorType)condition, condition);
             }
@@ -189,27 +200,34 @@ namespace libDatabaseHelper.classes.generic
                 throw new DatabaseException(DatabaseException.ErrorType.NoPrimaryKeyColumnsFound);
             }
 
-            var connection = GenericConnectionManager.GetConnectionManager(_supportedDatabase).GetConnection(_entityType);
-            var command = connection.CreateCommand();
+            if (transaction == null)
+            { 
+                var connection  = GenericConnectionManager.GetConnectionManager(_supportedDatabase).GetConnection(_entityType);
+                transaction = TransactionObject.CreateTransactionObject(_supportedDatabase, connection);
+            }
 
-            if (OnUpdate(command) == false)
+            if (OnUpdate(transaction) == false)
             {
                 return false;
             }
 
             if ((this is AuditEntry) == false && (this is GenericConnectionDetails) == false)
             {
-                AuditEntry.AddAuditEntry(this, "Updated ");
-                _OnDatabaseEntityUpdated(this, GetType(), UpdateEventType.Update);
+                try
+                {
+                    AuditEntry.AddAuditEntry(this, "Updated ");
+                    _OnDatabaseEntityUpdated(this, GetType(), UpdateEventType.Update);
+                }
+                catch { }
             }
 
             return true;
         }
 
-        public bool Remove()
+        public bool Remove(TransactionObject transaction = null)
         {
             ExistCondition condition;
-            if (((condition = Exist()) & ExistCondition.RecordExists) == 0)
+            if (((condition = Exist(transaction)) & ExistCondition.RecordExists) == 0)
             {
                 throw new DatabaseException(DatabaseException.ErrorType.NonExistingRecord, condition);
             }
@@ -232,45 +250,52 @@ namespace libDatabaseHelper.classes.generic
                 throw new DatabaseException(DatabaseException.ErrorType.NoPrimaryKeyColumnsFound);
             }
 
-            var connection = GenericConnectionManager.GetConnectionManager(_supportedDatabase).GetConnection(_entityType);
-            var command = connection.CreateCommand();
+            if (transaction == null)
+            {
+                var connection = GenericConnectionManager.GetConnectionManager(_supportedDatabase).GetConnection(_entityType);
+                transaction = TransactionObject.CreateTransactionObject(_supportedDatabase, connection);
+            }
 
-            if (OnRemove(command) == false)
+            if (OnRemove(transaction) == false)
             {
                 return false;
             }
 
             if ((this is AuditEntry) == false && (this is GenericConnectionDetails) == false)
             {
-                AuditEntry.AddAuditEntry(this, "Removed ");
-                _OnDatabaseEntityUpdated(this, GetType(), UpdateEventType.Remove);
+                try
+                {
+                    AuditEntry.AddAuditEntry(this, "Removed ");
+                    _OnDatabaseEntityUpdated(this, GetType(), UpdateEventType.Remove);
+                }
+                catch { }
             }
 
             return true;
         }
 
-        public ExistCondition Exist()
+        public ExistCondition Exist(TransactionObject transaction = null)
         {
-            return Exist(true);
+            return Exist(true, transaction);
         }
 
         #region "Methods to Override"
-        public virtual ExistCondition Exist(bool onlyCheck)
+        public virtual ExistCondition Exist(bool onlyCheck, TransactionObject transaction = null)
         {
             throw new NotImplementedException("The class of type GenericDatabaseEntity is not intended for direct use and should be extended by a fellow DatabaseEntity");
         }
 
-        protected virtual bool OnAdd(DbCommand command)
+        protected virtual bool OnAdd(TransactionObject transaction = null)
         {
             throw new NotImplementedException("The class of type GenericDatabaseEntity is not intended for direct use and should be extended by a fellow DatabaseEntity");
         }
 
-        protected virtual bool OnUpdate(DbCommand command)
+        protected virtual bool OnUpdate(TransactionObject transaction = null)
         {
             throw new NotImplementedException("The class of type GenericDatabaseEntity is not intended for direct use and should be extended by a fellow DatabaseEntity");
         }
 
-        protected virtual bool OnRemove(DbCommand command)
+        protected virtual bool OnRemove(TransactionObject transaction = null)
         {
             throw new NotImplementedException("The class of type GenericDatabaseEntity is not intended for direct use and should be extended by a fellow DatabaseEntity");
         }
@@ -313,7 +338,7 @@ namespace libDatabaseHelper.classes.generic
                     {
                         column.SetValue(this, -1);
                     }
-                    else if (GenericFieldTools.IsDateType(column.FieldType))
+                    else if (GenericFieldTools.IsTypeDate(column.FieldType))
                     {
                         column.SetValue(this, DateTime.Now);
                     }
@@ -391,7 +416,7 @@ namespace libDatabaseHelper.classes.generic
             }
         }
 
-        public void LoadToForm(Control parentControl)
+        public void LoadToForm(Control parentControl, bool loadOnlyValues = false)
         {
             foreach (Control control in parentControl.Controls)
             {
@@ -406,9 +431,16 @@ namespace libDatabaseHelper.classes.generic
 
                 var info = GetFieldAttributes(tag.FieldName);
 
-                if (info != null)
+                if (info != null && loadOnlyValues == false)
                 {
-                    control.Enabled = info.IsEditableOnFormWhenLoaded;
+                    if (control is TextBox)
+                    {
+                        (control as TextBox).ReadOnly = (info.IsEditableOnFormWhenLoaded == false);
+                    }
+                    else
+                    {
+                        control.Enabled = info.IsEditableOnFormWhenLoaded;
+                    }
                 }
 
                 if (control is TextBox)
@@ -449,7 +481,11 @@ namespace libDatabaseHelper.classes.generic
                     }
                     else if (attr.ReferencedClass == null && GenericFieldTools.IsTypeNumber(value.GetType()))
                     {
-                        (control as ComboBox).SelectedIndex = (int)value;
+                        var comboBox = (control as ComboBox);
+                        if (comboBox.Items.Count > ((int)value))
+                        {
+                            comboBox.SelectedIndex = (int)value;
+                        }
                     }
                 }
                 else if (control is DateTimePicker)
@@ -517,12 +553,9 @@ namespace libDatabaseHelper.classes.generic
                                 control.Text = tag.DefaultValue.ToString();
                             }
 
-                            if (is_txt_empty && tag.DefaultValue == null)
+                            if (is_txt_empty && tag.DefaultValue == null && tag.Required)
                             {
-                                if (tag.Required)
-                                {
-                                    throw new ValidationException(control, "Some of the required fields are missing !");
-                                }
+                                throw new ValidationException(control, "Some of the required fields are missing !");
                             }
                             else if ((info.FieldType == typeof(string) || info.FieldType == typeof(String)))
                             {
@@ -531,7 +564,7 @@ namespace libDatabaseHelper.classes.generic
                                 {
                                     if (attr.IsUnique || attr.IsPrimaryKey || attr.IsAutogenerated)
                                     {
-                                        if (attr.Length > 0 && control.Text.Length > attr.Length)
+                                        if (control.Text.Length > attr.Length && attr.Length > 0)
                                         {
                                             throw new ValidationException(control,
                                                 "The length of the input you entered for the selected textbox should be less than " +
@@ -701,7 +734,7 @@ namespace libDatabaseHelper.classes.generic
                                 if (attr == null || !GenericFieldTools.IsTypeNumber(info.FieldType))
                                     continue;
 
-                                if (attr.ReferencedClass != null)
+                                if (attr.ReferencedClass == null)
                                     info.SetValue(this, combobox.SelectedIndex);
                             }
                         }
@@ -872,6 +905,36 @@ namespace libDatabaseHelper.classes.generic
 
             message += dataString + " ]";
             return message;
+        }
+
+        public void Set(GenericDatabaseEntity obj, bool replaceOnNull = true, bool ignorePrimaryKeyFields = true)
+        {
+            if (obj == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            if (obj.GetType() != GetType())
+            {
+                throw new InvalidOperationException("Unable to set details from mismatching object type.");
+            }
+
+            var columns1 = GetColumns(ignorePrimaryKeyFields == false).GetOtherColumns().ToArray();
+            var columns2 = obj.GetColumns(ignorePrimaryKeyFields == false).GetOtherColumns().ToArray();
+
+            if (columns1.Count() != columns2.Count())
+            {
+                throw new InvalidOperationException("The number of fields within the two objects seem to differ event though of the same type.");
+            }
+
+            for (var i = 0; i < columns1.Count(); i++)
+            {
+                var sentValue = columns1[i].GetValue(obj);
+                if (sentValue != null || (replaceOnNull == false && sentValue == null))
+                {
+                    columns1[i].SetValue(this, sentValue);
+                }
+            }
         }
 
         public bool Equals(GenericDatabaseEntity obj)

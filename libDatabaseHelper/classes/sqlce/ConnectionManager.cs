@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 using libDatabaseHelper.classes.generic;
 using System.Data.SqlClient;
 using System.Data.Common;
 using System.Data.SqlServerCe;
 using System.IO;
-using libDatabaseHelper.forms;
 using libDatabaseHelper.classes.sqlce.entities;
 
 namespace libDatabaseHelper.classes.sqlce
@@ -53,11 +50,24 @@ namespace libDatabaseHelper.classes.sqlce
         {
             try
             {
-                var builder = new SqlConnectionStringBuilder(connectionString);
+                var index = 0;
+                var dataSource = connectionString.ToLower();
+                dataSource = connectionString.Substring(dataSource.IndexOf("=", dataSource.IndexOf("data source")) + 1);
+                dataSource = dataSource.Substring(0, ((index = dataSource.IndexOf(";")) != -1) ? index : dataSource.Length).Trim();
 
-                if (File.Exists(builder.DataSource) == false)
+                if (dataSource.StartsWith("'") || dataSource.StartsWith("\""))
                 {
-                    var containingFolder = builder.DataSource.Substring(0, builder.DataSource.LastIndexOf("\\"));
+                    dataSource = dataSource.Substring(1).Trim();
+                }
+
+                if (dataSource.EndsWith("'") || dataSource.EndsWith("\""))
+                {
+                    dataSource = dataSource.Substring(0, dataSource.Length - 1).Trim();
+                }
+
+                if (dataSource.EndsWith(".sdf") && File.Exists(dataSource) == false)
+                {
+                    var containingFolder = dataSource.Substring(0, dataSource.LastIndexOf("\\"));
                     if (Directory.Exists(containingFolder) == false)
                     {
                         GenericUtils.CreateFolderStructure(containingFolder);
@@ -69,10 +79,10 @@ namespace libDatabaseHelper.classes.sqlce
             }
             catch (Exception ex) { Console.WriteLine("Unable to create SQL CE database automatically. The database should be created manually. Error Details : " + ex.Message);  }
 
-            var connectionCretead = CreateConnection(null, connectionString);
-            if (connectionCretead != null && connectionCretead.State == System.Data.ConnectionState.Open)
+            var connectionCreated = CreateConnection(null, connectionString);
+            if (connectionCreated != null && connectionCreated.State == System.Data.ConnectionState.Open)
             {
-                connectionCretead.Close();
+                connectionCreated.Close();
                 return true;
             }
             return false;
@@ -81,13 +91,46 @@ namespace libDatabaseHelper.classes.sqlce
         protected override DbConnection CreateConnection(Type t, string connectionString)
         {
             SqlCeConnection connection = null;
+
+            try
+            {
+                var index = 0;
+                var dataSource = connectionString.ToLower();
+                dataSource = connectionString.Substring(dataSource.IndexOf("=", dataSource.IndexOf("data source")) + 1);
+                dataSource = dataSource.Substring(0, ((index = dataSource.IndexOf(";")) != -1) ? index : dataSource.Length).Trim();
+
+                if (dataSource.StartsWith("'") || dataSource.StartsWith("\""))
+                {
+                    dataSource = dataSource.Substring(1).Trim();
+                }
+
+                if (dataSource.EndsWith("'") || dataSource.EndsWith("\""))
+                {
+                    dataSource = dataSource.Substring(0, dataSource.Length - 1).Trim();
+                }
+
+                if (dataSource.EndsWith(".sdf") &&  File.Exists(dataSource) == false)
+                {
+                    var containingFolder = dataSource.Substring(0, dataSource.LastIndexOf("\\"));
+                    if (Directory.Exists(containingFolder) == false)
+                    {
+                        GenericUtils.CreateFolderStructure(containingFolder);
+                    }
+
+                    var engine = new SqlCeEngine(connectionString);
+                    engine.CreateDatabase();
+                }
+            }
+            catch (Exception ex) { Console.WriteLine("Exception caught while attempting to detect and create database. (Reason = \"" + ex.Message + "\")"); }
+
             try
             {
                 connection = new SqlCeConnection(connectionString);
                 connection.Open();
             }
-            catch (System.Data.SqlServerCe.SqlCeInvalidDatabaseFormatException)
+            catch (System.Data.SqlServerCe.SqlCeInvalidDatabaseFormatException ex1)
             {
+                Console.WriteLine(ex1.Message);
                 try
                 {
                     var engine = new SqlCeEngine(connectionString);
@@ -105,7 +148,7 @@ namespace libDatabaseHelper.classes.sqlce
                     Console.WriteLine("Attempt on Upgrading SQL CE Database Failed (Reason = \"" + ex.Message + "\")");
                 }
             }
-            catch (Exception ex) { Console.WriteLine("Unexpected Error Occurred ! Error Details : " + ex.Message); }
+            catch (Exception ex) { Console.WriteLine("Unexpected Error Occurred ! Error Details (" + ex.GetType() + ") : " + ex.Message); }
             return connection;
         }
 
@@ -137,7 +180,7 @@ namespace libDatabaseHelper.classes.sqlce
         {
             var dbFilePath = (_localDataFolder ?? "") + "dblocaldata.sdf";
             var password = "KsvKgHk%9=ANb2g@w7Bu6m?txU$h3V";
-            var localConnectionString = "Data Source='" + dbFilePath + "';Encrypt Database=True;Password='" + password + "';File Mode=shared read;Persist Security Info=False;";
+            var localConnectionString = "Data Source='" + dbFilePath + "';Encrypt Database=True;Password='" + password + "';File Mode=Read Write;Persist Security Info=False;";
 
             if (File.Exists(dbFilePath) == false)
             {

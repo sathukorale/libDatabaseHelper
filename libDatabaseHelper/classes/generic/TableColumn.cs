@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace libDatabaseHelper.classes.generic
 {
@@ -21,7 +18,6 @@ namespace libDatabaseHelper.classes.generic
             IsGridViewable = true;
             IsEditableOnFormWhenLoaded = true;
             IsUnique = false;
-            IsRequiedFormField = true;
             Translators = null;
         }
 
@@ -37,7 +33,6 @@ namespace libDatabaseHelper.classes.generic
             IsGridViewable = true;
             IsEditableOnFormWhenLoaded = true;
             IsUnique = false;
-            IsRequiedFormField = true;
             Translators = null;
         }
 
@@ -53,7 +48,6 @@ namespace libDatabaseHelper.classes.generic
             IsGridViewable = true;
             IsEditableOnFormWhenLoaded = true;
             IsUnique = false;
-            IsRequiedFormField = true;
             Translators = null;
         }
 
@@ -69,7 +63,6 @@ namespace libDatabaseHelper.classes.generic
             IsGridViewable = true;
             IsEditableOnFormWhenLoaded = true;
             IsUnique = false;
-            IsRequiedFormField = true;
             Translators = null;
         }
 
@@ -85,7 +78,6 @@ namespace libDatabaseHelper.classes.generic
             IsGridViewable = true;
             IsEditableOnFormWhenLoaded = true;
             IsUnique = false;
-            IsRequiedFormField = true;
             Translators = null;
         }
 
@@ -101,7 +93,6 @@ namespace libDatabaseHelper.classes.generic
             IsGridViewable = true;
             IsEditableOnFormWhenLoaded = true;
             IsUnique = false;
-            IsRequiedFormField = true;
             Translators = null;
         }
 
@@ -117,7 +108,6 @@ namespace libDatabaseHelper.classes.generic
             IsGridViewable = true;
             IsEditableOnFormWhenLoaded = true;
             IsUnique = false;
-            IsRequiedFormField = true;
             Translators = null;
         }
 
@@ -135,7 +125,6 @@ namespace libDatabaseHelper.classes.generic
         public bool IsAuditVisible { get; set; }
         public bool IsRetrievableFromDatabase { get; set; }
         public bool IsEditableOnFormWhenLoaded { get; set; }
-        public bool IsRequiedFormField { get; set; }
         public string[] Translators { get; set; }
 
         public object DefaultValue { get; set; }

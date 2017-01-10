@@ -4,8 +4,6 @@ using System.Data;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using System.Windows.Forms;
-using System.Data.SqlServerCe;
 
 using libDatabaseHelper.classes.generic;
 using libDatabaseHelper.forms;
@@ -99,11 +97,14 @@ namespace libDatabaseHelper.classes.mysql
                     {
                         columnsToAdd += " UNIQUE ";
                     }
+
                     command.CommandText = "ALTER TABLE " + type.Name + " ADD ( " + columnsToAdd + " )";
                     command.ExecuteNonQuery();
 
-                    var defaultFieldValues = ((GenericFieldTools.IsTypeNumber(column.FieldType) || GenericFieldTools.IsTypeFloatingPoint(column.FieldType)) ? "-1" : (GenericFieldTools.IsTypeBool(column.FieldType) ? "0" : "''"));
-                    command.CommandText = "UPDATE " + type.Name + " SET " + column.Name + "=" + defaultFieldValues;
+                    command.CommandText = "UPDATE " + type.Name + " SET " + column.Name + "=@" + column.Name;
+
+                    GenericUtils.AddWithValue(ref command, "@" + column.Name, GenericFieldTools.GetDefaultValue(column.FieldType, columnAttributes.DefaultValue));
+
                     command.ExecuteNonQuery();
                 }
             }

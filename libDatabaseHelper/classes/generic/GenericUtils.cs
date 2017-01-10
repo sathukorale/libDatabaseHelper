@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Windows.Forms;
-using System.Collections.Generic;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using System.Linq;
@@ -74,7 +72,7 @@ namespace libDatabaseHelper.classes.generic
         {
             var parameter = command.CreateParameter();
             parameter.ParameterName = parameterName;
-            parameter.Value = parameterValue;
+            parameter.Value = parameterValue ?? DBNull.Value;
             command.Parameters.Add(parameter);
         }
 
@@ -89,7 +87,7 @@ namespace libDatabaseHelper.classes.generic
 
         public static void CleanupEverything()
         {
-            UniversalDataCollector.CleanUp();
+            UniversalDataModel.CleanUp();
             GenericConnectionManager.CloseAllConnections();
             GenericDatabaseEntity.CleanupNonDisposableReferenceObjects();
             GenericDatabaseManager.UnregisterAllDatabaseManagers();

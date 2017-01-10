@@ -26,7 +26,7 @@ namespace libDatabaseHelperUnitTests.forms.mysql
 			txtColumn2.Tag = new TableColumnField(true, typeof(InvalidSampleTable3_NoPrimaryKey), "Column2");
 			cmbColumn3.Tag = new TableColumnField(true, typeof(InvalidSampleTable3_NoPrimaryKey), "Column3");
 
-			_type=typeof(InvalidSampleTable3_NoPrimaryKey);
+            SetEntityType(typeof(InvalidSampleTable3_NoPrimaryKey));
 			LoadColumns();
         }
 		

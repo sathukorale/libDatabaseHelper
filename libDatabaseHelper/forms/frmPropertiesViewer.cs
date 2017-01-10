@@ -1,14 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
-
-using libDatabaseHelper.classes.generic;
-using libDatabaseHelper.classes.sqlce;
 using libDatabaseHelper.forms.controls;
 
 namespace libDatabaseHelper.forms

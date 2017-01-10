@@ -1,17 +1,17 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "libDatabaseHelper", "libDatabaseHelper\libDatabaseHelper.csproj", "{B8720AED-93F8-4179-AFBF-F30DEC4233FA}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseEntityFormGenerator", "DatabaseEntityFormGenerator\DatabaseEntityFormGenerator.csproj", "{02823CC7-B5AF-4BB5-AFF7-970380DDA1A8}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "libDatabaseHelperUnitTests", "libDatabaseHelperUnitTests\libDatabaseHelperUnitTests.csproj", "{64F3ED1B-6DC6-41AA-A975-E4E07E7659DC}"
-EndProject
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{BD306C58-0B91-4FA6-AA16-4386B9C30D6E}"
 	ProjectSection(SolutionItems) = preProject
 		libDatabaseHelper.vsmdi = libDatabaseHelper.vsmdi
 		LocalTestRun.testrunconfig = LocalTestRun.testrunconfig
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "libDatabaseHelper", "libDatabaseHelper\libDatabaseHelper.csproj", "{B8720AED-93F8-4179-AFBF-F30DEC4233FA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseEntityFormGenerator", "DatabaseEntityFormGenerator\DatabaseEntityFormGenerator.csproj", "{02823CC7-B5AF-4BB5-AFF7-970380DDA1A8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "libDatabaseHelperUnitTests", "libDatabaseHelperUnitTests\libDatabaseHelperUnitTests.csproj", "{64F3ED1B-6DC6-41AA-A975-E4E07E7659DC}"
 EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution

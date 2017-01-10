@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace libDatabaseHelper.classes.generic
+﻿namespace libDatabaseHelper.classes.generic
 {
     [System.AttributeUsage(System.AttributeTargets.Class | System.AttributeTargets.Struct, AllowMultiple = false)]
     public class TableProperties : System.Attribute
     {
+        public string DisplayName;
+
         public enum RegistrationType
         { 
             ManualRegistration,

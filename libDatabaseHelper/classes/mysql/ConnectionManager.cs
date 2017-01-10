@@ -1,15 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 using libDatabaseHelper.classes.generic;
-using System.Data.SqlClient;
 using System.Data.Common;
-using System.Data.SqlServerCe;
-using System.IO;
-using libDatabaseHelper.forms;
-using libDatabaseHelper.classes.sqlce.entities;
 using MySql.Data.MySqlClient;
 
 namespace libDatabaseHelper.classes.mysql

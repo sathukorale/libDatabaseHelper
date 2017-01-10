@@ -1,11 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Data.SqlServerCe;
 using System.Reflection;
-
-using libDatabaseHelper.classes.sqlce;
 using System.Data.Common;
 
 namespace libDatabaseHelper.classes.generic

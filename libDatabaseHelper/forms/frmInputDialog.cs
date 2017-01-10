@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using libDatabaseHelper.classes.generic;
+using System.Drawing;
 
 namespace libDatabaseHelper.forms
 {
@@ -13,6 +9,7 @@ namespace libDatabaseHelper.forms
     {
         private static frmInputDialog _presented_form = null;
         private static string _value = "";
+        private static bool _cancellable = true;
         private frmInputDialog()
         {
             InitializeComponent();
@@ -22,21 +19,28 @@ namespace libDatabaseHelper.forms
                 {
                     btnOK_Click(btnOK, EventArgs.Empty);
                 }
-                else
+                else if (key == Keys.Escape && _cancellable)
                 {
                     btnClose_Click(btnClose, EventArgs.Empty);
                 }
-                return 0; 
+                else
+                {
+                    return false; 
+                }
+                return true;
             });
         }
 
-        private void Init(string prompt, string title, string default_value)
+        private void Init(string prompt, string title, string default_value, bool password_prompt = false, bool canellable = true)
         {
             Text = title;
             lblPrompt.Text = prompt;
             _value = txtInput.Text = default_value;
 
+            txtInput.PasswordChar = password_prompt ? '●' : '\0';
             txtInput.Select();
+
+            btnClose.Enabled = _cancellable = canellable;
 
             if (default_value == null || default_value.Trim() == "")
             {
@@ -48,21 +52,17 @@ namespace libDatabaseHelper.forms
                 }
             }
             txtInput.BringToFront();
-            Width = txtInput.Width + lblPrompt.Size.Width + 42;
-            Height = 120;
-            Invalidate();
-            Refresh();
         }
 
-        public static string Show(string prompt, string title, string default_value)
+        public static string Show(string prompt, string title, string default_value, bool password_prompt = false, bool cancellable = true, IWin32Window owner = null)
         {
             if (_presented_form != null && !_presented_form.IsDisposed)
             {
                 _presented_form.Close();
             }
             _presented_form = new frmInputDialog();
-            _presented_form.Init(prompt, title, default_value);
-            _presented_form.ShowDialog();
+            _presented_form.Init(prompt, title, default_value, password_prompt, cancellable);
+            _presented_form.ShowDialog(owner);
             return _value;
         }
 
@@ -74,7 +74,7 @@ namespace libDatabaseHelper.forms
 
         private void btnClose_Click(object sender, EventArgs e)
         {
-            _value = "";
+            _value = null;
             Close();
         }
 

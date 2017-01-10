@@ -1,4 +1,5 @@
-﻿<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -9,9 +10,28 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>libDatabaseHelperUnitTests</RootNamespace>
     <AssemblyName>libDatabaseHelperUnitTests</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation />
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -72,49 +92,33 @@
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Data" />
-    <Reference Include="System.Data.SqlServerCe, Version=3.5.1.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\prebuild_libs\System.Data.SqlServerCe.dll</HintPath>
-    </Reference>
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="forms\mysql\frmInvalidSampleTable3_NoPrimaryKey.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="forms\mysql\frmInvalidSampleTable3_NoPrimaryKey.cs" />
     <Compile Include="forms\mysql\frmInvalidSampleTable3_NoPrimaryKey.designer.cs">
       <DependentUpon>frmInvalidSampleTable3_NoPrimaryKey.cs</DependentUpon>
     </Compile>
-    <Compile Include="forms\mysql\frmSampleTable1.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="forms\mysql\frmSampleTable1.cs" />
     <Compile Include="forms\mysql\frmSampleTable1.designer.cs">
       <DependentUpon>frmSampleTable1.cs</DependentUpon>
     </Compile>
-    <Compile Include="forms\mysql\frmSampleTable2.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="forms\mysql\frmSampleTable2.cs" />
     <Compile Include="forms\mysql\frmSampleTable2.Designer.cs">
       <DependentUpon>frmSampleTable2.cs</DependentUpon>
     </Compile>
     <Compile Include="MySQLTests.cs" />
-    <Compile Include="forms\sqlce\frmInvalidSampleTable3_NoPrimaryKey.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="forms\sqlce\frmInvalidSampleTable3_NoPrimaryKey.cs" />
     <Compile Include="forms\sqlce\frmInvalidSampleTable3_NoPrimaryKey.designer.cs">
       <DependentUpon>frmInvalidSampleTable3_NoPrimaryKey.cs</DependentUpon>
     </Compile>
-    <Compile Include="forms\sqlce\frmSampleTable1.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="forms\sqlce\frmSampleTable1.cs" />
     <Compile Include="forms\sqlce\frmSampleTable1.designer.cs">
       <DependentUpon>frmSampleTable1.cs</DependentUpon>
     </Compile>
-    <Compile Include="forms\sqlce\frmSampleTable2.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="forms\sqlce\frmSampleTable2.cs" />
     <Compile Include="forms\sqlce\frmSampleTable2.designer.cs">
       <DependentUpon>frmSampleTable2.cs</DependentUpon>
     </Compile>
@@ -124,12 +128,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="AuthoringTests.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\libDatabaseHelper\libDatabaseHelper.csproj">
-      <Project>{B8720AED-93F8-4179-AFBF-F30DEC4233FA}</Project>
-      <Name>libDatabaseHelper</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="forms\mysql\frmInvalidSampleTable3_NoPrimaryKey.resx">
@@ -156,6 +154,34 @@
       <DependentUpon>frmSampleTable2.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.0">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4 %28x86 and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\libDatabaseHelper\libDatabaseHelper.csproj">
+      <Project>{B8720AED-93F8-4179-AFBF-F30DEC4233FA}</Project>
+      <Name>libDatabaseHelper</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

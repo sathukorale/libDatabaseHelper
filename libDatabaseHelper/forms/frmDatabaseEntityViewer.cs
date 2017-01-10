@@ -13,19 +13,19 @@ namespace libDatabaseHelper.forms
         public DatabaseEntity[] ViewedItems;
     };
 
-    public partial class DatabaseEntityViewer : Form
+    public partial class frmDatabaseEntityViewer : Form
     {
-        private static Dictionary<Type, DatabaseEntityViewer> _presentedForms = new Dictionary<Type, DatabaseEntityViewer>();
+        private static Dictionary<Type, frmDatabaseEntityViewer> _presentedForms = new Dictionary<Type, frmDatabaseEntityViewer>();
         private static Dictionary<Type, Type> _registeredEditorTypes = new Dictionary<Type, Type>();
 
         private bool _isUpdated;
         private Selector[] _selectors;
         private Type _currentType = null;
 
-        private DatabaseEntityViewer()
+        private frmDatabaseEntityViewer()
         {
             InitializeComponent();
-            FormUtils.MakeControlAndSubControlsSensitiveToKey(this, new[] { Keys.Escape }, o => { Close(); return true; });
+            FormUtils.MakeControlAndSubControlsSensitiveToKey(this, new[] { Keys.Escape }, o => { Close(); return 0; });
             DatabaseEntity.OnDatabaseEntityUpdated += DatabaseEntity_OnDatabaseEntityUpdated;
         }
 
@@ -58,41 +58,40 @@ namespace libDatabaseHelper.forms
             return dgvDatabaseEntities.SelectedRows[0].Tag as DatabaseEntity;
         }
 
-        public void ViewItems<T>(Selector[] selectors, IWin32Window owner = null)
+        public void ViewItems<T>(Selector[] selectors)
         {
             ViewItems(typeof(T), selectors);
         }
-
-        public static void ShowWindow<T>(IWin32Window owner = null)
+        public static void ShowWindow<T>()
         {
-            ShowWindow(typeof(T), null, owner);
+            ShowWindow(typeof(T), null);
         }
 
-        public static void ShowWindow<T>(Selector[] selectors, IWin32Window owner = null)
+        public static void ShowWindow<T>(Selector[] selectors)
         {
-            ShowWindow(typeof(T), selectors, owner);
+            ShowWindow(typeof(T), selectors);
         }
 
-        public static DatabaseEntityViewer ShowNonModalWindow<T>(Selector[] selectors, IWin32Window owner = null)
+        public static frmDatabaseEntityViewer ShowNonModalWindow<T>(Selector[] selectors)
         {
-            return ShowNonModalWindow(typeof(T), selectors, owner);
+            return ShowNonModalWindow(typeof(T), selectors);
         }
 
-        public static Result ShowAndGetItems<T>(Selector[] selectors, IWin32Window owner = null)
+        public static Result ShowAndGetItems<T>(Selector[] selectors)
         {
-            return ShowAndGetItems(typeof (T), selectors, owner);
+            return ShowAndGetItems(typeof (T), selectors);
         }
 
-        public static DatabaseEntity ShowAndGetSelectedItem<T>(Selector[] selectors, IWin32Window owner = null)
+        public static DatabaseEntity ShowAndGetSelectedItem<T>(Selector[] selectors)
         {
-            return ShowAndGetSelectedItem(typeof(T), selectors, owner);
+            return ShowAndGetSelectedItem(typeof(T), selectors);
         }
 
-        public static DatabaseEntity ShowAndGetSelectedItem(Type type, Selector[] selectors, IWin32Window owner = null)
+        public static DatabaseEntity ShowAndGetSelectedItem(Type type, Selector[] selectors)
         {
             var presentedForm = _presentedForms.ContainsKey(type) ? _presentedForms[type] : null;
             if (presentedForm == null || presentedForm.IsDisposed)
-                presentedForm = new DatabaseEntityViewer();
+                presentedForm = new frmDatabaseEntityViewer();
             _presentedForms[type] = presentedForm;
             presentedForm.ViewItems(type, selectors);
             presentedForm.ShowDialog();
@@ -107,21 +106,11 @@ namespace libDatabaseHelper.forms
             _isUpdated = false;
             _currentType = type;
             _selectors = selectors;
-            var typeName = _currentType.Name;
-            try
-            {
-                var attributes = System.Attribute.GetCustomAttributes(type).OfType<TableProperties>().FirstOrDefault();
-                if (attributes != null)
-                {
-                    typeName = attributes.DisplayName;
-                }
-            }
-            catch { }
-            Text = typeName + " Viewer";
+            Text = _currentType.Name + " Viewer";
 
-            FormUtils.AddToolTip(btnAddDatabaseEntity, "Add New " + typeName);
-            FormUtils.AddToolTip(btnRemoveDatabaseEntity, "Remove Selected " + typeName + "(s)");
-            FormUtils.AddToolTip(btnCopyEntity, "Copy Selected " + typeName);
+            FormUtils.AddToolTip(btnAddDatabaseEntity, "Add New " + _currentType.Name);
+            FormUtils.AddToolTip(btnRemoveDatabaseEntity, "Remove Selected " + _currentType.Name + "(s)");
+            FormUtils.AddToolTip(btnCopyEntity, "Copy Selected " + _currentType.Name);
 
             btnAddDatabaseEntity.Enabled = _registeredEditorTypes.ContainsKey(type);
 
@@ -129,38 +118,35 @@ namespace libDatabaseHelper.forms
             GenericDatabaseManager.GetDatabaseManager(instance.GetSupportedDatabaseType()).FillDataGridViewAsItems(_currentType, ref dgvDatabaseEntities, selectors);
         }
 
-        public static void ShowWindow(Type type, Selector[] selectors, IWin32Window owner = null)
+        public static void ShowWindow(Type type, Selector[] selectors)
         {
             var presentedForm = _presentedForms.ContainsKey(type) ? _presentedForms[type] : null;
             if (presentedForm == null || presentedForm.IsDisposed)
-                presentedForm = new DatabaseEntityViewer();
+                presentedForm = new frmDatabaseEntityViewer();
             _presentedForms[type] = presentedForm;
-            presentedForm.ShowInTaskbar = owner == null;
             presentedForm.ViewItems(type, selectors);
-            presentedForm.ShowDialog(owner);
+            presentedForm.ShowDialog();
         }
 
-        public static DatabaseEntityViewer ShowNonModalWindow(Type type, Selector[] selectors, IWin32Window owner = null)
+        public static frmDatabaseEntityViewer ShowNonModalWindow(Type type, Selector[] selectors)
         {
             var presentedForm = _presentedForms.ContainsKey(type) ? _presentedForms[type] : null;
             if (presentedForm == null || presentedForm.IsDisposed)
-                presentedForm = new DatabaseEntityViewer();
+                presentedForm = new frmDatabaseEntityViewer();
             _presentedForms[type] = presentedForm;
-            presentedForm.ShowInTaskbar = owner == null;
             presentedForm.ViewItems(type, selectors);
-            presentedForm.Show(owner);
+            presentedForm.Show();
             return presentedForm;
         }
 
-        public static Result ShowAndGetItems(Type type, Selector[] selectors, IWin32Window owner = null)
+        public static Result ShowAndGetItems(Type type, Selector[] selectors)
         {
             var presentedForm = _presentedForms.ContainsKey(type) ? _presentedForms[type] : null;
             if (presentedForm == null || presentedForm.IsDisposed)
-                presentedForm = new DatabaseEntityViewer();
+                presentedForm = new frmDatabaseEntityViewer();
             _presentedForms[type] = presentedForm;
-            presentedForm.ShowInTaskbar = owner == null;
             presentedForm.ViewItems(type, selectors);
-            presentedForm.ShowDialog(owner);
+            presentedForm.ShowDialog();
             return presentedForm.GetItems();
         }
 
@@ -190,9 +176,6 @@ namespace libDatabaseHelper.forms
         {
             if (_registeredEditorTypes.ContainsKey(_currentType))
             {
-                var form = DatabaseEntityForm.GetFormInstance(_registeredEditorTypes[_currentType]);
-                form.Owner = this;
-                form.ShowInTaskbar = false;
                 var status = DatabaseEntityForm.ShowModalWindow(_registeredEditorTypes[_currentType]);
 
                 Select();
@@ -212,20 +195,15 @@ namespace libDatabaseHelper.forms
             {
                 if (MessageBox.Show("Are you that you want to remove the selected record(s)?", "Remove Record(s) ?",
                     MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;
-                for ( int i = 0 ; i < dgvDatabaseEntities.SelectedRows.Count ; i++ )
+                foreach (DataGridViewRow row in dgvDatabaseEntities.SelectedRows)
                 {
-                    try
+                    var tag = row.Tag as DatabaseEntity;
+                    if (tag != null)
                     {
-                        var row = dgvDatabaseEntities.SelectedRows[i];
-                        var tag = row.Tag as DatabaseEntity;
-                        if (tag != null)
-                        {
-                            _isUpdated = true;
-                            tag.Remove();
-                        }
-                        dgvDatabaseEntities.Rows.Remove(row);
+                        _isUpdated = true;
+                        tag.Remove();
                     }
-                    catch { }
+                    dgvDatabaseEntities.Rows.Remove(row);
                 }
             }
             else
@@ -237,24 +215,21 @@ namespace libDatabaseHelper.forms
 
         private void dgvDatabaseEntities_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex >= 0 && e.RowIndex < dgvDatabaseEntities.RowCount)
+            var row = dgvDatabaseEntities.Rows[e.RowIndex];
+            if (row != null && row.Tag != null)
             {
-                var row = dgvDatabaseEntities.Rows[e.RowIndex];
-                if (row != null && row.Tag != null)
+                var obj = row.Tag as DatabaseEntity;
+                if (obj != null)
                 {
-                    var obj = row.Tag as DatabaseEntity;
-                    if (obj != null)
+                    var status = DatabaseEntityForm.ShowModalWindow(_registeredEditorTypes[_currentType], obj);
+
+                    Select();
+                    Focus();
+
+                    if (status.UpdateState)
                     {
-                        var status = DatabaseEntityForm.ShowModalWindow(_registeredEditorTypes[_currentType], obj, false, this);
-
-                        Select();
-                        Focus();
-
-                        if (status.UpdateState)
-                        {
-                            ViewItems(_currentType, _selectors);
-                            _isUpdated = true;
-                        }
+                        ViewItems(_currentType, _selectors);
+                        _isUpdated = true;
                     }
                 }
             }

@@ -1,15 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Data.SqlServerCe;
 using System.IO;
-using System.Windows.Forms;
-using System.Linq;
-
-using libDatabaseHelper.forms;
-using libDatabaseHelper.Properties;
-using System.Data.SqlClient;
 using System.Data.Common;
 
 namespace libDatabaseHelper.classes.generic
@@ -241,9 +233,12 @@ namespace libDatabaseHelper.classes.generic
                     {
                         try
                         {
-                            connectionMade.Close();
+                            if (connectionMade.State != ConnectionState.Closed)
+                            {
+                                connectionMade.Close();
+                            }
                         }
-                        catch (System.Exception) { }
+                        catch (Exception) { }
                     }
                 }
                 _databaseConnections.Clear();
@@ -263,17 +258,22 @@ namespace libDatabaseHelper.classes.generic
 
         public static void RegisterConnectionManager(Type t)
         {
+            var connectionManager = Activator.CreateInstance(t) as GenericConnectionManager;
             if (_registeredConnectionManagers.ContainsKey(DatabaseType.SqlCE) == false)
             {
-                var sqlCeConnectionManager = Activator.CreateInstance<libDatabaseHelper.classes.sqlce.ConnectionManager>();
+                var sqlCeConnectionManager = Activator.CreateInstance<sqlce.ConnectionManager>();
 
                 _registeredConnectionManagers[DatabaseType.SqlCE] = sqlCeConnectionManager;
                 sqlCeConnectionManager.InstallDefaultClasses();
 
-                GenericDatabaseManager.RegisterDatabaseManager<libDatabaseHelper.classes.sqlce.DatabaseManager>();
+                GenericDatabaseManager.RegisterDatabaseManager<sqlce.DatabaseManager>();
+
+                if (connectionManager.GetSupportedDatabaseType() == DatabaseType.SqlCE)
+                {
+                    return;
+                }
             }
 
-            var connectionManager = Activator.CreateInstance(t) as GenericConnectionManager;
             if (connectionManager != null)
             {
                 if (_registeredConnectionManagers.ContainsKey(connectionManager.GetSupportedDatabaseType()))

@@ -25,7 +25,7 @@ namespace libDatabaseHelperUnitTests.forms.mysql
 			
 			txtColumn2.Tag = new TableColumnField(true, typeof(SampleTable1), "Column2");
 
-			_type=typeof(SampleTable1);
+			SetEntityType(typeof(SampleTable1));
         }
 
         public void SetValues(string column2_value)

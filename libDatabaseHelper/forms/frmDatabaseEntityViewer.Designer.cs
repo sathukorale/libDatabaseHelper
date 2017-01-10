@@ -1,6 +1,6 @@
 ﻿namespace libDatabaseHelper.forms
 {
-    partial class DatabaseEntityViewer
+    partial class frmDatabaseEntityViewer
     {
         /// <summary>
         /// Required designer variable.
@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DatabaseEntityViewer));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmDatabaseEntityViewer));
             this.btnAddDatabaseEntity = new System.Windows.Forms.Button();
             this.btnRemoveDatabaseEntity = new System.Windows.Forms.Button();
             this.dgvDatabaseEntities = new System.Windows.Forms.DataGridView();
@@ -103,10 +103,10 @@
             this.btnClose.UseVisualStyleBackColor = true;
             this.btnClose.Click += new System.EventHandler(this.btnClose_Click);
             // 
-            // DatabaseEntityViewer
+            // frmDatabaseEntityViewer
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(527, 296);
             this.Controls.Add(this.btnClose);
             this.Controls.Add(this.dgvDatabaseEntities);
@@ -118,7 +118,7 @@
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "DatabaseEntityViewer";
+            this.Name = "frmDatabaseEntityViewer";
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Database Entity Viewer";

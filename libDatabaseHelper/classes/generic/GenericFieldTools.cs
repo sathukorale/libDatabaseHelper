@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Data;
 
 namespace libDatabaseHelper.classes.generic
@@ -78,7 +75,7 @@ namespace libDatabaseHelper.classes.generic
             return (type == TypeFloat || type == TypeDouble || type == TypeSDouble);
         }
 
-        public static bool IsDateType(Type type)
+        public static bool IsTypeDate(Type type)
         {
             return (type == TypeDateTime || type == typeof(Date));
         }
@@ -95,7 +92,7 @@ namespace libDatabaseHelper.classes.generic
 
         public static int Compare(object obj1, object obj2)
         {
-            if (IsDateType(obj1.GetType()))
+            if (IsTypeDate(obj1.GetType()))
             {
                 var datetime1 = (DateTime)obj1;
                 var datetime2 = (DateTime)obj2;
@@ -118,17 +115,33 @@ namespace libDatabaseHelper.classes.generic
             return Int32.MinValue;
         }
 
-        public static string GetDefaultValue(Type type)
+        public static object GetDefaultValue(Type type, object defaultValue = null)
         {
-            if (GenericFieldTools.IsTypeBool(type))
+            if (defaultValue == null || type != defaultValue.GetType())
             {
-                return "false";
-            }
-            else if (GenericFieldTools.IsTypeNumber(type))
-            {
-                return "-1";
-            }
-            return "''";
+                if (GenericFieldTools.IsTypeBool(type))
+                {
+                    defaultValue = false;
+                }
+                else if (GenericFieldTools.IsTypeNumber(type))
+                {
+                    defaultValue = -1;
+                }
+                else if (GenericFieldTools.IsTypeFloatingPoint(type))
+                {
+                    defaultValue = -1.0;
+                }
+                else if (GenericFieldTools.IsTypeDate(type))
+                {
+                    defaultValue = DateTime.Now;
+                }
+                else
+                {
+                    defaultValue = "";
+                }
+            }            
+
+            return defaultValue;
         }
 
         public static object ConvertToType(Type type, object value)

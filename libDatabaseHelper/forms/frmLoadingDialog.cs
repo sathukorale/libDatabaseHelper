@@ -16,6 +16,7 @@ namespace libDatabaseHelper.forms
         public frmLoadingDialog()
         {
             InitializeComponent();
+            prgLoadingProgress.Maximum = 100;
         }
 
         public static void ShowWindow()
@@ -23,22 +24,29 @@ namespace libDatabaseHelper.forms
             ShowWindow("Please wait while the list is being populated");
         }
 
-        public static void ShowWindow(string message)
+        public static void ShowWindow(string message, IWin32Window owner = null)
         {
             if (_presentedDialog == null || _presentedDialog.IsDisposed)
                 _presentedDialog = new frmLoadingDialog();
             _message = message;
             _cancel = false;
             _presentedDialog.SetUp(false);
-            _presentedDialog.Show();
+            if (owner == null)
+            {
+                _presentedDialog.Show();
+            }
+            else
+            {
+                _presentedDialog.ShowDialog(owner);
+            }
         }
 
-        public static object ShowWindow(Func<object, object> method, object param, string message)
+        public static object ShowWindow(Func<object, object> method, object param, string message, IWin32Window owner = null)
         {
-            return ShowWindow(method, param, message, false);
+            return ShowWindow(method, param, message, false, owner);
         }
 
-        public static object ShowWindow(Func<object, object> method, object param, string message, bool showProgress)
+        public static object ShowWindow(Func<object, object> method, object param, string message, bool showProgress, IWin32Window owner = null)
         {
             if (_is_busy)
                 return null;
@@ -54,7 +62,7 @@ namespace libDatabaseHelper.forms
                 _is_busy = false;
                 try
                 {
-                    _presentedDialog.Invoke(new Action<object>(objectPassed => HideWindow()), new object[]{null});
+                    HideWindow();
                 }
                 catch (Exception ex)
                 {
@@ -64,35 +72,67 @@ namespace libDatabaseHelper.forms
             _message = message;
             _cancel = false;
             _presentedDialog.SetUp(showProgress);
-            t.SetApartmentState(ApartmentState.STA);
             t.Start(param);
             if (_is_busy)
             {
-                _presentedDialog.ShowDialog();
+                _presentedDialog.Hide();
+                _presentedDialog.ShowDialog(owner);
             }
             return _current_execution_return_detail;
         }
 
         private void SetUp(bool showProgress)
         {
-            lblMessage.Text = _message;
-            Height = showProgress ? 133 : 109;
-            prgLoadingProgress.Visible = showProgress;
-            prgLoadingProgress.Value = 0;
+            if (InvokeRequired)
+            {
+                BeginInvoke(new Action<object>(value =>
+                {
+                    lblMessage.Text = _message;
+                    prgLoadingProgress.Value = 0;
+                    prgLoadingProgress.Style = ProgressBarStyle.Marquee;
+                }), showProgress);
+            }
+            else
+            {
+                lblMessage.Text = _message;
+                prgLoadingProgress.Value = 0;
+                prgLoadingProgress.Style = ProgressBarStyle.Marquee;
+            }
         }
 
         private void UpdateProgress(int value)
         {
-            if (value == 0)
+            if (InvokeRequired)
             {
-                prgLoadingProgress.Style = ProgressBarStyle.Marquee;
+                BeginInvoke(new Action<object>((objValue) => {
+                    prgLoadingProgress.Style = ((int)objValue == 0) ? ProgressBarStyle.Marquee : ProgressBarStyle.Continuous;
+                    prgLoadingProgress.Value = (int)objValue;
+                }), value);
             }
             else
             {
-                prgLoadingProgress.Style = ProgressBarStyle.Continuous;
+                prgLoadingProgress.Style = (value == 0) ? ProgressBarStyle.Marquee : ProgressBarStyle.Continuous;
+                prgLoadingProgress.Value = value;
             }
 
-            prgLoadingProgress.Value = value;
+        }
+
+        private void UpdatText(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text) == false)
+            {
+                if (InvokeRequired)
+                {
+                    BeginInvoke(new Action<object>((objValue) =>
+                    {
+                        lblMessage.Text = (string)objValue;
+                    }), text);
+                }
+                else
+                {
+                    lblMessage.Text = text;
+                }
+            }
         }
 
         public static void UpdateProgressPercentage(int value)
@@ -110,6 +150,21 @@ namespace libDatabaseHelper.forms
             }
         }
 
+        public static void UpdateProgressText(string text)
+        {
+            if (_presentedDialog != null && _presentedDialog.IsDisposed == false)
+            {
+                if (_presentedDialog.InvokeRequired)
+                {
+                    _presentedDialog.BeginInvoke(new Action<object>(objectPassed => _presentedDialog.UpdatText((string)objectPassed)), text);
+                }
+                else
+                {
+                    _presentedDialog.UpdatText(text);
+                }
+            }
+        }
+
         public static bool GetStatus()
         {
             Application.DoEvents();
@@ -120,7 +175,19 @@ namespace libDatabaseHelper.forms
         {
             if (_presentedDialog == null || _presentedDialog.IsDisposed)
                 return;
-            _presentedDialog.Close();
+
+            if (_presentedDialog.InvokeRequired)
+            {
+                try
+                {
+                    _presentedDialog.BeginInvoke(new Action<object>(objectPassed => _presentedDialog.Close()), new object[] { null });
+                }
+                catch { }
+            }
+            else
+            {
+                _presentedDialog.Close();
+            }
         }
 
         private void btnCancel_Click(object sender, EventArgs e)

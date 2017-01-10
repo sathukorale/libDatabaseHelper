@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Data;
 using libDatabaseHelper.classes.generic;
 
 namespace libDatabaseHelper.classes.sqlce

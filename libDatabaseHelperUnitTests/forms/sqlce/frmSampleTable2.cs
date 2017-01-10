@@ -26,7 +26,7 @@ namespace libDatabaseHelperUnitTests.forms.sqlce
 			txtColumn2.Tag = new TableColumnField(true, typeof(SampleTable2), "Column2");
 			cmbColumn3.Tag = new TableColumnField(true, typeof(SampleTable2), "Column3");
 
-			_type=typeof(SampleTable2);
+            SetEntityType(typeof(SampleTable2));
 			LoadColumns();
         }
 		

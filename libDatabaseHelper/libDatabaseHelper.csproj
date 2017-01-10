@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="10.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -10,8 +10,17 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>libDatabaseHelper</RootNamespace>
     <AssemblyName>libDatabaseHelper</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>libDatabaseHelper.signer.snk</AssemblyOriginatorKeyFile>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <TargetFrameworkProfile />
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -24,11 +33,8 @@
     <MapFileExtensions>true</MapFileExtensions>
     <ApplicationRevision>0</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>libDatabaseHelper.signer.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -80,12 +86,16 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MySql.Data, Version=6.9.8.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL" />
+    <Reference Include="MySql.Data, Version=6.9.8.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
+      <HintPath>..\libs\MySql.Data.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
-    <Reference Include="System.Data.SqlServerCe, Version=3.5.1.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL" />
+    <Reference Include="System.Data.SqlServerCe, Version=4.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\..\VSRelmanPlugin_1\libs\System.Data.SqlServerCe.dll</HintPath>
+    </Reference>
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq">
@@ -108,6 +118,7 @@
     <Compile Include="classes\generic\Relationship.cs" />
     <Compile Include="classes\generic\TableColumn.cs" />
     <Compile Include="classes\generic\TableProperties.cs" />
+    <Compile Include="classes\generic\TransactionObject.cs" />
     <Compile Include="classes\mysql\ConnectionManager.cs" />
     <Compile Include="classes\mysql\DatabaseEntity.cs" />
     <Compile Include="classes\mysql\DatabaseManager.cs" />
@@ -116,7 +127,7 @@
     <Compile Include="classes\sqlce\DatabaseManager.cs" />
     <Compile Include="classes\sqlce\entities\AuditEntry.cs" />
     <Compile Include="classes\sqlce\FieldTools.cs" />
-    <Compile Include="classes\generic\UniversalDataCollector.cs" />
+    <Compile Include="classes\generic\UniversalDataModel.cs" />
     <Compile Include="classes\generic\GenericUtils.cs" />
     <Compile Include="classes\sqlce\ConnectionManager.cs" />
     <Compile Include="forms\controls\DGVCalendarEditingControl.cs">
@@ -155,6 +166,18 @@
     <Compile Include="forms\frmLoadingDialog.designer.cs">
       <DependentUpon>frmLoadingDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="forms\frmMultiOptionChooser.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="forms\frmMultiOptionChooser.Designer.cs">
+      <DependentUpon>frmMultiOptionChooser.cs</DependentUpon>
+    </Compile>
+    <Compile Include="forms\frmOptionChooser.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="forms\frmOptionChooser.Designer.cs">
+      <DependentUpon>frmOptionChooser.cs</DependentUpon>
+    </Compile>
     <Compile Include="forms\frmPropertiesViewer.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -169,12 +192,11 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="forms\frmConnectionStringSetter.resx">
-      <DependentUpon>frmConnectionStringSetter.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
     <EmbeddedResource Include="forms\DatabaseEntityViewer.resx">
       <DependentUpon>DatabaseEntityViewer.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="forms\frmConnectionStringSetter.resx">
+      <DependentUpon>frmConnectionStringSetter.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="forms\frmExceptionViewer.resx">
@@ -188,6 +210,12 @@
     <EmbeddedResource Include="forms\frmLoadingDialog.resx">
       <DependentUpon>frmLoadingDialog.cs</DependentUpon>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="forms\frmMultiOptionChooser.resx">
+      <DependentUpon>frmMultiOptionChooser.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="forms\frmOptionChooser.resx">
+      <DependentUpon>frmOptionChooser.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="forms\frmPropertiesViewer.resx">
       <DependentUpon>frmPropertiesViewer.cs</DependentUpon>
@@ -214,6 +242,11 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
     <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
       <Visible>False</Visible>
       <ProductName>.NET Framework 2.0 %28x86%29</ProductName>
@@ -229,9 +262,14 @@
       <ProductName>.NET Framework 3.5</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
     <BootstrapperPackage Include="Microsoft.SQL.Server.Compact.3.5">
       <Visible>False</Visible>
-      <ProductName>SQL Server Compact 3.5</ProductName>
+      <ProductName>SQL Server Compact 3.5 SP2</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
     <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
@@ -242,6 +280,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\ico_copyentity.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\ico_dbentityviewer.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

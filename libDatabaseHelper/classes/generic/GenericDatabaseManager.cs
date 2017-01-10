@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Data;
 using System.Windows.Forms;
 using System.Data.Common;
@@ -15,6 +14,22 @@ namespace libDatabaseHelper.classes.generic
         MSSQL = 3,
         Oracle = 4,
         Generic = 0
+    }
+
+    public class DatabaseOperationFailedEntity
+    { 
+        private GenericDatabaseEntity   _entity;
+        private Exception               _exception;
+
+        public DatabaseOperationFailedEntity(GenericDatabaseEntity entity, Exception exception)
+        {
+            _entity = entity;
+            _exception = exception;
+        }
+
+        public GenericDatabaseEntity GetEntity() { return _entity; }
+
+        public Exception GetException() { return _exception; }
     }
 
     public class GenericDatabaseManager
@@ -317,11 +332,121 @@ namespace libDatabaseHelper.classes.generic
         }
         #endregion
 
+        #region "DatabaseManager::Add/Update-Entities()"
+        public List<DatabaseOperationFailedEntity> AddEntities(IEnumerable<GenericDatabaseEntity> entitiesToAdd)
+        {
+            var failedEntities      = new List<DatabaseOperationFailedEntity>();
+            var transactionObjects  = new Dictionary<Type, TransactionObject>();
+
+            foreach (var entityToAdd in entitiesToAdd)
+            {
+                try
+                {
+                    if (entityToAdd.GetSupportedDatabaseType() != GetSupportedDatabase())
+                    {
+                        throw new InvalidOperationException("Unable to insert entity which is managed by a different database type.");
+                    }
+
+                    TransactionObject transaction = null;
+                    if (transactionObjects.ContainsKey(entityToAdd.GetType()))
+                    {
+                        transaction = transactionObjects[entityToAdd.GetType()];
+                    }
+                    else
+                    {
+                        var connection = GenericConnectionManager.GetConnectionManager(_supportedDatabase).GetConnection(entityToAdd.GetType());
+                        transaction = TransactionObject.CreateTransactionObject(_supportedDatabase, connection);
+                        transaction.EnableRegularCommit(false);
+
+                        transactionObjects.Add(entityToAdd.GetType(), transaction);
+                    }
+
+                    entityToAdd.Add(transaction);
+                }
+                catch (DatabaseEntityException ex)
+                {
+                    failedEntities.Add(new DatabaseOperationFailedEntity(entityToAdd, ex));
+                }
+                catch (DatabaseException ex)
+                {
+                    failedEntities.Add(new DatabaseOperationFailedEntity(entityToAdd, ex));
+                }
+                catch (System.Exception ex)
+                {
+                    failedEntities.Add(new DatabaseOperationFailedEntity(entityToAdd, ex));
+                }
+            }
+
+            foreach (var transactionObjectPair in transactionObjects)
+            {
+                transactionObjectPair.Value.Commit(true);
+            }
+
+            return failedEntities;
+        }
+
+        public List<DatabaseOperationFailedEntity> UpdateEntities(ICollection<GenericDatabaseEntity> entitiesToUpdate)
+        {
+            var failedEntities = new List<DatabaseOperationFailedEntity>();
+            var transactionObjects = new Dictionary<Type, TransactionObject>();
+
+            foreach (var entityUpdate in entitiesToUpdate)
+            {
+                try
+                {
+                    if (entityUpdate.GetSupportedDatabaseType() != GetSupportedDatabase())
+                    {
+                        throw new InvalidOperationException("Unable to insert entity which is managed by a different database type.");
+                    }
+
+                    TransactionObject transaction = null;
+                    if (transactionObjects.ContainsKey(entityUpdate.GetType()))
+                    {
+                        transaction = transactionObjects[entityUpdate.GetType()];
+                    }
+                    else
+                    {
+                        var connection = GenericConnectionManager.GetConnectionManager(_supportedDatabase).GetConnection(entityUpdate.GetType());
+                        transaction = TransactionObject.CreateTransactionObject(_supportedDatabase, connection);
+                        transaction.EnableRegularCommit(false);
+
+                        transactionObjects.Add(entityUpdate.GetType(), transaction);
+                    }
+
+                    entityUpdate.Update(transaction);
+                }
+                catch (DatabaseEntityException ex)
+                {
+                    failedEntities.Add(new DatabaseOperationFailedEntity(entityUpdate, ex));
+                }
+                catch (DatabaseException ex)
+                {
+                    failedEntities.Add(new DatabaseOperationFailedEntity(entityUpdate, ex));
+                }
+                catch (System.Exception ex)
+                {
+                    failedEntities.Add(new DatabaseOperationFailedEntity(entityUpdate, ex));
+                }
+            }
+
+            foreach (var transactionObjectPair in transactionObjects)
+            {
+                transactionObjectPair.Value.Commit(true);
+            }
+
+            return failedEntities;
+        }
+        #endregion
+
         protected void _OnBulkDelete(Type type, Selector[] selectors)
         { 
             if (OnBulkDelete != null)
             {
-                OnBulkDelete(type, selectors);
+                try
+                {
+                    OnBulkDelete(type, selectors);
+                }
+                catch { }
             }
         }
 

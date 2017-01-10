@@ -9,13 +9,25 @@ using libDatabaseHelper.Properties;
 
 namespace libDatabaseHelper.forms
 {
+    class ResettableControlDetail
+    {
+        public readonly Control ControlToBeReset;
+        public readonly object DefaultValue;
+
+        public ResettableControlDetail(Control controlToBeReset, object defaultValue)
+        {
+            ControlToBeReset = controlToBeReset;
+            DefaultValue = defaultValue;
+        }
+    }
+
     public class DatabaseEntityForm : Form
     {
         protected bool ReloadNeeded;
         protected bool Inited = false;
         protected GenericDatabaseEntity LoadedEntity;
 
-        public Type _type;
+        private Type _type;
         private string[] _drag_drop_supporting_extensions;
 
         private static Dictionary<Type, DatabaseEntityForm> _listOfForms;
@@ -35,6 +47,11 @@ namespace libDatabaseHelper.forms
             }
         }
 
+        protected void SetEntityType(Type type)
+        {
+            _type = type;
+        }
+
         public void ClearForm()
         {
             ReloadNeeded = false;
@@ -44,6 +61,10 @@ namespace libDatabaseHelper.forms
         protected virtual bool ValidateCreatedEntity(ref GenericDatabaseEntity entity)
         {
             return true;
+        }
+
+        protected virtual void OnEntityUpdated(GenericDatabaseEntity entity)
+        {
         }
 
         protected void MakeWindowDragDroppable(string[] supported_extensions)
@@ -85,7 +106,6 @@ namespace libDatabaseHelper.forms
 
             control.DragDrop += (sender, e) =>
             {
-                bool ret = false;
                 if ((e.AllowedEffect & DragDropEffects.Copy) == DragDropEffects.Copy)
                 {
                     var data = e.Data.GetData("FileName") as Array;
@@ -106,7 +126,34 @@ namespace libDatabaseHelper.forms
                         }
                     }
                 }
-                e.Effect = ret ? DragDropEffects.Copy : DragDropEffects.None;
+            };
+        }
+
+        protected void AddResettableField(Button resettingButton, Control controlToReset)
+        {
+            var tableColumnData = controlToReset.Tag as TableColumnField;
+            if (tableColumnData == null)
+            {
+                throw new InvalidOperationException("Unable to make field not marked 'TableColumnField', resettable.");
+            }
+
+            resettingButton.Tag = new ResettableControlDetail(controlToReset, tableColumnData.DefaultValue);
+            resettingButton.Click+= (sender, e) => 
+            {
+                var resettableControlDetails = (sender as Control).Tag as ResettableControlDetail;
+                if (resettableControlDetails != null)
+                {
+                    var controlToBeReset = resettableControlDetails.ControlToBeReset;
+                    if (controlToBeReset is TextBox)
+                    {
+                        var txtToReset = controlToBeReset as TextBox;
+                        txtToReset.Text = resettableControlDetails.DefaultValue as String;
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException("Controls other than TextBoxes are not supported as of now.");
+                    }
+                }
             };
         }
 
@@ -120,24 +167,36 @@ namespace libDatabaseHelper.forms
             return _type;
         }
 
-        public DatabaseEntityForm GetFormInstance<T>()
+        public static DatabaseEntityForm GetFormInstance<T>()
+        {
+            return GetFormInstance(typeof(T));
+        }
+
+        public static DatabaseEntityForm GetFormInstance(Type t)
         {
             if (_listOfForms == null)
                 _listOfForms = new Dictionary<Type, DatabaseEntityForm>();
-            var presentedForm = _listOfForms[typeof(T)];
+            var presentedForm = _listOfForms.Any(i => i.Key == t) ? _listOfForms[t] : null;
             if (presentedForm == null || presentedForm.IsDisposed)
             {
-                presentedForm = Activator.CreateInstance<T>() as DatabaseEntityForm;
-                _listOfForms.Add(typeof(T), presentedForm);
+                presentedForm = Activator.CreateInstance(t) as DatabaseEntityForm;
+                if (presentedForm == null)
+                {
+                    _listOfForms.Add(t, presentedForm);
+                }
+                else if (presentedForm.IsDisposed)
+                {
+                    _listOfForms[t] = presentedForm;
+                }
             }
-            return presentedForm;
+            return presentedForm; 
         }
 
         private void LoadToForm(GenericDatabaseEntity loadedEntity, bool loadValuesOnly)
         {
             if (loadedEntity != null)
             {
-                loadedEntity.LoadToForm(this);
+                loadedEntity.LoadToForm(this, loadValuesOnly);
                 if (! loadValuesOnly)
                 {
                     LoadedEntity = loadedEntity;
@@ -157,7 +216,7 @@ namespace libDatabaseHelper.forms
         {
             if (! Inited)
             {
-                FormUtils.MakeControlAndSubControlsSensitiveToKey(this, new[] { Keys.Escape }, (key) => { Close(); return 0; });
+                FormUtils.MakeControlAndSubControlsSensitiveToKey(this, new[] { Keys.Escape }, (key) => { Close(); return true; });
                 Inited = true;
             }
         }
@@ -172,37 +231,27 @@ namespace libDatabaseHelper.forms
             return LoadedEntity;
         }
 
-        public static DatabaseEntityForm ShowWindow<T>()
+        public static DatabaseEntityForm ShowWindow<T>(IWin32Window owner = null)
         {
-            return ShowWindow<T>(null);
+            return ShowWindow<T>(null, owner);
         }
 
-        public static ReturnStatus ShowModalWindow<T>()
+        public static DatabaseEntityForm ShowWindow<T>(GenericDatabaseEntity loadedEntity, IWin32Window owner = null)
         {
-            return ShowModalWindow<T>(null);
+            return ShowWindow(typeof (T), loadedEntity, false, owner);
         }
 
-        public static ReturnStatus ShowModalWindow(Type type)
+        public static DatabaseEntityForm ShowWindow<T>(GenericDatabaseEntity loadedEntity, bool loadValuesOnly, IWin32Window owner = null)
         {
-            return ShowModalWindow(type, null);
+            return ShowWindow(typeof(T), loadedEntity, loadValuesOnly, owner);
         }
 
-        public static DatabaseEntityForm ShowWindow<T>(GenericDatabaseEntity loadedEntity)
+        public static DatabaseEntityForm ShowWindow(Type type, GenericDatabaseEntity loadedEntity, IWin32Window owner = null)
         {
-            return ShowWindow(typeof (T), loadedEntity, false);
+            return ShowWindow(type, loadedEntity, false, owner);
         }
 
-        public static DatabaseEntityForm ShowWindow<T>(GenericDatabaseEntity loadedEntity, bool loadValuesOnly)
-        {
-            return ShowWindow(typeof(T), loadedEntity, loadValuesOnly);
-        }
-
-        public static DatabaseEntityForm ShowWindow(Type type, GenericDatabaseEntity loadedEntity)
-        {
-            return ShowWindow(type, loadedEntity, false);
-        }
-
-        public static DatabaseEntityForm ShowWindow(Type type, GenericDatabaseEntity loadedEntity, bool loadValuesOnly)
+        public static DatabaseEntityForm ShowWindow(Type type, GenericDatabaseEntity loadedEntity, bool loadValuesOnly, IWin32Window owner = null)
         {
             if (_listOfForms == null)
                 _listOfForms = new Dictionary<Type, DatabaseEntityForm>();
@@ -215,30 +264,21 @@ namespace libDatabaseHelper.forms
             if (presentedForm == null)
                 throw new Exception("Unable to create window [" + type.Name + "]");
 
+            presentedForm.ShowInTaskbar = owner == null;
             presentedForm.InitWindow();
             presentedForm.LoadToForm(loadedEntity, loadValuesOnly);
             presentedForm.PerformPreWindowShowActions();
 
-            presentedForm.Show();
+            presentedForm.Show(owner);
             return presentedForm;
         }
 
-        public static ReturnStatus ShowModalWindow<T>(GenericDatabaseEntity loadedEntity)
+        public static ReturnStatus ShowModalWindow<T>(GenericDatabaseEntity loadedEntity = null, bool loadValuesOnly = false, IWin32Window owner = null)
         {
-            return ShowModalWindow<T>(loadedEntity, false);
+            return ShowModalWindow(typeof(T), loadedEntity, loadValuesOnly, owner);
         }
 
-        public static ReturnStatus ShowModalWindow<T>(GenericDatabaseEntity loadedEntity, bool loadValuesOnly)
-        {
-            return ShowModalWindow(typeof(T), loadedEntity, loadValuesOnly);
-        }
-
-        public static ReturnStatus ShowModalWindow(Type type, GenericDatabaseEntity loadedEntity)
-        {
-            return ShowModalWindow(type, loadedEntity, false);
-        }
-
-        public static ReturnStatus ShowModalWindow(Type type, GenericDatabaseEntity loadedEntity, bool loadValuesOnly)
+        public static ReturnStatus ShowModalWindow(Type type, GenericDatabaseEntity loadedEntity = null, bool loadValuesOnly = false, IWin32Window owner = null)
         {
             if (_listOfForms == null)
                 _listOfForms = new Dictionary<Type, DatabaseEntityForm>();
@@ -252,15 +292,16 @@ namespace libDatabaseHelper.forms
             if (presentedForm == null)
                 throw new Exception("Unable to create window [" + type.Name + "]");
 
+            presentedForm.ShowInTaskbar = owner == null;
             presentedForm.InitWindow();
             presentedForm.LoadToForm(loadedEntity, loadValuesOnly);
             presentedForm.PerformPreWindowShowActions();
 
-            presentedForm.ShowDialog();
+            presentedForm.ShowDialog(owner);
             return new ReturnStatus(presentedForm.GetLoadedEntity(), presentedForm.GetReloadState());
         }
 
-        protected void PerformPreWindowShowActions()
+        protected virtual void PerformPreWindowShowActions()
         { 
         
         }
@@ -279,7 +320,7 @@ namespace libDatabaseHelper.forms
         protected void OnCancelButtonClicked(object sender, EventArgs e)
         {
             ReloadNeeded = false;
-            Hide();
+            Close();
         }
 
         protected bool OnUpdateButtonClicked()
@@ -293,9 +334,22 @@ namespace libDatabaseHelper.forms
             return GetUpdatedEntity(false);
         }
 
-        public GenericDatabaseEntity GetUpdatedEntity(bool create_new)
+        public GenericDatabaseEntity GetUpdatedEntity(bool createNew)
         {
-            var entity = (create_new ? null : LoadedEntity) ?? Activator.CreateInstance(_type) as GenericDatabaseEntity;
+            GenericDatabaseEntity entity = null;
+            if (createNew || LoadedEntity == null)
+            {
+                entity = Activator.CreateInstance(_type) as GenericDatabaseEntity;
+                if (LoadedEntity != null)
+                {
+                    entity.Set(LoadedEntity, true, false);
+                }
+            }
+            else
+            {
+                entity = LoadedEntity;
+            }
+
             entity.ValidateForm(this);
             return entity;
         }
@@ -305,7 +359,7 @@ namespace libDatabaseHelper.forms
             var updating = LoadedEntity != null;
             try
             {
-                var entity = GetUpdatedEntity();
+                var entity = GetUpdatedEntity(true);
                 if (entity != null && ValidateCreatedEntity(ref entity))
                 {
                     var status = false;
@@ -336,7 +390,7 @@ namespace libDatabaseHelper.forms
                                 "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                             ReloadNeeded = status;
                         }
-                        else if (! updating &&
+                        else if (!updating &&
                                  ((ex.GetErrorType() & DatabaseException.ErrorType.RecordAlreadyExists) ==
                                   DatabaseException.ErrorType.RecordAlreadyExists ||
                                   (ex.GetErrorType() & DatabaseException.ErrorType.AlreadyExistingUnqiueField) ==
@@ -360,16 +414,32 @@ namespace libDatabaseHelper.forms
                                 "Program Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
                     }
-                    catch (Exception)
+                    catch (Exception ex) { Console.WriteLine(ex.Message); }
+
+                    if (status == false)
                     {
+                        return;
                     }
-                    LoadedEntity = entity;
-                    if (!status) return;
+
+                    if (LoadedEntity == null)
+                    {
+                        LoadedEntity = entity;
+                    }
+                    else
+                    {
+                        LoadedEntity.Set(entity);
+                    }
+
+                    OnEntityUpdated(LoadedEntity);
                     ClearForm();
-                    Hide();
+                    Close();
+
                     ReloadNeeded = true;
+
                     if (OnOkClicked != null)
+                    {
                         OnOkClicked();
+                    }
                 }
                 else
                 {
@@ -379,7 +449,7 @@ namespace libDatabaseHelper.forms
             }
             catch (ValidationException ex)
             {
-                MessageBox.Show(this, ex.GetErrorMessage(), "Error", MessageBoxButtons.OK,
+                MessageBox.Show(this, ex.GetErrorMessage(), "Invalid Details", MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
             }
         }
