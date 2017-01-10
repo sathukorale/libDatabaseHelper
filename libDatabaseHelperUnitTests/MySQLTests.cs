@@ -105,9 +105,9 @@ namespace libDatabaseHelperUnitTests.mysql
     /// Summary description for GenericTests
     /// </summary>
     [TestFixture]
-    public class SqlCETests
+    public class MySqlTests
     {
-        public SqlCETests()
+        public MySqlTests()
         {
             //
             // TODO: Add constructor logic here
