@@ -121,11 +121,11 @@ namespace DatabaseEntityFormGenerator.Properties {
         ///
         ///namespace NAMESPACE
         ///{
-        ///    public partial class CLASS_NAME : DatabaseEntityForm
+        ///    public partial class CLASS_NAME : ENTITY_CONTROL_TYPE
         ///    {
         ///        public CLASS_NAME()
         ///        {
-        ///            InitializeComponent( [rest of string was truncated]&quot;;.
+        ///            InitializeComponent [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string DBEntityForm_UserCode {
             get {

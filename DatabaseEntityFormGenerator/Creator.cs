@@ -7,12 +7,19 @@ using System.Reflection;
 using libDatabaseHelper.classes.sqlce;
 using DatabaseEntityFormGenerator.Properties;
 using libDatabaseHelper.classes.generic;
+using libDatabaseHelper.forms;
 
 namespace DatabaseEntityFormCreator
 {
     class Creator
     {
-        public static bool CreateForm(string filepath)
+        public enum EntityControlType
+        {
+            DatabaseEntityForm,
+            DatabaseEntityUserControl
+        }
+
+        public static bool CreateForm(string filepath, EntityControlType entityControlType)
         {
             if (!File.Exists(filepath))
             {
@@ -21,6 +28,7 @@ namespace DatabaseEntityFormCreator
                 return false;
             }
 
+            var parentType = entityControlType == EntityControlType.DatabaseEntityForm ? "DatabaseEntityForm" : "DatabaseEntityUserControl";
             var assembly = Assembly.LoadFile(filepath);
             var types = assembly.GetTypes();
             var matchingTypes = types.Where(i => i.BaseType != null && i.BaseType.FullName == typeof(DatabaseEntity).FullName).ToArray();
@@ -48,7 +56,7 @@ namespace DatabaseEntityFormCreator
 
                     var className = "frm" + type.Name;
 
-                    var userCodeString = Resources.DBEntityForm_UserCode.Replace("NAMESPACE", type.Namespace).Replace("CLASS_NAME", className);
+                    var userCodeString = Resources.DBEntityForm_UserCode.Replace("NAMESPACE", type.Namespace).Replace("CLASS_NAME", className).Replace("ENTITY_CONTROL_TYPE", parentType);
 
                     var declarationCode = "";
                     var initCode = "";

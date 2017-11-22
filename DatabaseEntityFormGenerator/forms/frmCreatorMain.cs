@@ -24,7 +24,20 @@ namespace DatabaseEntityFormCreator
                 ofd.Filter = "Compiled DLL Files|*.dll";
                 if (ofd.ShowDialog() == DialogResult.OK)
                 {
-                    Creator.CreateForm(ofd.FileName);
+                    Creator.CreateForm(ofd.FileName, Creator.EntityControlType.DatabaseEntityForm);
+                }
+            }
+        }
+
+        private void btnCreateUserControls_Click(object sender, EventArgs e)
+        {
+            using (var ofd = new OpenFileDialog())
+            {
+                ofd.Title = "Please Select the .NET Library Containing, the Classes Extending DatabaseEntity";
+                ofd.Filter = "Compiled DLL Files|*.dll";
+                if (ofd.ShowDialog() == DialogResult.OK)
+                {
+                    Creator.CreateForm(ofd.FileName, Creator.EntityControlType.DatabaseEntityUserControl);
                 }
             }
         }
