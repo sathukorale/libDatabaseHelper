@@ -73,6 +73,16 @@ namespace libDatabaseHelper.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap ico_add_field {
+            get {
+                object obj = ResourceManager.GetObject("ico_add_field", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap ico_addrecord {
             get {
                 object obj = ResourceManager.GetObject("ico_addrecord", resourceCulture);
@@ -86,6 +96,26 @@ namespace libDatabaseHelper.Properties {
         internal static System.Drawing.Bitmap ico_copyentity {
             get {
                 object obj = ResourceManager.GetObject("ico_copyentity", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ico_more_options {
+            get {
+                object obj = ResourceManager.GetObject("ico_more_options", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ico_remove_field {
+            get {
+                object obj = ResourceManager.GetObject("ico_remove_field", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

@@ -131,6 +131,36 @@
     <Compile Include="forms\controls\DGVCalendarEditingControl.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="forms\controls\NamedComboBox.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="forms\controls\NamedComboBox.designer.cs">
+      <DependentUpon>NamedComboBox.cs</DependentUpon>
+    </Compile>
+    <Compile Include="forms\controls\NamedDateTimePicker.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="forms\controls\NamedDateTimePicker.designer.cs">
+      <DependentUpon>NamedDateTimePicker.cs</DependentUpon>
+    </Compile>
+    <Compile Include="forms\controls\NamedTextBox.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="forms\controls\NamedTextBox.designer.cs">
+      <DependentUpon>NamedTextBox.cs</DependentUpon>
+    </Compile>
+    <Compile Include="forms\controls\SearchFilter.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="forms\controls\SearchFilter.designer.cs">
+      <DependentUpon>SearchFilter.cs</DependentUpon>
+    </Compile>
+    <Compile Include="forms\controls\SearchFilterControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="forms\DatabaseEntityUserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="forms\DatabaseEntityForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -190,6 +220,18 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="forms\controls\NamedComboBox.resx">
+      <DependentUpon>NamedComboBox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="forms\controls\NamedDateTimePicker.resx">
+      <DependentUpon>NamedDateTimePicker.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="forms\controls\NamedTextBox.resx">
+      <DependentUpon>NamedTextBox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="forms\controls\SearchFilter.resx">
+      <DependentUpon>SearchFilter.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="forms\DatabaseEntityViewer.resx">
       <DependentUpon>DatabaseEntityViewer.cs</DependentUpon>
     </EmbeddedResource>
@@ -280,6 +322,9 @@
     <None Include="Resources\ico_copyentity.png" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\ico_remove_field.png" />
+    <None Include="Resources\ico_more_options.png" />
+    <None Include="Resources\ico_add_field.png" />
     <Content Include="Resources\ico_dbentityviewer.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
