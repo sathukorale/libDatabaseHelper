@@ -119,6 +119,7 @@ namespace libDatabaseHelper.classes.generic
         public string GridDisplayName { get; set; }
         public bool IsGridViewable { get; set; }
         public GenerateAutogen AutogenrationMethod { get; set; }
+        public bool IsASearchFilter { get; set; }
 
         public Type ReferencedClass { get; set; }
         public string ReferencedField { get; set; }
@@ -128,5 +129,10 @@ namespace libDatabaseHelper.classes.generic
         public string[] Translators { get; set; }
 
         public object DefaultValue { get; set; }
+
+        public override string ToString()
+        {
+            return GridDisplayName ?? "";
+        }
     }
 }

@@ -97,28 +97,40 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="forms\mysql\frmInvalidSampleTable3_NoPrimaryKey.cs" />
+    <Compile Include="forms\mysql\frmInvalidSampleTable3_NoPrimaryKey.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="forms\mysql\frmInvalidSampleTable3_NoPrimaryKey.designer.cs">
       <DependentUpon>frmInvalidSampleTable3_NoPrimaryKey.cs</DependentUpon>
     </Compile>
-    <Compile Include="forms\mysql\frmSampleTable1.cs" />
+    <Compile Include="forms\mysql\frmSampleTable1.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="forms\mysql\frmSampleTable1.designer.cs">
       <DependentUpon>frmSampleTable1.cs</DependentUpon>
     </Compile>
-    <Compile Include="forms\mysql\frmSampleTable2.cs" />
+    <Compile Include="forms\mysql\frmSampleTable2.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="forms\mysql\frmSampleTable2.Designer.cs">
       <DependentUpon>frmSampleTable2.cs</DependentUpon>
     </Compile>
     <Compile Include="MySQLTests.cs" />
-    <Compile Include="forms\sqlce\frmInvalidSampleTable3_NoPrimaryKey.cs" />
+    <Compile Include="forms\sqlce\frmInvalidSampleTable3_NoPrimaryKey.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="forms\sqlce\frmInvalidSampleTable3_NoPrimaryKey.designer.cs">
       <DependentUpon>frmInvalidSampleTable3_NoPrimaryKey.cs</DependentUpon>
     </Compile>
-    <Compile Include="forms\sqlce\frmSampleTable1.cs" />
+    <Compile Include="forms\sqlce\frmSampleTable1.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="forms\sqlce\frmSampleTable1.designer.cs">
       <DependentUpon>frmSampleTable1.cs</DependentUpon>
     </Compile>
-    <Compile Include="forms\sqlce\frmSampleTable2.cs" />
+    <Compile Include="forms\sqlce\frmSampleTable2.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="forms\sqlce\frmSampleTable2.designer.cs">
       <DependentUpon>frmSampleTable2.cs</DependentUpon>
     </Compile>
