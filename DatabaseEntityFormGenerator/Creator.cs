@@ -29,6 +29,7 @@ namespace DatabaseEntityFormCreator
             }
 
             var parentType = entityControlType == EntityControlType.DatabaseEntityForm ? "DatabaseEntityForm" : "DatabaseEntityUserControl";
+            var classPrefix = entityControlType == EntityControlType.DatabaseEntityForm ? "frm" : "ctrl";
             var assembly = Assembly.LoadFile(filepath);
             var types = assembly.GetTypes();
             var matchingTypes = types.Where(i => i.BaseType != null && i.BaseType.FullName == typeof(DatabaseEntity).FullName).ToArray();
@@ -54,7 +55,7 @@ namespace DatabaseEntityFormCreator
 
                     if (instance == null) continue;
 
-                    var className = "frm" + type.Name;
+                    var className = classPrefix + type.Name;
 
                     var userCodeString = Resources.DBEntityForm_UserCode.Replace("NAMESPACE", type.Namespace).Replace("CLASS_NAME", className).Replace("ENTITY_CONTROL_TYPE", parentType);
 
