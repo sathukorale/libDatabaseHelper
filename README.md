@@ -65,6 +65,6 @@ fetched_entry.Remove(); // Removing the entry from the database
 
 ## Requirements : 
 * Windows (atleast for the moment, due to certain limitations)
-* .NET 4.0 (The oldest version supported is .NET 3.5)
+* .NET 4.0 (The oldest version supported is .NET 4.0)
 * The following list libraries will depend on the supported database list
   * SQL Compact Edition 4.0
