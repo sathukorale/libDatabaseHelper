@@ -104,7 +104,7 @@ namespace libDatabaseHelper.forms.controls
                 {
                     item.CheckState = CheckState.Checked;
                     FormUtils.AddPlaceHolder(txtMainSearchFilter, (item.Text ?? "") + "...");
-                    txtMainSearchFilter.Tag = item.Text;
+                    txtMainSearchFilter.Tag = fieldName;
                 }
             }
         }
@@ -114,7 +114,7 @@ namespace libDatabaseHelper.forms.controls
             Selector[] selectors = null;
             if (Mode == SearchMode.Simple)
             {
-                selectors = new[] { new Selector(txtMainSearchFilter.Tag as string, string.IsNullOrWhiteSpace(txtMainSearchFilter.Text) ? "*" : txtMainSearchFilter.Text) };
+                selectors = new[] { new Selector(txtMainSearchFilter.Tag as string, string.IsNullOrWhiteSpace(txtMainSearchFilter.Text) ? "*" : txtMainSearchFilter.Text, Selector.Operator.Like) };
             }
             else
             {
@@ -124,7 +124,8 @@ namespace libDatabaseHelper.forms.controls
             if (OnSearchEventTriggered != null) OnSearchEventTriggered.Invoke(this, ClassType, selectors);
 
             var instance = GenericDatabaseEntity.GetNonDisposableRefenceObject(ClassType);
-            GenericDatabaseManager.GetDatabaseManager(instance.GetSupportedDatabaseType()).FillDataGridView(ClassType, ResultsView);
+            var resultsView = ResultsView;
+            GenericDatabaseManager.GetDatabaseManager(instance.GetSupportedDatabaseType()).FillDataGridViewAsItems(ClassType, ref resultsView, selectors);
         }
 
         private void btnChangeDefaultFilter_Click(object sender, EventArgs e)
