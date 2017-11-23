@@ -56,7 +56,7 @@ fetched_entry.Remove(); // Removing the entry from the database
 ```
 
 ## TODO List : 
-* Extend the library to support MySQL, MS SQL, Oracle and SQLite
+* Extend the library to support MS SQL, Oracle and SQLite
 * Implement the functionality to have auto-generated primary keys.
 * Update the library to detect column data-type chanegs so that the tables can be modified, to suit the data type specified.
 * The library does not support, storing encrypted data/passwords (however the developer can go around and develop his own extension). The capability to store encrypted data should be introduced.
@@ -65,6 +65,6 @@ fetched_entry.Remove(); // Removing the entry from the database
 
 ## Requirements : 
 * Windows (atleast for the moment, due to certain limitations)
-* .NET 3.5 (The oldest version supported is .NET 3.5)
+* .NET 4.0 (The oldest version supported is .NET 3.5)
 * The following list libraries will depend on the supported database list
-  * SQL Compact Edition 3.5
+  * SQL Compact Edition 4.0
