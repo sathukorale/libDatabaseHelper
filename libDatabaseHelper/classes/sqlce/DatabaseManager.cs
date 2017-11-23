@@ -9,6 +9,7 @@ using libDatabaseHelper.classes.generic;
 using libDatabaseHelper.forms;
 using libDatabaseHelper.classes.sqlce.entities;
 using System.Data.SqlServerCe;
+using libDatabaseHelper.forms.controls;
 
 namespace libDatabaseHelper.classes.sqlce
 {
@@ -18,6 +19,7 @@ namespace libDatabaseHelper.classes.sqlce
         {
             CreateTable<GenericConnectionDetails>();
             CreateTable<AuditEntry>();
+            CreateTable<SearchFilterSettings>();
         }
 
         public override bool TableExist(Type type)

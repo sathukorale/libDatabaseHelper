@@ -7,6 +7,7 @@ using System.Data.Common;
 using System.Data.SqlServerCe;
 using System.IO;
 using libDatabaseHelper.classes.sqlce.entities;
+using libDatabaseHelper.forms.controls;
 
 namespace libDatabaseHelper.classes.sqlce
 {
@@ -189,6 +190,7 @@ namespace libDatabaseHelper.classes.sqlce
 
             _connectionStrings[typeof(GenericConnectionDetails)] = localConnectionString;
             _connectionStrings[typeof(AuditEntry)] = localConnectionString;
+            _connectionStrings[typeof(SearchFilterSettings)] = localConnectionString;
 
             LoadConnectionData();
         }
