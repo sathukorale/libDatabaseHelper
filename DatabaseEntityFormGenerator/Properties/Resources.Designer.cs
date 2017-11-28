@@ -62,15 +62,15 @@ namespace DatabaseEntityFormGenerator.Properties {
         
         /// <summary>
         ///   Looks up a localized string similar to private void Load{0}()
-        ///{
+        ///{{
         ///	try
-        ///	{
+        ///	{{
         ///		var items = DatabaseManager.Select&lt;{1}&gt;(null);
         ///		cmb{0}.Items.Clear();
         ///		cmb{0}.Items.AddRange(items);
-        ///	}
-        ///	catch { }
-        ///}.
+        ///	}}
+        ///	catch {{ }}
+        ///}}.
         /// </summary>
         internal static string ComboLoadingCode {
             get {

@@ -69,7 +69,7 @@ namespace DatabaseEntityFormCreator
                     var loadingCode = "";
                     var y = 15;
 
-                    loadingCodeCalls += Environment.NewLine + "\t\t\t_type=typeof(" + type.Name + ");";
+                    loadingCodeCalls += Environment.NewLine + "\t\t\tSetEntityType(typeof(" + type.Name + "));";
 
                     foreach (var column in instance.GetColumns(true).GetOtherColumns())
                     {

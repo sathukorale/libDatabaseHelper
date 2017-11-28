@@ -119,15 +119,15 @@
   </resheader>
   <data name="ComboLoadingCode" xml:space="preserve">
     <value>private void Load{0}()
-{
+{{
 	try
-	{
+	{{
 		var items = DatabaseManager.Select&lt;{1}&gt;(null);
 		cmb{0}.Items.Clear();
 		cmb{0}.Items.AddRange(items);
-	}
-	catch { }
-}</value>
+	}}
+	catch {{ }}
+}}</value>
   </data>
   <data name="DBEntityForm_AutogenCode" xml:space="preserve">
     <value>using libDatabaseHelper.forms;

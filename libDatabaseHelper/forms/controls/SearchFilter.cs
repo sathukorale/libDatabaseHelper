@@ -114,7 +114,7 @@ namespace libDatabaseHelper.forms.controls
             Selector[] selectors = null;
             if (Mode == SearchMode.Simple)
             {
-                selectors = new[] { new Selector(txtMainSearchFilter.Tag as string, string.IsNullOrWhiteSpace(txtMainSearchFilter.Text) ? "*" : txtMainSearchFilter.Text, Selector.Operator.Like) };
+                selectors = new[] { new Selector(txtMainSearchFilter.Tag as string, string.IsNullOrWhiteSpace(txtMainSearchFilter.Text) ? "" : ("%" + txtMainSearchFilter.Text + "%"), Selector.Operator.Like) };
             }
             else
             {
