@@ -102,7 +102,7 @@ namespace DatabaseEntityFormCreator
 
                             loadingCodeCalls += Environment.NewLine + "\t\t\tLoad" + column.Name + "s();";
 
-                            loadingCode += Environment.NewLine + Environment.NewLine + "\t\t" + String.Format(Resources.ComboLoadingCode, column.Name, attr.ReferencedClass.Name);
+                            loadingCode += Environment.NewLine + Environment.NewLine + "\t\t" + String.Format(Resources.ComboLoadingCode, column.Name, attr.ReferencedClass.Name, instance.GetSupportedDatabaseType() == DatabaseType.SqlCE ? "DatabaseType.SqlCE" : "DatabaseType.MySQL");
 
                             tagCode += (settingsCode == "" ? "" : Environment.NewLine) + String.Format("\t\t\tcmb{0}.Tag = new TableColumnField({1}, typeof({2}), \"{3}\");", column.Name, "true", type.Name, column.Name);
 

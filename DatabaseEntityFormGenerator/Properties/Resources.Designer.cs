@@ -61,11 +61,11 @@ namespace DatabaseEntityFormGenerator.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to private void Load{0}()
+        ///   Looks up a localized string similar to private void Load{0}s()
         ///{{
         ///	try
         ///	{{
-        ///		var items = DatabaseManager.Select&lt;{1}&gt;(null);
+        ///		var items = GenericDatabaseManager.GetDatabaseManager({2}).Select&lt;{1}&gt;(null);
         ///		cmb{0}.Items.Clear();
         ///		cmb{0}.Items.AddRange(items);
         ///	}}

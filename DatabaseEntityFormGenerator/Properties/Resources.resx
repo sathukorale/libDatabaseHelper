@@ -118,11 +118,11 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ComboLoadingCode" xml:space="preserve">
-    <value>private void Load{0}()
+    <value>private void Load{0}s()
 {{
 	try
 	{{
-		var items = DatabaseManager.Select&lt;{1}&gt;(null);
+		var items = GenericDatabaseManager.GetDatabaseManager({2}).Select&lt;{1}&gt;(null);
 		cmb{0}.Items.Clear();
 		cmb{0}.Items.AddRange(items);
 	}}

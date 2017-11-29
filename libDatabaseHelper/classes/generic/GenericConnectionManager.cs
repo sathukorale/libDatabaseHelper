@@ -99,6 +99,11 @@ namespace libDatabaseHelper.classes.generic
             try
             {
                 connectionCreated = CreateConnection(t, connectionString);
+                if (connectionCreated == null)
+                {
+                    throw new Exception("The method 'CreateConnection' returned 'null' without throwing an exception.");
+                }
+
                 if (connectionCreated.State == ConnectionState.Closed)
                 {
                     connectionCreated.Open();
