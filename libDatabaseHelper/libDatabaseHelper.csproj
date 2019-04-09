@@ -133,10 +133,6 @@
     <Compile Include="classes\sqlce\ConnectionManager.cs" />
     <Compile Include="classes\generic\Translator.cs" />
     <Compile Include="forms\controls\DGVCalendarEditingControl.cs" />
-    <Compile Include="forms\DatabaseEntityForm.cs" />
-    <Compile Include="forms\controls\DGVCalendarEditingControl.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="forms\controls\NamedComboBox.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -167,9 +163,7 @@
     <Compile Include="forms\DatabaseEntityUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="forms\DatabaseEntityForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="forms\DatabaseEntityForm.cs" />
     <Compile Include="forms\frmConnectionStringSetter.cs">
       <SubType>Form</SubType>
     </Compile>
