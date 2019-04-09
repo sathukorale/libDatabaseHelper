@@ -18,7 +18,7 @@ namespace libDatabaseHelper.classes.generic
             IsGridViewable = true;
             IsEditableOnFormWhenLoaded = true;
             IsUnique = false;
-            Translators = null;
+            TranslatorType = null;
         }
 
         public TableColumn(bool primaryKey, bool isInTable)
@@ -33,7 +33,7 @@ namespace libDatabaseHelper.classes.generic
             IsGridViewable = true;
             IsEditableOnFormWhenLoaded = true;
             IsUnique = false;
-            Translators = null;
+            TranslatorType = null;
         }
 
         public TableColumn(bool isInTable)
@@ -48,7 +48,7 @@ namespace libDatabaseHelper.classes.generic
             IsGridViewable = true;
             IsEditableOnFormWhenLoaded = true;
             IsUnique = false;
-            Translators = null;
+            TranslatorType = null;
         }
 
         public TableColumn(bool primaryKey, bool isInTable, GenerateAutogen autogenMethod)
@@ -63,7 +63,7 @@ namespace libDatabaseHelper.classes.generic
             IsGridViewable = true;
             IsEditableOnFormWhenLoaded = true;
             IsUnique = false;
-            Translators = null;
+            TranslatorType = null;
         }
 
         public TableColumn(bool isInTable, GenerateAutogen autogenMethod)
@@ -78,7 +78,7 @@ namespace libDatabaseHelper.classes.generic
             IsGridViewable = true;
             IsEditableOnFormWhenLoaded = true;
             IsUnique = false;
-            Translators = null;
+            TranslatorType = null;
         }
 
         public TableColumn(bool primaryKey, bool isInTable, int autogenLength)
@@ -93,7 +93,7 @@ namespace libDatabaseHelper.classes.generic
             IsGridViewable = true;
             IsEditableOnFormWhenLoaded = true;
             IsUnique = false;
-            Translators = null;
+            TranslatorType = null;
         }
 
         public TableColumn(bool isInTable, int autogenLength)
@@ -108,7 +108,7 @@ namespace libDatabaseHelper.classes.generic
             IsGridViewable = true;
             IsEditableOnFormWhenLoaded = true;
             IsUnique = false;
-            Translators = null;
+            TranslatorType = null;
         }
 
         public bool IsPrimaryKey { get; set; }
@@ -120,13 +120,12 @@ namespace libDatabaseHelper.classes.generic
         public bool IsGridViewable { get; set; }
         public GenerateAutogen AutogenrationMethod { get; set; }
         public bool IsASearchFilter { get; set; }
-
         public Type ReferencedClass { get; set; }
         public string ReferencedField { get; set; }
         public bool IsAuditVisible { get; set; }
         public bool IsRetrievableFromDatabase { get; set; }
         public bool IsEditableOnFormWhenLoaded { get; set; }
-        public string[] Translators { get; set; }
+        public Type TranslatorType { get; set; }
 
         public object DefaultValue { get; set; }
 

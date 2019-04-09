@@ -10,6 +10,7 @@ using libDatabaseHelper.forms;
 using libDatabaseHelperUnitTests.forms.mysql;
 using System.IO;
 using System.Data;
+using NUnit.Framework.Interfaces;
 
 namespace libDatabaseHelperUnitTests.mysql
 {
@@ -198,7 +199,7 @@ namespace libDatabaseHelperUnitTests.mysql
             GenericUtils.CleanupEverything();
             PerformCleanUp();
 
-            Console.WriteLine("- " + testContext.Test.FullName + " :" + (testContext.Result.State == TestState.Success ? " [PASSED] " : " [FAILED] "));
+            Console.WriteLine("- " + testContext.Test.FullName + " :" + (testContext.Result.Outcome == ResultState.Success ? " [PASSED] " : " [FAILED] "));
             Console.WriteLine("========================================= [TEST END] =========================================");
         }
 

@@ -7,16 +7,41 @@ namespace libDatabaseHelper.forms
     public partial class frmLoadingDialog : Form
     {
         private static bool _cancel;
-        private static bool _is_busy;
+        private static int _isBusy;
         private static string _message = "Please wait while the list is being populated";
         private static frmLoadingDialog _presentedDialog;
 
+        private static Func<object, object> _methodToRun;
+        private static object _methodParameters;
+
         private static object _current_execution_return_detail;
 
-        public frmLoadingDialog()
+        private frmLoadingDialog()
         {
             InitializeComponent();
             prgLoadingProgress.Maximum = 100;
+
+            Shown += OnShown;
+        }
+
+        private void OnShown(object sender, EventArgs eventArgs)
+        {
+            var t = new Thread(delegate (object o)
+            {
+                _current_execution_return_detail = _methodToRun(o);
+                Interlocked.Exchange(ref _isBusy, 0);
+
+                try
+                {
+                    HideWindow();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            });
+
+            t.Start(_methodParameters);
         }
 
         public static void ShowWindow()
@@ -48,36 +73,24 @@ namespace libDatabaseHelper.forms
 
         public static object ShowWindow(Func<object, object> method, object param, string message, bool showProgress, IWin32Window owner = null)
         {
-            if (_is_busy)
+            if (Thread.VolatileRead(ref _isBusy) == 1)
                 return null;
 
             if (_presentedDialog == null || _presentedDialog.IsDisposed)
                 _presentedDialog = new frmLoadingDialog();
 
-            _is_busy = true;
+            Interlocked.Exchange(ref _isBusy, 1);
             _current_execution_return_detail = null;
-            var t = new Thread(delegate(object o)
-            {
-                _current_execution_return_detail = method(o);
-                _is_busy = false;
-                try
-                {
-                    HideWindow();
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
-            });
+
+            _methodToRun = method;
+            _methodParameters = param;
             _message = message;
             _cancel = false;
             _presentedDialog.SetUp(showProgress);
-            t.Start(param);
-            if (_is_busy)
-            {
-                _presentedDialog.Hide();
-                _presentedDialog.ShowDialog(owner);
-            }
+
+            _presentedDialog.Hide();
+            _presentedDialog.ShowDialog(owner);
+
             return _current_execution_return_detail;
         }
 
@@ -90,6 +103,7 @@ namespace libDatabaseHelper.forms
                     lblMessage.Text = _message;
                     prgLoadingProgress.Value = 0;
                     prgLoadingProgress.Style = ProgressBarStyle.Marquee;
+                    Application.DoEvents();
                 }), showProgress);
             }
             else
@@ -97,6 +111,7 @@ namespace libDatabaseHelper.forms
                 lblMessage.Text = _message;
                 prgLoadingProgress.Value = 0;
                 prgLoadingProgress.Style = ProgressBarStyle.Marquee;
+                Application.DoEvents();
             }
         }
 
@@ -107,31 +122,28 @@ namespace libDatabaseHelper.forms
                 BeginInvoke(new Action<object>((objValue) => {
                     prgLoadingProgress.Style = ((int)objValue == 0) ? ProgressBarStyle.Marquee : ProgressBarStyle.Continuous;
                     prgLoadingProgress.Value = (int)objValue;
+                    Application.DoEvents();
                 }), value);
             }
             else
             {
                 prgLoadingProgress.Style = (value == 0) ? ProgressBarStyle.Marquee : ProgressBarStyle.Continuous;
                 prgLoadingProgress.Value = value;
+                Application.DoEvents();
             }
 
         }
 
         private void UpdatText(string text)
         {
-            if (string.IsNullOrWhiteSpace(text) == false)
+            if (string.IsNullOrWhiteSpace(text)) return;
+            if (IsHandleCreated)
             {
-                if (InvokeRequired)
+                BeginInvoke(new Action<object>((objValue) =>
                 {
-                    BeginInvoke(new Action<object>((objValue) =>
-                    {
-                        lblMessage.Text = (string)objValue;
-                    }), text);
-                }
-                else
-                {
-                    lblMessage.Text = text;
-                }
+                    lblMessage.Text = (string)objValue;
+                    Application.DoEvents();
+                }), text);
             }
         }
 
@@ -141,11 +153,16 @@ namespace libDatabaseHelper.forms
             {
                 if (_presentedDialog.InvokeRequired)
                 {
-                    _presentedDialog.BeginInvoke(new Action<object>(objectPassed => _presentedDialog.UpdateProgress((int)objectPassed)), value);
+                    _presentedDialog.BeginInvoke(new Action<object>(objectPassed =>
+                    {
+                        _presentedDialog.UpdateProgress((int)objectPassed);
+                        Application.DoEvents();
+                    }), value);
                 }
                 else
                 {
                     _presentedDialog.UpdateProgress(value);
+                    Application.DoEvents();
                 }
             }
         }
@@ -157,10 +174,12 @@ namespace libDatabaseHelper.forms
                 if (_presentedDialog.InvokeRequired)
                 {
                     _presentedDialog.BeginInvoke(new Action<object>(objectPassed => _presentedDialog.UpdatText((string)objectPassed)), text);
+                    Application.DoEvents();
                 }
                 else
                 {
                     _presentedDialog.UpdatText(text);
+                    Application.DoEvents();
                 }
             }
         }

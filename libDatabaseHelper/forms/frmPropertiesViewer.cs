@@ -1,29 +1,30 @@
 ﻿using System;
 using System.Windows.Forms;
+using libDatabaseHelper.classes.generic;
 using libDatabaseHelper.forms.controls;
 
 namespace libDatabaseHelper.forms
 {
     public partial class frmPropertiesViewer : Form
     {
-        private static frmPropertiesViewer _presented_form = null;
+        private static frmPropertiesViewer _presentedForm = null;
 
         public frmPropertiesViewer()
         {
             InitializeComponent();
         }
 
-        public static void ShowWindow()
+        public static void ShowWindow(GenericDatabaseEntity entity)
         {
-            if (_presented_form == null || _presented_form.IsDisposed)
+            if (_presentedForm == null || _presentedForm.IsDisposed)
             {
-                _presented_form = new frmPropertiesViewer();
+                _presentedForm = new frmPropertiesViewer();
             }
-            _presented_form.Show();
-            _presented_form.LoadEntity();
+            _presentedForm.Show();
+            _presentedForm.LoadEntity(entity);
         } 
 
-        private void LoadEntity()
+        private void LoadEntity(GenericDatabaseEntity entity)
         {
             dgvProperties.Columns.Clear();
             dgvProperties.Columns.Add(new CalendarColumn());

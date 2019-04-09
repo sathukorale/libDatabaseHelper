@@ -64,6 +64,11 @@ namespace libDatabaseHelper.classes.generic
             return type == TypeDateTime ? DbType.DateTime : DbType.Binary;
         }
 
+        public static bool IsPrimitiveType(Type type)
+        {
+            return IsTypeNumber(type) || IsTypeBool(type) || IsTypeDate(type) || IsTypeString(type);
+        }
+
         public static bool IsTypeNumber(Type type)
         {
             return type == TypeChar || type == TypeByte || type == TypeShort || type == TypeUint16 ||

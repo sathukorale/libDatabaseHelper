@@ -4,6 +4,7 @@
     public class TableProperties : System.Attribute
     {
         public string DisplayName;
+        public bool Auditable = true;
 
         public enum RegistrationType
         { 

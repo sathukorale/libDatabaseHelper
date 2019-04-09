@@ -124,6 +124,7 @@ namespace libDatabaseHelper.forms
             FormUtils.AddToolTip(btnCopyEntity, "Copy Selected " + typeName);
 
             btnAddDatabaseEntity.Enabled = _registeredEditorTypes.ContainsKey(type);
+            btnCopyEntity.Enabled = _registeredEditorTypes.ContainsKey(type);
 
             var instance = GenericDatabaseEntity.GetNonDisposableRefenceObject(type);
             GenericDatabaseManager.GetDatabaseManager(instance.GetSupportedDatabaseType()).FillDataGridViewAsItems(_currentType, ref dgvDatabaseEntities, selectors);
@@ -240,22 +241,22 @@ namespace libDatabaseHelper.forms
             if (e.RowIndex >= 0 && e.RowIndex < dgvDatabaseEntities.RowCount)
             {
                 var row = dgvDatabaseEntities.Rows[e.RowIndex];
-                if (row != null && row.Tag != null)
+                var obj = row.Tag as DatabaseEntity;
+
+                if (obj == null) return;
+
+                Type registeredEditorType = null;
+                if (_registeredEditorTypes.TryGetValue(_currentType, out registeredEditorType) == false) return;
+
+                var status = DatabaseEntityForm.ShowModalWindow(registeredEditorType, obj, false, this);
+
+                Select();
+                Focus();
+
+                if (status.UpdateState)
                 {
-                    var obj = row.Tag as DatabaseEntity;
-                    if (obj != null)
-                    {
-                        var status = DatabaseEntityForm.ShowModalWindow(_registeredEditorTypes[_currentType], obj, false, this);
-
-                        Select();
-                        Focus();
-
-                        if (status.UpdateState)
-                        {
-                            ViewItems(_currentType, _selectors);
-                            _isUpdated = true;
-                        }
-                    }
+                    ViewItems(_currentType, _selectors);
+                    _isUpdated = true;
                 }
             }
         }

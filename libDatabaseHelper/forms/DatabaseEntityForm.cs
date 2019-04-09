@@ -289,8 +289,12 @@ namespace libDatabaseHelper.forms
                 _listOfForms.Remove(type);
                 _listOfForms.Add(type, presentedForm);
             }
+
             if (presentedForm == null)
                 throw new Exception("Unable to create window [" + type.Name + "]");
+
+            if (loadedEntity != null && presentedForm._type != loadedEntity.GetType())
+                throw new Exception("Expected entity instance of type '" + presentedForm._type.FullName + "', however the supplied entity instance is of type '" + type.FullName + "'");
 
             presentedForm.ShowInTaskbar = owner == null;
             presentedForm.InitWindow();

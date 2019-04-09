@@ -23,8 +23,8 @@ namespace libDatabaseHelper.classes.generic
                 _is_initialized = true;
             }
 
-            DatabaseEntity.OnDatabaseEntityUpdated += new GenericDatabaseEntity.UpdateEvent(DatabaseEntity_OnDatabaseEntityUpdated);
-            DatabaseManager.OnBulkDelete += new GenericDatabaseManager.BulkDelete(DatabaseManager_OnBulkDelete);
+            GenericDatabaseEntity.OnDatabaseEntityUpdated += new GenericDatabaseEntity.UpdateEvent(DatabaseEntity_OnDatabaseEntityUpdated);
+            GenericDatabaseManager.OnBulkDelete += new GenericDatabaseManager.BulkDelete(DatabaseManager_OnBulkDelete);
         }
 
         public static void CleanUp()
@@ -99,15 +99,19 @@ namespace libDatabaseHelper.classes.generic
             else
             {
                 var list = _entitiesPerType[type];
-                for (int i = 0 ; i < list.Count ; i++)
+                var wasFound = false;
+                for (var i = 0 ; i < list.Count ; i++)
                 {
                     var entity = list[i];
-                    if (entity.Equals(updatedEntity))
-                    {
-                        list[i] = updatedEntity;
-                        break;
-                    }
+                    if (!entity.Equals(updatedEntity)) continue;
+
+                    list[i] = updatedEntity;
+                    wasFound = true;
+                    break;
                 }
+
+                if (wasFound == false)
+                    list.Add(updatedEntity);
             }
         }
         #endregion
@@ -170,7 +174,7 @@ namespace libDatabaseHelper.classes.generic
                         if (regexFilter == null)
                         {
                             var strSentFilter = selector.FieldValue1.ToString();
-                            regexFilter = new Regex(strSentFilter.Replace("%", "(.*)"));
+                            regexFilter = new Regex(Regex.Escape(strSentFilter).Replace("%", "(.*)"));
                         }
 
                         is_entity_valid = regexFilter.IsMatch(str_field_value);

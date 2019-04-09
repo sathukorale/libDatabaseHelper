@@ -11,6 +11,7 @@ using libDatabaseHelper.forms;
 using System.IO;
 using System.Data;
 using libDatabaseHelperUnitTests.forms.sqlce;
+using NUnit.Framework.Interfaces;
 
 namespace libDatabaseHelperUnitTests.sqlce
 {
@@ -229,7 +230,7 @@ namespace libDatabaseHelperUnitTests.sqlce
             GenericUtils.CleanupEverything();
             PerformCleanUp();
 
-            Console.WriteLine("- " + testContext.Test.FullName + " :" + (testContext.Result.State == TestState.Success ? " [PASSED] " : " [FAILED] "));
+            Console.WriteLine("- " + testContext.Test.FullName + " :" + (testContext.Result.Outcome == ResultState.Success ? " [PASSED] " : " [FAILED] "));
             Console.WriteLine("========================================= [TEST END] =========================================");
         }
 
@@ -728,8 +729,8 @@ namespace libDatabaseHelperUnitTests.sqlce
 
             for (int i = 0; i < 20; i++)
             {
-                var inserted_entry = new SampleTable1 { Column1 = i * 10, Column2 = "Sample Data" };
-                inserted_entry.Add();
+                var insertedEntry = new SampleTable1 { Column1 = i * 10, Column2 = "Sample Data" };
+                insertedEntry.Add();
             }
 
             DataTable dtblMain = new DataTable();

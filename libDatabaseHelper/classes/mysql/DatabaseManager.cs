@@ -310,7 +310,7 @@ namespace libDatabaseHelper.classes.mysql
             table.Rows.Clear();
             table.Columns.Clear();
 
-            var translators = new List<string[]>();
+            var translators = new List<ITranslator>();
 
             foreach (var fieldInfo in fieldInfos)
             {
@@ -320,7 +320,8 @@ namespace libDatabaseHelper.classes.mysql
                 else
                     table.Columns.Add(cInfo.GridDisplayName ?? fieldInfo.Name);
 
-                translators.Add(cInfo.Translators);
+                var translator = cInfo.TranslatorType == null ? null : TranslatorRegistry.Instance.Get(cInfo.TranslatorType);
+                translators.Add(translator);
             }
 
             if (!reader.Read())
@@ -342,8 +343,8 @@ namespace libDatabaseHelper.classes.mysql
                     {
                         if (translators[i] != null)
                         {
-                            var index = (int)reader[i];
-                            row[i] = (translators.Count > i && i >= 0) ? translators[i][index] : index.ToString(CultureInfo.InvariantCulture);
+                            var value = reader[i];
+                            row[i] = (translators.Count > i && i >= 0) ? translators[i].ToTranslated(value) : value.ToString();
                         }
                         else
                             row[i] = reader[i];
