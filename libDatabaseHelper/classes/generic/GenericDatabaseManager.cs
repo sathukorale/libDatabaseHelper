@@ -335,103 +335,89 @@ namespace libDatabaseHelper.classes.generic
         #region "DatabaseManager::Add/Update-Entities()"
         public List<DatabaseOperationFailedEntity> AddEntities(IEnumerable<GenericDatabaseEntity> entitiesToAdd)
         {
-            var failedEntities      = new List<DatabaseOperationFailedEntity>();
-            var transactionObjects  = new Dictionary<Type, TransactionObject>();
+            var failedEntities = new List<DatabaseOperationFailedEntity>();
+            var entitiesToUpdatePerType = entitiesToAdd.ToArray().GroupBy(i => i.GetType());
 
-            foreach (var entityToAdd in entitiesToAdd)
+            foreach (var entitiesPerType in entitiesToUpdatePerType)
             {
-                try
+                var connection = GenericConnectionManager.GetConnectionManager(_supportedDatabase).GetConnection(entitiesPerType.Key);
+                var transaction = TransactionObject.CreateTransactionObject(_supportedDatabase, connection);
+                transaction.EnableRegularCommit(false);
+
+                if (entitiesPerType.First().GetSupportedDatabaseType() != GetSupportedDatabase())
                 {
-                    if (entityToAdd.GetSupportedDatabaseType() != GetSupportedDatabase())
+                    throw new InvalidOperationException("Unable to insert an entity which is managed by a different database type.");
+                }
+
+                foreach (var entityUpdate in entitiesPerType)
+                {
+                    try
                     {
-                        throw new InvalidOperationException("Unable to insert entity which is managed by a different database type.");
+                        if (entityUpdate.Add(transaction) == false)
+                        {
+                            failedEntities.Add(new DatabaseOperationFailedEntity(entityUpdate, new Exception("Failed to add entity.")));
+                        }
                     }
-
-                    TransactionObject transaction = null;
-                    if (transactionObjects.ContainsKey(entityToAdd.GetType()))
+                    catch (DatabaseEntityException ex)
                     {
-                        transaction = transactionObjects[entityToAdd.GetType()];
+                        failedEntities.Add(new DatabaseOperationFailedEntity(entityUpdate, ex));
                     }
-                    else
+                    catch (DatabaseException ex)
                     {
-                        var connection = GenericConnectionManager.GetConnectionManager(_supportedDatabase).GetConnection(entityToAdd.GetType());
-                        transaction = TransactionObject.CreateTransactionObject(_supportedDatabase, connection);
-                        transaction.EnableRegularCommit(false);
-
-                        transactionObjects.Add(entityToAdd.GetType(), transaction);
+                        failedEntities.Add(new DatabaseOperationFailedEntity(entityUpdate, ex));
                     }
+                    catch (System.Exception ex)
+                    {
+                        failedEntities.Add(new DatabaseOperationFailedEntity(entityUpdate, ex));
+                    }
+                }
 
-                    entityToAdd.Add(transaction);
-                }
-                catch (DatabaseEntityException ex)
-                {
-                    failedEntities.Add(new DatabaseOperationFailedEntity(entityToAdd, ex));
-                }
-                catch (DatabaseException ex)
-                {
-                    failedEntities.Add(new DatabaseOperationFailedEntity(entityToAdd, ex));
-                }
-                catch (System.Exception ex)
-                {
-                    failedEntities.Add(new DatabaseOperationFailedEntity(entityToAdd, ex));
-                }
-            }
-
-            foreach (var transactionObjectPair in transactionObjects)
-            {
-                transactionObjectPair.Value.Commit(true);
+                transaction.Commit(true);
             }
 
             return failedEntities;
         }
 
-        public List<DatabaseOperationFailedEntity> UpdateEntities(ICollection<GenericDatabaseEntity> entitiesToUpdate)
+        public List<DatabaseOperationFailedEntity> UpdateEntities(IEnumerable<GenericDatabaseEntity> entitiesToUpdate)
         {
             var failedEntities = new List<DatabaseOperationFailedEntity>();
-            var transactionObjects = new Dictionary<Type, TransactionObject>();
+            var entitiesToUpdatePerType = entitiesToUpdate.ToArray().GroupBy(i => i.GetType());
 
-            foreach (var entityUpdate in entitiesToUpdate)
+            foreach (var entitiesPerType in entitiesToUpdatePerType)
             {
-                try
+                var connection = GenericConnectionManager.GetConnectionManager(_supportedDatabase).GetConnection(entitiesPerType.Key);
+                var transaction = TransactionObject.CreateTransactionObject(_supportedDatabase, connection);
+                transaction.EnableRegularCommit(false);
+
+                if (entitiesPerType.First().GetSupportedDatabaseType() != GetSupportedDatabase())
                 {
-                    if (entityUpdate.GetSupportedDatabaseType() != GetSupportedDatabase())
+                    throw new InvalidOperationException("Unable to update an entity which is managed by a different database type.");
+                }
+
+                foreach (var entityUpdate in entitiesPerType)
+                {
+                    try
                     {
-                        throw new InvalidOperationException("Unable to insert entity which is managed by a different database type.");
+                        if (entityUpdate.Update(transaction) == false)
+                        {
+                            failedEntities.Add(new DatabaseOperationFailedEntity(entityUpdate, new Exception("Failed to update entity.")));
+                        }
                     }
-
-                    TransactionObject transaction = null;
-                    if (transactionObjects.ContainsKey(entityUpdate.GetType()))
+                    catch (DatabaseEntityException ex)
                     {
-                        transaction = transactionObjects[entityUpdate.GetType()];
+                        failedEntities.Add(new DatabaseOperationFailedEntity(entityUpdate, ex));
                     }
-                    else
+                    catch (DatabaseException ex)
                     {
-                        var connection = GenericConnectionManager.GetConnectionManager(_supportedDatabase).GetConnection(entityUpdate.GetType());
-                        transaction = TransactionObject.CreateTransactionObject(_supportedDatabase, connection);
-                        transaction.EnableRegularCommit(false);
-
-                        transactionObjects.Add(entityUpdate.GetType(), transaction);
+                        failedEntities.Add(new DatabaseOperationFailedEntity(entityUpdate, ex));
                     }
+                    catch (System.Exception ex)
+                    {
+                        failedEntities.Add(new DatabaseOperationFailedEntity(entityUpdate, ex));
+                    }
+                }
 
-                    entityUpdate.Update(transaction);
-                }
-                catch (DatabaseEntityException ex)
-                {
-                    failedEntities.Add(new DatabaseOperationFailedEntity(entityUpdate, ex));
-                }
-                catch (DatabaseException ex)
-                {
-                    failedEntities.Add(new DatabaseOperationFailedEntity(entityUpdate, ex));
-                }
-                catch (System.Exception ex)
-                {
-                    failedEntities.Add(new DatabaseOperationFailedEntity(entityUpdate, ex));
-                }
-            }
-
-            foreach (var transactionObjectPair in transactionObjects)
-            {
-                transactionObjectPair.Value.Commit(true);
+                transaction.Commit(true);
             }
 
             return failedEntities;

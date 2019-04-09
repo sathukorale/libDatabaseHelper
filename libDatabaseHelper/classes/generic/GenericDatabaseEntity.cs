@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Data.Common;
 using System.Windows.Forms;
 using libDatabaseHelper.classes.sqlce.entities;
+using libDatabaseHelper.forms.controls;
 
 namespace libDatabaseHelper.classes.generic
 {
