@@ -30,7 +30,8 @@ namespace libDatabaseHelper.classes.mysql
                 throw new DatabaseConnectionException(DatabaseConnectionException.ConnectionErrorType.UnableToConnectToTheDatabase);
             }
 
-            var fields = entity.GetColumns(true).GetOtherColumns().ToList();
+            var columns = entity.GetColumns(true);
+            var fields = columns.GetOtherColumns().ToList();
             var command = connection.CreateCommand();
             var availableColumns = GetTableFields(type);
             var listToRemove = new List<string>();
@@ -62,6 +63,20 @@ namespace libDatabaseHelper.classes.mysql
                 }
             }
 
+            var currentPrimaryKeyDetails = GetPrimaryKeyDetails(type);
+            var hasThePrimaryKeyChanged = (currentPrimaryKeyDetails != null) &&
+                                          (columns.GetPrimaryKeys().Any(i => currentPrimaryKeyDetails.PrimaryKeyFields.Contains(i.Name.ToLower()) == false) ||
+                                           currentPrimaryKeyDetails.PrimaryKeyFields.Any(i => columns.GetPrimaryKeys().Any(ii => ii.Name.ToLower() == i) == false));
+            if (hasThePrimaryKeyChanged)
+            {
+                DeleteAll(type);
+
+                var commandToDropConstraint = string.Format("ALTER TABLE {0} DROP PRIMARY KEY", type.Name);
+
+                command.CommandText = commandToDropConstraint;
+                command.ExecuteNonQuery();
+            }
+
             if (listToRemove.Any())
             {
                 var columnsToRemove = listToRemove.Aggregate("", (current, column) => current + ((current == "" ? "" : ", ") + column));
@@ -73,7 +88,6 @@ namespace libDatabaseHelper.classes.mysql
 
             if (fields.Any())
             {
-
                 foreach (var column in fields)
                 {
                     var columnsToAdd = "";
@@ -102,6 +116,23 @@ namespace libDatabaseHelper.classes.mysql
 
                     command.ExecuteNonQuery();
                 }
+            }
+
+            if (hasThePrimaryKeyChanged)
+            {
+                foreach (var primaryKey in columns.GetPrimaryKeys())
+                {
+                    var columnAttributes = (TableColumn) primaryKey.GetCustomAttributes(typeof(TableColumn), true)[0];
+                    var dataType = FieldTools.GetDbTypeString(primaryKey.FieldType, true, columnAttributes.Length);
+                    
+                    command.CommandText = string.Format("ALTER TABLE {0} MODIFY COLUMN {1} {2} NOT NULL", type.Name, primaryKey.Name, dataType);
+                    command.ExecuteNonQuery();
+                }
+
+                var primaryKeyFieldString = columns.GetPrimaryKeys().Select(i => i.Name).Aggregate((a, b) => a + ", " + b);
+
+                command.CommandText = string.Format("ALTER TABLE {0} ADD PRIMARY KEY({1})", type.Name, primaryKeyFieldString);
+                command.ExecuteNonQuery();
             }
 
             command.Dispose();
@@ -357,7 +388,7 @@ namespace libDatabaseHelper.classes.mysql
         public override PrimaryKeyConstraintDetails GetPrimaryKeyDetails(Type type)
         {
             var command = GenericConnectionManager.GetConnectionManager(GetSupportedDatabase()).GetConnection(type).CreateCommand();
-            var commandString = string.Format("SELECT INDEX_NAME, COLUMN_NAME FROM INFORMATION_SCHEMA.INDEXES WHERE PRIMARY_KEY = 1 AND TABLE_NAME = '{0}'", type.Name);
+            var commandString = string.Format("SELECT CONSTRAINT_NAME, COLUMN_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE CONSTRAINT_NAME = 'PRIMARY' AND TABLE_SCHEMA='{0}' AND TABLE_NAME='{1}'", command.Connection.Database, type.Name);
 
             command.CommandText = commandString;
 
