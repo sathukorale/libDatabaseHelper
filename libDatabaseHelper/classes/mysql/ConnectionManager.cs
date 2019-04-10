@@ -38,9 +38,11 @@ namespace libDatabaseHelper.classes.mysql
                             connection = new MySqlConnection(madeConnectionString);
                             connection.Open();
 
-                            var command = connection.CreateCommand();
-                            command.CommandText = "CREATE DATABASE IF NOT EXISTS " + builder.Database;
-                            command.ExecuteNonQuery();
+                            using (var command = connection.CreateCommand())
+                            {
+                                command.CommandText = "CREATE DATABASE IF NOT EXISTS " + builder.Database;
+                                command.ExecuteNonQuery();
+                            }
 
                             connection.Close();
 
@@ -51,9 +53,9 @@ namespace libDatabaseHelper.classes.mysql
                         {
                             exceptionThrown = new DatabaseConnectionException(DatabaseConnectionException.ConnectionErrorType.NoDatabaseFound);
                         }
-                        catch (Exception ex_inner)
+                        catch (Exception exInner)
                         {
-                            exceptionThrown = ex_inner;
+                            exceptionThrown = exInner;
                         }
                     }
                     else
@@ -66,10 +68,10 @@ namespace libDatabaseHelper.classes.mysql
                     exceptionThrown = new DatabaseConnectionException(DatabaseConnectionException.ConnectionErrorType.InvalidConnectionString);
                 }
             }
-            catch (Exception ex_outer) 
+            catch (Exception exOuter) 
             {
-                Console.WriteLine("Unable to create MySQL database automatically. The database should be created manually. Error Details : " + ex_outer.Message);
-                exceptionThrown = ex_outer;
+                Console.WriteLine(@"Unable to create MySQL database automatically. The database should be created manually. Error Details : " + exOuter.Message);
+                exceptionThrown = exOuter;
             }
 
             if (connection != null && connection.State != System.Data.ConnectionState.Closed)
@@ -78,7 +80,7 @@ namespace libDatabaseHelper.classes.mysql
                 {
                     connection.Close();
                 }
-                catch (Exception) {}
+                catch (Exception) { /* IGNORED */ }
             }
 
             return exceptionThrown == null;

@@ -322,7 +322,7 @@ namespace libDatabaseHelper.classes.mysql
 
             if (!reader.Read())
             {
-                reader.Close();
+                try { reader.Close(); } catch { /* IGNORED */ }
                 command.Dispose();
                 return;
             }
@@ -349,7 +349,7 @@ namespace libDatabaseHelper.classes.mysql
                 }
             }
             while (reader.Read());
-            reader.Close();
+            try { reader.Close(); } catch { /* IGNORED */ }
             frmLoadingDialog.HideWindow();
             command.Dispose();
         }
@@ -382,7 +382,7 @@ namespace libDatabaseHelper.classes.mysql
             }
             catch { /* IGNORED */ }
 
-            reader.Close();
+            try { reader.Close(); } catch { /* IGNORED */ }
             command.Dispose();
 
             if (primaryKeysPerConstraint.Any() == false) return null;
@@ -402,7 +402,7 @@ namespace libDatabaseHelper.classes.mysql
             var reader = command.ExecuteReader();
             if (reader.HasRows == false)
             {
-                reader.Close();
+                try { reader.Close(); } catch { /* IGNORED */ }
                 command.Dispose();
                 return null;
             }
@@ -410,11 +410,15 @@ namespace libDatabaseHelper.classes.mysql
             var columns = new List<string>();
             while (reader.Read())
             {
-                var columnName = reader.GetString(0).ToLower();
-                columns.Add(columnName);
+                try
+                {
+                    var columnName = reader.GetString(0).ToLower();
+                    columns.Add(columnName);
+                }
+                catch { /* IGNORED */ }
             }
 
-            reader.Close();
+            try { reader.Close(); } catch { /* IGNORED */ }
             command.Dispose();
 
             return columns.ToArray();

@@ -29,11 +29,13 @@ namespace libDatabaseHelper.classes.sqlce
         private bool ExecuteNonQuery(DbConnection connection, string commandString, FillArguments argumentFiller = null)
         {
             var command = connection.CreateCommand();
-            var transaction = (SqlCeTransaction) connection.BeginTransaction(IsolationLevel.ReadCommitted);
             var status = false;
+            var transaction = (null as SqlCeTransaction);
 
             try
             {
+                transaction = (SqlCeTransaction) connection.BeginTransaction(IsolationLevel.ReadCommitted);
+
                 command.Transaction = transaction;
                 command.CommandText = commandString;
 
@@ -46,7 +48,7 @@ namespace libDatabaseHelper.classes.sqlce
             }
             catch (System.Exception)
             {
-                transaction.Rollback();
+                if (transaction != null) transaction.Rollback();
             }
 
             command.Dispose();
@@ -101,8 +103,9 @@ namespace libDatabaseHelper.classes.sqlce
             }
 
             var currentPrimaryKeyDetails = GetPrimaryKeyDetails(type);
-            var hasThePrimaryKeyChanged = columns.GetPrimaryKeys().Any(i => currentPrimaryKeyDetails.PrimaryKeyFields.Contains(i.Name.ToLower()) == false) ||
-                                          currentPrimaryKeyDetails.PrimaryKeyFields.Any(i => columns.GetPrimaryKeys().Any(ii => ii.Name.ToLower() == i) == false);
+            var hasThePrimaryKeyChanged = (currentPrimaryKeyDetails != null) && 
+                                          (columns.GetPrimaryKeys().Any(i => currentPrimaryKeyDetails.PrimaryKeyFields.Contains(i.Name.ToLower()) == false) ||
+                                           currentPrimaryKeyDetails.PrimaryKeyFields.Any(i => columns.GetPrimaryKeys().Any(ii => ii.Name.ToLower() == i) == false));
 
             if (hasThePrimaryKeyChanged)
             {
@@ -435,7 +438,7 @@ namespace libDatabaseHelper.classes.sqlce
 
             if (!reader.Read())
             {
-                reader.Close();
+                try { reader.Close(); } catch { /* IGNORED */ }
                 command.Dispose();
                 return;
             }
@@ -465,7 +468,7 @@ namespace libDatabaseHelper.classes.sqlce
             }
             while (reader.Read());
 
-            reader.Close();
+            try { reader.Close(); } catch { /* IGNORED */ }
             frmLoadingDialog.HideWindow();
             command.Dispose();
         }
@@ -498,7 +501,7 @@ namespace libDatabaseHelper.classes.sqlce
             }
             catch { /* IGNORED */ }
 
-            reader.Close();
+            try { reader.Close(); } catch { /* IGNORED */ }
             command.Dispose();
 
             if (primaryKeysPerConstraint.Any() == false) return null;
@@ -520,11 +523,15 @@ namespace libDatabaseHelper.classes.sqlce
 
             while (reader.Read())
             {
-                var columnName = reader.GetString(0).ToLower();
-                columns.Add(columnName);
+                try
+                {
+                    var columnName = reader.GetString(0).ToLower();
+                    columns.Add(columnName);
+                }
+                catch { /* IGNORED */ }
             }
 
-            reader.Close();
+            try { reader.Close(); } catch { /* IGNORED */ }
             command.Dispose();
 
             return columns.ToArray();

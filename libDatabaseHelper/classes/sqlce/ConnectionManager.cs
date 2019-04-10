@@ -74,9 +74,7 @@ namespace libDatabaseHelper.classes.sqlce
                         GenericUtils.CreateFolderStructure(containingFolder);
                     }
 
-                    var engine = new SqlCeEngine(connectionString);
-                    engine.CreateDatabase();
-                    engine.Dispose();
+                    using (var engine = new SqlCeEngine(connectionString)) engine.CreateDatabase();
                 }
             }
             catch (Exception ex) { Console.WriteLine("Unable to create SQL CE database automatically. The database should be created manually. Error Details : " + ex.Message);  }
@@ -119,9 +117,7 @@ namespace libDatabaseHelper.classes.sqlce
                         GenericUtils.CreateFolderStructure(containingFolder);
                     }
 
-                    var engine = new SqlCeEngine(connectionString);
-                    engine.CreateDatabase();
-                    engine.Dispose();
+                    using (var engine = new SqlCeEngine(connectionString)) engine.CreateDatabase();
                 }
             }
             catch (Exception ex) { Console.WriteLine("Exception caught while attempting to detect and create database. (Reason = \"" + ex.Message + "\")"); }
@@ -136,9 +132,7 @@ namespace libDatabaseHelper.classes.sqlce
                 Console.WriteLine(ex1.Message);
                 try
                 {
-                    var engine = new SqlCeEngine(connectionString);
-                    engine.Upgrade();
-                    engine.Dispose();
+                    using (var engine = new SqlCeEngine(connectionString)) engine.Upgrade();
 
                     try
                     {
