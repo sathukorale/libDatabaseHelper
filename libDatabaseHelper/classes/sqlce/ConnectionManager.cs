@@ -76,6 +76,7 @@ namespace libDatabaseHelper.classes.sqlce
 
                     var engine = new SqlCeEngine(connectionString);
                     engine.CreateDatabase();
+                    engine.Dispose();
                 }
             }
             catch (Exception ex) { Console.WriteLine("Unable to create SQL CE database automatically. The database should be created manually. Error Details : " + ex.Message);  }
@@ -120,6 +121,7 @@ namespace libDatabaseHelper.classes.sqlce
 
                     var engine = new SqlCeEngine(connectionString);
                     engine.CreateDatabase();
+                    engine.Dispose();
                 }
             }
             catch (Exception ex) { Console.WriteLine("Exception caught while attempting to detect and create database. (Reason = \"" + ex.Message + "\")"); }
@@ -136,6 +138,7 @@ namespace libDatabaseHelper.classes.sqlce
                 {
                     var engine = new SqlCeEngine(connectionString);
                     engine.Upgrade();
+                    engine.Dispose();
 
                     try
                     {

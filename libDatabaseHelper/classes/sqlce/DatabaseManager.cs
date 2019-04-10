@@ -30,6 +30,7 @@ namespace libDatabaseHelper.classes.sqlce
         {
             var command = connection.CreateCommand();
             var transaction = (SqlCeTransaction) connection.BeginTransaction(IsolationLevel.ReadCommitted);
+            var status = false;
 
             try
             {
@@ -39,16 +40,17 @@ namespace libDatabaseHelper.classes.sqlce
                 argumentFiller?.Invoke(ref command);
 
                 command.ExecuteNonQuery();
-
                 transaction.Commit(CommitMode.Immediate);
+
+                status = true;
             }
             catch (System.Exception)
             {
                 transaction.Rollback();
-                return false;
             }
 
-            return true;
+            command.Dispose();
+            return status;
         }
 
         public override bool TableExist(Type type)

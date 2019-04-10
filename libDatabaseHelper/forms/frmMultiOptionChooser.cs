@@ -61,6 +61,7 @@ namespace libDatabaseHelper.forms
             var presentedDialog = new frmMultiOptionChooser();
             presentedDialog.Setup(title, description, options, selectedOptions, disabledOptions, cancellable);
             presentedDialog.ShowDialog();
+            presentedDialog.Close();
 
             return _selectedOptions;
         }

@@ -119,7 +119,10 @@ namespace libDatabaseHelper.classes.generic
                 toolTipElement.UseAnimation = false;
                 toolTipElement.ReshowDelay = 0;
                 toolTipElement.ToolTipIcon = icon;
+
+                _createdToolTips.Add(form.Handle, toolTipElement);
             }
+
             toolTipElement.SetToolTip(control, toolTip);
         }
 
