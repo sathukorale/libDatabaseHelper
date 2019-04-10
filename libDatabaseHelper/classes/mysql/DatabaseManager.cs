@@ -412,6 +412,9 @@ namespace libDatabaseHelper.classes.mysql
                 columns.Add(columnName);
             }
 
+            reader.Close();
+            command.Dispose();
+
             return columns.ToArray();
         }
     }
