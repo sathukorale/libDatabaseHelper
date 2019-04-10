@@ -121,9 +121,11 @@ namespace libDatabaseHelper.forms.controls
                 selectors = flpAdvancedSettings.Controls.OfType<SearchFilterControl>().Select(i => i.GetSearchFilter()).ToArray();
             }
 
+            var instance = GenericDatabaseEntity.GetNonDisposableRefenceObject(ClassType);
+            if (instance == null) return;
+
             if (OnSearchEventTriggered != null) OnSearchEventTriggered.Invoke(this, ClassType, selectors);
 
-            var instance = GenericDatabaseEntity.GetNonDisposableRefenceObject(ClassType);
             var resultsView = ResultsView;
             GenericDatabaseManager.GetDatabaseManager(instance.GetSupportedDatabaseType()).FillDataGridViewAsItems(ClassType, ref resultsView, selectors);
         }

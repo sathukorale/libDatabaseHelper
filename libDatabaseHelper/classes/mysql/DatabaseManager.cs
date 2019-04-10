@@ -252,6 +252,7 @@ namespace libDatabaseHelper.classes.mysql
         {
             var obj = GenericDatabaseEntity.GetNonDisposableRefenceObject(type);
             if (obj == null) return false;
+
             var result = obj.GetColumns(true);
             if (result == null || result.GetPrimaryKeys() == null || !result.GetPrimaryKeys().Any())
             {

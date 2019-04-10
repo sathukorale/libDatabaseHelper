@@ -203,14 +203,15 @@ namespace libDatabaseHelper.classes.generic
                 Init();
             }
 
-            if (!_entitiesPerType.ContainsKey(t))
-            {
-                var allCurrentEntities = new List<GenericDatabaseEntity>();
-                var referenceEntity = DatabaseEntity.GetNonDisposableRefenceObject(t);
-                allCurrentEntities.AddRange(GenericDatabaseManager.GetDatabaseManager(referenceEntity.GetSupportedDatabaseType()).Select(t, null));
+            if (_entitiesPerType.ContainsKey(t)) return;
 
-                _entitiesPerType.Add(t, allCurrentEntities);
-            }
+            var allCurrentEntities = new List<GenericDatabaseEntity>();
+            var referenceEntity = GenericDatabaseEntity.GetNonDisposableRefenceObject(t);
+
+            if (referenceEntity == null) return;
+
+            allCurrentEntities.AddRange(GenericDatabaseManager.GetDatabaseManager(referenceEntity.GetSupportedDatabaseType()).Select(t, null));
+            _entitiesPerType.Add(t, allCurrentEntities);
         }
 
         public static void RegisterAsync<T>()
@@ -230,12 +231,13 @@ namespace libDatabaseHelper.classes.generic
             {
                 var type = (Type)e.Argument;
                 var tmpInstance = GenericDatabaseEntity.GetNonDisposableRefenceObject(typeof(T));
-                if (! _entitiesPerType.ContainsKey(type))
-                {
-                    var allCurrentEntities = new List<GenericDatabaseEntity>();
-                    allCurrentEntities.AddRange(GenericDatabaseManager.GetDatabaseManager(tmpInstance.GetSupportedDatabaseType()).Select(type));
-                    e.Result = new object[2] { type, allCurrentEntities };
-                }
+
+                if (_entitiesPerType.ContainsKey(type)) return;
+                if (tmpInstance == null) return;
+
+                var allCurrentEntities = new List<GenericDatabaseEntity>();
+                allCurrentEntities.AddRange(GenericDatabaseManager.GetDatabaseManager(tmpInstance.GetSupportedDatabaseType()).Select(type));
+                e.Result = new object[2] { type, allCurrentEntities };
             };
             worker.RunWorkerCompleted += (sender, e) =>
             {

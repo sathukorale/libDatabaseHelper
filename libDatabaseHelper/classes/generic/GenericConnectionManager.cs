@@ -207,7 +207,7 @@ namespace libDatabaseHelper.classes.generic
                         connectionData.Update();
                     }
                 }
-                catch (System.Exception ex) { /* IGNORED */ }
+                catch (System.Exception) { /* IGNORED */ }
             }
         }
         #endregion

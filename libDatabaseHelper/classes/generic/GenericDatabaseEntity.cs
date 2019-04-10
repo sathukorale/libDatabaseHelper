@@ -474,9 +474,13 @@ namespace libDatabaseHelper.classes.generic
                     var cmb = control as ComboBox;
                     var value = GetFieldValue(tag.FieldName);
                     if (value == null || value is DBNull) continue;
+
                     value = value is ICustomType ? (value as ICustomType).GetValue() : value;
+
                     var attr = GetFieldAttributes(tag.FieldName);
-                    if (attr != null && attr.ReferencedClass != null)
+                    if (attr == null) continue;
+
+                    if (attr.ReferencedClass != null)
                     {
                         cmb.SelectedIndex = -1;
                         cmb.ResetText();

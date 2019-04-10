@@ -127,7 +127,10 @@ namespace libDatabaseHelper.forms
             btnCopyEntity.Enabled = _registeredEditorTypes.ContainsKey(type);
 
             var instance = GenericDatabaseEntity.GetNonDisposableRefenceObject(type);
-            GenericDatabaseManager.GetDatabaseManager(instance.GetSupportedDatabaseType()).FillDataGridViewAsItems(_currentType, ref dgvDatabaseEntities, selectors);
+            if (instance != null)
+            {
+                GenericDatabaseManager.GetDatabaseManager(instance.GetSupportedDatabaseType()).FillDataGridViewAsItems(_currentType, ref dgvDatabaseEntities, selectors);
+            }
         }
 
         public static void ShowWindow(Type type, Selector[] selectors, IWin32Window owner = null)
@@ -189,21 +192,23 @@ namespace libDatabaseHelper.forms
 
         private void btnAddDatabaseEntity_Click(object sender, EventArgs e)
         {
-            if (_registeredEditorTypes.ContainsKey(_currentType))
+            if (_registeredEditorTypes.ContainsKey(_currentType) == false) return;
+
+            var form = DatabaseEntityForm.GetFormInstance(_registeredEditorTypes[_currentType]);
+            if (form == null) return;
+
+            form.Owner = this;
+            form.ShowInTaskbar = false;
+
+            var status = DatabaseEntityForm.ShowModalWindow(_registeredEditorTypes[_currentType]);
+
+            Select();
+            Focus();
+
+            if (status.UpdateState)
             {
-                var form = DatabaseEntityForm.GetFormInstance(_registeredEditorTypes[_currentType]);
-                form.Owner = this;
-                form.ShowInTaskbar = false;
-                var status = DatabaseEntityForm.ShowModalWindow(_registeredEditorTypes[_currentType]);
-
-                Select();
-                Focus();
-
-                if (status.UpdateState)
-                {
-                    ViewItems(_currentType, _selectors);
-                    _isUpdated = true;
-                }
+                ViewItems(_currentType, _selectors);
+                _isUpdated = true;
             }
         }
 
