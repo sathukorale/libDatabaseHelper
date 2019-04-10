@@ -302,6 +302,7 @@ namespace libDatabaseHelper.classes.generic
         public static GenericDatabaseEntity[] ParseDataReader(Type type, DbDataReader reader)
         {
             var list = new List<GenericDatabaseEntity>();
+
             try
             {
                 while (reader.Read())
@@ -313,15 +314,17 @@ namespace libDatabaseHelper.classes.generic
                         entity.Parse(reader);
                         list.Add(entity);
                     }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine(ex.Message);
-                    }
+                    catch { /* IGNORED */ }
                 }
             }
             catch { /* IGNORED */ }
 
-            reader.Close();
+            try
+            {
+                reader.Close();
+            }
+            catch { /* IGNORED */ }
+
             return list.ToArray();
         }
 

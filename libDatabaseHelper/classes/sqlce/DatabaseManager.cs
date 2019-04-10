@@ -275,6 +275,8 @@ namespace libDatabaseHelper.classes.sqlce
 
             var createStatement = "DROP TABLE " + type.Name;
             var transaction = (SqlCeTransaction) connection.BeginTransaction(IsolationLevel.ReadCommitted);
+            var success = false;
+
             try
             {
                 command.Transaction = transaction;
@@ -282,21 +284,22 @@ namespace libDatabaseHelper.classes.sqlce
                 var executionResult = command.ExecuteNonQuery();
 
                 transaction.Commit(CommitMode.Immediate);
-                command.Dispose();
-
-                return executionResult >= 0;
+                success = (executionResult >= 0);
             }
             catch (System.Exception)
             {
                 transaction.Rollback();
             }
-            return false;
+
+            command.Dispose();
+            return success;
         }
 
         public override GenericDatabaseEntity[] Select(Type type, Selector[] selectors)
         {
             var obj = GenericDatabaseEntity.GetNonDisposableRefenceObject(type);
             if (obj == null) return new GenericDatabaseEntity[0];
+
             var result = obj.GetColumns(true);
             if (result == null || result.GetPrimaryKeys() == null || !result.GetPrimaryKeys().Any())
             {
@@ -326,7 +329,9 @@ namespace libDatabaseHelper.classes.sqlce
 
             var reader = command.ExecuteReader();
             var results = ParseDataReader(type, reader);
+
             command.Dispose();
+
             return results;
         }
 
@@ -335,6 +340,7 @@ namespace libDatabaseHelper.classes.sqlce
             var obj = GenericDatabaseEntity.GetNonDisposableRefenceObject(type);
             if (obj == null) return false;
             var result = obj.GetColumns(true);
+
             if (result == null || result.GetPrimaryKeys() == null || !result.GetPrimaryKeys().Any())
             {
                 throw new DatabaseException(DatabaseException.ErrorType.NoPrimaryKeyColumnsFound);
@@ -349,31 +355,33 @@ namespace libDatabaseHelper.classes.sqlce
                     (current, selector) =>
                         current + ((current == "" ? "" : " AND ") + selector.SetToCommand(ref command)));
 
-            var selectStatement = "DELETE FROM " + obj.GetType().Name +
-                                     (selectors != null && selectors.Any() ? (" WHERE " + whereStatement) : "");
-            var transaction = (SqlCeTransaction) connection.BeginTransaction(IsolationLevel.ReadCommitted);
+            var selectStatement = "DELETE FROM " + obj.GetType().Name + (selectors != null && selectors.Any() ? ($" WHERE {whereStatement}") : "");
+            var success = false;
+            var transaction = null as DbTransaction;
 
             try
             {
+                transaction = (SqlCeTransaction)connection.BeginTransaction(IsolationLevel.ReadCommitted);
+
                 command.Transaction = transaction;
                 command.CommandText = selectStatement;
-                var executionResult = command.ExecuteNonQuery();
-                command.Dispose();
 
+                var executionResult = command.ExecuteNonQuery();
                 if (executionResult >= 0)
                 {
                     transaction.Commit();
+                    success = true;
 
                     _OnBulkDelete(type, selectors);
-                    return true;
                 }
             }
-            catch (System.Exception)
+            catch
             {
-                transaction.Rollback();
+                if (transaction != null) transaction.Rollback();
             }
 
-            return false;
+            command.Dispose();
+            return success;
         }
 
         public override void FillDataTable(Type type, ref DataTable table, Selector[] selectors, int limit)
@@ -408,14 +416,19 @@ namespace libDatabaseHelper.classes.sqlce
 
             foreach (var fieldInfo in fieldInfos)
             {
-                var cInfo = ((TableColumn)fieldInfo.GetCustomAttributes(typeof(TableColumn), true)[0]);
-                if (fieldInfo.FieldType == typeof(bool))
-                    table.Columns.Add(cInfo.GridDisplayName ?? fieldInfo.Name, typeof(bool));
-                else
-                    table.Columns.Add(cInfo.GridDisplayName ?? fieldInfo.Name);
+                try
+                {
+                    var cInfo = ((TableColumn)fieldInfo.GetCustomAttributes(typeof(TableColumn), true)[0]);
 
-                var translator = cInfo.TranslatorType == null ? null : TranslatorRegistry.Instance.Get(cInfo.TranslatorType);
-                translators.Add(translator);
+                    if (fieldInfo.FieldType == typeof(bool))
+                        table.Columns.Add(cInfo.GridDisplayName ?? fieldInfo.Name, typeof(bool));
+                    else
+                        table.Columns.Add(cInfo.GridDisplayName ?? fieldInfo.Name);
+
+                    var translator = cInfo.TranslatorType == null ? null : TranslatorRegistry.Instance.Get(cInfo.TranslatorType);
+                    translators.Add(translator);
+                }
+                catch { /* IGNORED */ }
             }
 
             if (!reader.Read())
@@ -449,6 +462,7 @@ namespace libDatabaseHelper.classes.sqlce
                 }
             }
             while (reader.Read());
+
             reader.Close();
             frmLoadingDialog.HideWindow();
             command.Dispose();
