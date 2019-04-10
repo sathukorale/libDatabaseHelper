@@ -241,19 +241,19 @@ namespace libDatabaseHelperUnitTests.sqlce
                     File.Delete("dblocaldata.sdf");
                 }
 
-                if (File.Exists(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\libDBHelderSampleFolder1\\SampleDatabase1.sdf"))
+                if (File.Exists(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\libDBHelperSampleFolder1\\SampleDatabase1.sdf"))
                 {
-                    File.Delete(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\libDBHelderSampleFolder1\\SampleDatabase1.sdf");
+                    File.Delete(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\libDBHelperSampleFolder1\\SampleDatabase1.sdf");
                 }
 
-                if (File.Exists(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\libDBHelderSampleFolder1\\TestDatabase1.sdf"))
+                if (File.Exists(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\libDBHelperSampleFolder1\\TestDatabase1.sdf"))
                 {
-                    File.Delete(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\libDBHelderSampleFolder1\\TestDatabase1.sdf");
+                    File.Delete(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\libDBHelperSampleFolder1\\TestDatabase1.sdf");
                 }
 
-                if (File.Exists(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\libDBHelderSampleFolder1\\TestDatabase2.sdf"))
+                if (File.Exists(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\libDBHelperSampleFolder1\\TestDatabase2.sdf"))
                 {
-                    File.Delete(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\libDBHelderSampleFolder1\\TestDatabase2.sdf");
+                    File.Delete(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\libDBHelperSampleFolder1\\TestDatabase2.sdf");
                 }
                 Console.WriteLine("[OK]");
             }
@@ -295,8 +295,8 @@ namespace libDatabaseHelperUnitTests.sqlce
             GenericConnectionManager.RegisterConnectionManager<ConnectionManager>();
             GenericDatabaseManager.RegisterDatabaseManager<DatabaseManager>(true);
 
-            var dbFile = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\libDBHelderSampleFolder1\\SampleDatabase1.sdf";
-            GenericUtils.CreateFolderStructure(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\libDBHelderSampleFolder1");
+            var dbFile = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\libDBHelperSampleFolder1\\SampleDatabase1.sdf";
+            GenericUtils.CreateFolderStructure(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\libDBHelperSampleFolder1");
             GenericConnectionManager.GetConnectionManager(DatabaseType.SqlCE).SetConnectionString("Data Source=" + dbFile + ";Persist Security Info=False;");
 
             GenericDatabaseManager.GetDatabaseManager(DatabaseType.SqlCE).DropTable<SampleTable1>();
@@ -758,8 +758,8 @@ namespace libDatabaseHelperUnitTests.sqlce
         [Test]
         public void HavingTwoDifferentDatabasesForASingleDatabaseType()
         {
-            var databaseFile1 = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\libDBHelderSampleFolder1\\TestDatabase1.sdf";
-            var databaseFile2 = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\libDBHelderSampleFolder1\\TestDatabase2.sdf";
+            var databaseFile1 = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\libDBHelperSampleFolder1\\TestDatabase1.sdf";
+            var databaseFile2 = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\libDBHelperSampleFolder1\\TestDatabase2.sdf";
 
             try
             {
@@ -842,7 +842,7 @@ namespace libDatabaseHelperUnitTests.sqlce
 
             var connectionString = GenericConnectionManager.GetConnectionManager(DatabaseType.SqlCE).GetConnectionString<SampleTable1>();
             var connectionData = GenericDatabaseManager.GetDatabaseManager(DatabaseType.SqlCE).Select<GenericConnectionDetails>(new Selector[] { new Selector("TypeName", "libDatabaseHelper.classes.generic.NullType") }).FirstOrDefault() as GenericConnectionDetails;
-            var expectedConnectionString = "Data Source=" + Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\libDBHelderSampleFolder1\\SampleDatabase1.sdf;Persist Security Info=False;";
+            var expectedConnectionString = "Data Source=" + Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\libDBHelperSampleFolder1\\SampleDatabase1.sdf;Persist Security Info=False;";
 
             Assert.IsNotNull(connectionData);
             Assert.IsTrue(connectionString == expectedConnectionString);
@@ -889,7 +889,7 @@ namespace libDatabaseHelperUnitTests.sqlce
         [Test]
         public void RemovingAKeyFromACompositePrimaryKeyAndCheckingWhetherTheChangeIsPresentOnTheDatabase()
         {
-            var databaseFile1 = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + $"\\libDBHelderSampleFolder1\\TestDatabase{DateTime.Now.Ticks}.sdf";
+            var databaseFile1 = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + string.Format("\\libDBHelperSampleFolder1\\TestDatabase{0}.sdf", DateTime.Now.Ticks);
 
             try
             {
@@ -942,7 +942,7 @@ namespace libDatabaseHelperUnitTests.sqlce
         [Test]
         public void AddingAKeyToACompositePrimaryKeyAndCheckingWhetherTheChangeIsPresentOnTheDatabase()
         {
-            var databaseFile1 = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + $"\\libDBHelderSampleFolder1\\TestDatabase{DateTime.Now.Ticks}.sdf";
+            var databaseFile1 = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + string.Format("\\libDBHelperSampleFolder1\\TestDatabase{0}.sdf", DateTime.Now.Ticks);
 
             try
             {
@@ -998,7 +998,7 @@ namespace libDatabaseHelperUnitTests.sqlce
         [Test]
         public void RemovingAKeyAndTheCorrespondingColumnFromACompositePrimaryKeyAndCheckingWhetherTheChangeIsPresentOnTheDatabase()
         {
-            var databaseFile1 = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + $"\\libDBHelderSampleFolder1\\TestDatabase{DateTime.Now.Ticks}.sdf";
+            var databaseFile1 = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + string.Format("\\libDBHelperSampleFolder1\\TestDatabase{0}.sdf", DateTime.Now.Ticks);
 
             try
             {
@@ -1050,7 +1050,7 @@ namespace libDatabaseHelperUnitTests.sqlce
         [Test]
         public void AddingAKeyAndTheCorrespondingColumnToACompositePrimaryKeyAndCheckingWhetherTheChangeIsPresentOnTheDatabase()
         {
-            var databaseFile1 = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + $"\\libDBHelderSampleFolder1\\TestDatabase{DateTime.Now.Ticks}.sdf";
+            var databaseFile1 = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + string.Format("\\libDBHelperSampleFolder1\\TestDatabase{0}.sdf", DateTime.Now.Ticks);
 
             try
             {

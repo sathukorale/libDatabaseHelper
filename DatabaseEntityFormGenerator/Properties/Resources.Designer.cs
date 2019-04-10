@@ -61,6 +61,18 @@ namespace DatabaseEntityFormGenerator.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to private void GenericDatabaseManager_OnBulkDelete(Type type, Selector[] selectors)
+        ///{
+        ///[HANDLING_CODE]
+        ///}.
+        /// </summary>
+        internal static string BulkDeleteHandler {
+            get {
+                return ResourceManager.GetString("BulkDeleteHandler", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to private void Load{0}s()
         ///{{
         ///	try
@@ -130,6 +142,18 @@ namespace DatabaseEntityFormGenerator.Properties {
         internal static string DBEntityForm_UserCode {
             get {
                 return ResourceManager.GetString("DBEntityForm_UserCode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to private void DatabaseEntity_OnDatabaseEntityUpdated(GenericDatabaseEntity updatedEntity, Type type, GenericDatabaseEntity.UpdateEventType eventType)
+        ///{
+        ///[HANDLING_CODE]
+        ///}.
+        /// </summary>
+        internal static string EntityUpdateHandler {
+            get {
+                return ResourceManager.GetString("EntityUpdateHandler", resourceCulture);
             }
         }
         

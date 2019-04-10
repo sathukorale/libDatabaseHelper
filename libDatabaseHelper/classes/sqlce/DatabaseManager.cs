@@ -39,7 +39,7 @@ namespace libDatabaseHelper.classes.sqlce
                 command.Transaction = transaction;
                 command.CommandText = commandString;
 
-                argumentFiller?.Invoke(ref command);
+                if (argumentFiller != null) argumentFiller.Invoke(ref command);
 
                 command.ExecuteNonQuery();
                 transaction.Commit(CommitMode.Immediate);
@@ -111,10 +111,10 @@ namespace libDatabaseHelper.classes.sqlce
             {
                 DeleteAll(type);
 
-                var commandToDropConstraint = $"ALTER TABLE {type.Name} DROP CONSTRAINT {currentPrimaryKeyDetails.ConstraintName}";
+                var commandToDropConstraint = string.Format("ALTER TABLE {0} DROP CONSTRAINT {1}", type.Name, currentPrimaryKeyDetails.ConstraintName);
                 if (ExecuteNonQuery(connection, commandToDropConstraint) == false)
                 {
-                    throw new Exception($"Failed to drop the primary key constraint, '{currentPrimaryKeyDetails.ConstraintName}', which is a required step to imprint the current table structure.");
+                    throw new Exception(string.Format("Failed to drop the primary key constraint, '{0}', which is a required step to imprint the current table structure.", currentPrimaryKeyDetails.ConstraintName));
                 }
             }
 
@@ -122,7 +122,7 @@ namespace libDatabaseHelper.classes.sqlce
             {
                 foreach (var column in listToRemove)
                 {
-                    var commandToRemove = $"ALTER TABLE {type.Name} DROP COLUMN {column}";
+                    var commandToRemove = string.Format("ALTER TABLE {0} DROP COLUMN {1}", type.Name, column);
                     ExecuteNonQuery(connection, commandToRemove);
                 }
             }
@@ -143,9 +143,10 @@ namespace libDatabaseHelper.classes.sqlce
                         columnToAdd += " UNIQUE ";
                     }
 
-                    if (ExecuteNonQuery(connection, $"ALTER TABLE {type.Name} ADD COLUMN {columnToAdd}"))
+                    if (ExecuteNonQuery(connection, string.Format("ALTER TABLE {0} ADD COLUMN {1}", type.Name, columnToAdd)))
                     {
-                        ExecuteNonQuery(connection, $"UPDATE {type.Name} SET {column.Name}=@{column.Name}", (ref DbCommand dbCommand) => { GenericUtils.AddWithValue(ref dbCommand, "@" + column.Name, GenericFieldTools.GetDefaultValue(column.FieldType, columnAttributes.DefaultValue)); });
+                        var columnLocal = column;
+                        ExecuteNonQuery(connection, string.Format("UPDATE {0} SET {1}=@{1}", type.Name, columnLocal.Name), (ref DbCommand dbCommand) => { GenericUtils.AddWithValue(ref dbCommand, "@" + columnLocal.Name, GenericFieldTools.GetDefaultValue(columnLocal.FieldType, columnAttributes.DefaultValue)); });
                     }
                 }
             }
@@ -157,11 +158,11 @@ namespace libDatabaseHelper.classes.sqlce
                     var columnAttributes = (TableColumn) primaryKey.GetCustomAttributes(typeof(TableColumn), true)[0];
                     var dataType = FieldTools.GetDbTypeString(primaryKey.FieldType, columnAttributes.Length);
 
-                    ExecuteNonQuery(connection, $"ALTER TABLE {type.Name} ALTER COLUMN {primaryKey.Name} {dataType} NOT NULL");
+                    ExecuteNonQuery(connection, string.Format("ALTER TABLE {0} ALTER COLUMN {1} {2} NOT NULL", type.Name, primaryKey.Name, dataType));
                 }
 
                 var primaryKeyFieldString = columns.GetPrimaryKeys().Select(i => i.Name).Aggregate((a, b) => a + ", " + b);
-                ExecuteNonQuery(connection, $"ALTER TABLE {type.Name} ADD CONSTRAINT pk_{DateTime.Now.Ticks} PRIMARY KEY({primaryKeyFieldString})");
+                ExecuteNonQuery(connection, string.Format("ALTER TABLE {0} ADD CONSTRAINT pk_{1} PRIMARY KEY({2})", type.Name, DateTime.Now.Ticks, primaryKeyFieldString));
             }
 
             command.Dispose();
@@ -360,7 +361,7 @@ namespace libDatabaseHelper.classes.sqlce
                     (current, selector) =>
                         current + ((current == "" ? "" : " AND ") + selector.SetToCommand(ref command)));
 
-            var selectStatement = "DELETE FROM " + obj.GetType().Name + (selectors != null && selectors.Any() ? ($" WHERE {whereStatement}") : "");
+            var selectStatement = "DELETE FROM " + obj.GetType().Name + (selectors != null && selectors.Any() ? (string.Format(" WHERE {0}", whereStatement)) : "");
             var success = false;
             var transaction = null as DbTransaction;
 
@@ -476,7 +477,7 @@ namespace libDatabaseHelper.classes.sqlce
         public override PrimaryKeyConstraintDetails GetPrimaryKeyDetails(Type type)
         {
             var command = GenericConnectionManager.GetConnectionManager(GetSupportedDatabase()).GetConnection(type).CreateCommand();
-            var commandString = $"SELECT INDEX_NAME, COLUMN_NAME FROM INFORMATION_SCHEMA.INDEXES WHERE PRIMARY_KEY = 1 AND TABLE_NAME = '{type.Name}'";
+            var commandString = string.Format("SELECT INDEX_NAME, COLUMN_NAME FROM INFORMATION_SCHEMA.INDEXES WHERE PRIMARY_KEY = 1 AND TABLE_NAME = '{0}'", type.Name);
 
             command.CommandText = commandString;
 
@@ -505,7 +506,7 @@ namespace libDatabaseHelper.classes.sqlce
             command.Dispose();
 
             if (primaryKeysPerConstraint.Any() == false) return null;
-            if (primaryKeysPerConstraint.Count > 1) throw new InvalidDataException($"Due to some reason the table '{type.Name}' has more than 1 primary key.");
+            if (primaryKeysPerConstraint.Count > 1) throw new InvalidDataException(string.Format("Due to some reason the table '{0}' has more than 1 primary key.", type.Name));
 
             var firstEntry = primaryKeysPerConstraint.First();
             return new PrimaryKeyConstraintDetails(firstEntry.Key, firstEntry.Value.ToArray());
@@ -516,7 +517,7 @@ namespace libDatabaseHelper.classes.sqlce
             var connection = GenericConnectionManager.GetConnectionManager(GetSupportedDatabase()).GetConnection(type);
             var command = connection.CreateCommand();
 
-            command.CommandText = $"SELECT COLUMN_NAME, DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='{type.Name}'";
+            command.CommandText = string.Format("SELECT COLUMN_NAME, DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='{0}'", type.Name);
 
             var reader = command.ExecuteReader();
             var columns = new List<string>();

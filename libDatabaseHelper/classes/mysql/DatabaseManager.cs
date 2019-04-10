@@ -357,7 +357,7 @@ namespace libDatabaseHelper.classes.mysql
         public override PrimaryKeyConstraintDetails GetPrimaryKeyDetails(Type type)
         {
             var command = GenericConnectionManager.GetConnectionManager(GetSupportedDatabase()).GetConnection(type).CreateCommand();
-            var commandString = $"SELECT INDEX_NAME, COLUMN_NAME FROM INFORMATION_SCHEMA.INDEXES WHERE PRIMARY_KEY = 1 AND TABLE_NAME = '{type.Name}'";
+            var commandString = string.Format("SELECT INDEX_NAME, COLUMN_NAME FROM INFORMATION_SCHEMA.INDEXES WHERE PRIMARY_KEY = 1 AND TABLE_NAME = '{0}'", type.Name);
 
             command.CommandText = commandString;
 
@@ -386,7 +386,7 @@ namespace libDatabaseHelper.classes.mysql
             command.Dispose();
 
             if (primaryKeysPerConstraint.Any() == false) return null;
-            if (primaryKeysPerConstraint.Count > 1) throw new InvalidDataException($"Due to some reason the table '{type.Name}' has more than 1 primary key.");
+            if (primaryKeysPerConstraint.Count > 1) throw new InvalidDataException(string.Format("Due to some reason the table '{0}' has more than 1 primary key.", type.Name));
 
             var firstEntry = primaryKeysPerConstraint.First();
             return new PrimaryKeyConstraintDetails(firstEntry.Key, firstEntry.Value.ToArray());
@@ -397,7 +397,7 @@ namespace libDatabaseHelper.classes.mysql
             var connection = GenericConnectionManager.GetConnectionManager(GetSupportedDatabase()).GetConnection(type);
             var command = connection.CreateCommand();
 
-            command.CommandText = $"SELECT COLUMN_NAME, DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA='{connection.Database}' AND TABLE_NAME='{type.Name}'";
+            command.CommandText = string.Format("SELECT COLUMN_NAME, DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA='{0}' AND TABLE_NAME='{1}'", connection.Database, type.Name);
 
             var reader = command.ExecuteReader();
             if (reader.HasRows == false)

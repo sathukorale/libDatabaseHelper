@@ -486,7 +486,8 @@ namespace libDatabaseHelper.classes.generic
             {
                 try
                 {
-                    (GenericConnectionManager.GetConnectionManager(DatabaseType.SqlCE) as sqlce.ConnectionManager)?.LoadConnectionData();
+                    var connectionManager = (GenericConnectionManager.GetConnectionManager(DatabaseType.SqlCE) as sqlce.ConnectionManager);
+                    if (connectionManager != null) connectionManager.LoadConnectionData();
                 }
                 catch { /* IGNORED */ }
             }
