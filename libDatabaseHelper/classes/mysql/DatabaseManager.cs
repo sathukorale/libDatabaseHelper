@@ -383,6 +383,7 @@ namespace libDatabaseHelper.classes.mysql
             catch { /* IGNORED */ }
 
             reader.Close();
+            command.Dispose();
 
             if (primaryKeysPerConstraint.Any() == false) return null;
             if (primaryKeysPerConstraint.Count > 1) throw new InvalidDataException($"Due to some reason the table '{type.Name}' has more than 1 primary key.");
