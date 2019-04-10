@@ -10,9 +10,9 @@ namespace libDatabaseHelperUnitTests.forms
 {
     class WindowControlContext
     {
-        public static Control GetElementByName(Control parent_control, string name)
+        public static Control GetElementByName(Control parentControl, string name)
         {
-            var controls = FormUtils.GetAllElements(parent_control);
+            var controls = FormUtils.GetAllElements(parentControl);
             controls = controls.Where(i => i.Name != null && i.Name == name).ToList();
             if (controls.Any())
             {
@@ -21,9 +21,9 @@ namespace libDatabaseHelperUnitTests.forms
             return null;
         }
 
-        public static List<Control> GetElementByTagType(Control parent_control, Type type)
+        public static List<Control> GetElementByTagType(Control parentControl, Type type)
         {
-            var controls = FormUtils.GetAllElements(parent_control);
+            var controls = FormUtils.GetAllElements(parentControl);
             controls = controls.Where(i => i.GetType() == type).ToList();
             return controls;
         }
@@ -31,30 +31,30 @@ namespace libDatabaseHelperUnitTests.forms
 
     class WindowsControlTestFramework
     {
-        private static Control _root_control;
+        private static Control _rootControl;
 
-        public static void SetRoot(Control root_control)
+        public static void SetRoot(Control rootControl)
         {
-            _root_control = root_control;
+            _rootControl = rootControl;
         }
 
-        public static void SetControlValue(string control_name, Object value)
+        public static void SetControlValue(string controlName, Object value)
         {
-            SetControlAttribute(control_name, "Value", value);
-            SetControlAttribute(control_name, "Text", value);
+            SetControlAttribute(controlName, "Value", value);
+            SetControlAttribute(controlName, "Text", value);
         }
 
-        public static void SetControlAttribute(string control_name, string attribute_name, Object value)
+        public static void SetControlAttribute(string controlName, string attributeName, Object value)
         {
-            if (_root_control == null)
+            if (_rootControl == null)
             {
                 throw new Exception("The \"Root Control\" element is not set !");
             }
 
-            var element = WindowControlContext.GetElementByName(_root_control, control_name);
+            var element = WindowControlContext.GetElementByName(_rootControl, controlName);
             if (element != null)
             {
-                FieldInfo[] fields = element.GetType().GetFields(BindingFlags.Public).Where(i => i.Name == attribute_name).ToArray();
+                FieldInfo[] fields = element.GetType().GetFields(BindingFlags.Public).Where(i => i.Name == attributeName).ToArray();
                 if (fields.Any())
                 {
                     //(FieldInfo(fields[0])).SetValue(element, value);
@@ -62,27 +62,27 @@ namespace libDatabaseHelperUnitTests.forms
             }
         }
 
-        public static Object GetControlValue(string control_name, Object value)
+        public static Object GetControlValue(string controlName, Object value)
         {
-            var value_read = GetControlAttribute(control_name, "Text", value);
-            if (value_read == null || value_read.ToString().Trim() == "")
+            var valueRead = GetControlAttribute(controlName, "Text", value);
+            if (valueRead == null || valueRead.ToString().Trim() == "")
             {
                 return null;
             }
-            return value_read;
+            return valueRead;
         }
 
-        public static Object GetControlAttribute(string control_name, string attribute_name, Object value)
+        public static Object GetControlAttribute(string controlName, string attributeName, Object value)
         {
-            if (_root_control == null)
+            if (_rootControl == null)
             {
                 throw new Exception("The \"Root Control\" element is not set !");
             }
 
-            var element = WindowControlContext.GetElementByName(_root_control, control_name);
+            var element = WindowControlContext.GetElementByName(_rootControl, controlName);
             if (element != null)
             {
-                FieldInfo[] fields = element.GetType().GetFields(BindingFlags.Public).Where(i => i.Name == attribute_name).ToArray();
+                FieldInfo[] fields = element.GetType().GetFields(BindingFlags.Public).Where(i => i.Name == attributeName).ToArray();
                 if (fields.Any())
                 {
                     return null;// (FieldInfo(fields[0])).GetValue(element);

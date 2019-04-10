@@ -1,6 +1,6 @@
 namespace libDatabaseHelperUnitTests.forms.sqlce
 {
-    partial class frmInvalidSampleTable3_NoPrimaryKey
+    partial class FrmInvalidSampleTable3NoPrimaryKey
     {
         /// <summary>
         /// Required designer variable.
@@ -129,7 +129,7 @@ namespace libDatabaseHelperUnitTests.forms.sqlce
             this.Controls.Add(this.btnReset);
             this.Controls.Add(this.btnOK);
             this.Controls.Add(this.btnCancel);
-            this.Name = "frmInvalidSampleTable3_NoPrimaryKey";
+            this.Name = "FrmInvalidSampleTable3NoPrimaryKey";
             this.Text = "Form1";
             this.pnlControlContainer.ResumeLayout(false);
             this.pnlControlContainer.PerformLayout();

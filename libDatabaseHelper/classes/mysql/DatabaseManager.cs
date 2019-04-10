@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 
@@ -22,36 +24,31 @@ namespace libDatabaseHelper.classes.mysql
             if (entity == null)
                 return false;
 
-            var fields = entity.GetColumns(true).GetOtherColumns().ToList();
-
             var connection = GenericConnectionManager.GetConnectionManager(GetSupportedDatabase()).GetConnection(type);
-            var command = connection.CreateCommand();
-            command.CommandText = "SELECT COLUMN_NAME, DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA='" + connection.Database + "' AND TABLE_NAME='" + (entity.GetType().Name) + "'";
-            var reader = command.ExecuteReader();
-
-            if (!reader.HasRows)
+            if (connection == null || connection.State != ConnectionState.Open)
             {
-                reader.Close();
-                command.Dispose();
-                return false;
+                throw new DatabaseConnectionException(DatabaseConnectionException.ConnectionErrorType.UnableToConnectToTheDatabase);
             }
 
+            var fields = entity.GetColumns(true).GetOtherColumns().ToList();
+            var command = connection.CreateCommand();
+            var availableColumns = GetTableFields(type);
             var listToRemove = new List<string>();
-            while (reader.Read())
-            {
-                var columnName = reader.GetString(0).ToLower();
-                {
-                    List<FieldInfo> found;
-                    var existing = (found = fields.Where(i => i.Name.ToLower() == columnName).ToList()).Any();
 
-                    if (existing)
-                    {
-                        fields.Remove(found[0]);
-                    }
-                    else
-                    {
-                        listToRemove.Add(columnName);
-                    }
+            if (availableColumns == null || availableColumns.Any() == false) return false;
+
+            foreach (var columnName in availableColumns)
+            {
+                List<FieldInfo> found;
+                var existing = (found = fields.Where(i => i.Name.ToLower() == columnName).ToList()).Any();
+
+                if (existing)
+                {
+                    fields.Remove(found[0]);
+                }
+                else
+                {
+                    listToRemove.Add(columnName);
                 }
             }
 
@@ -64,8 +61,6 @@ namespace libDatabaseHelper.classes.mysql
                     Relationship.Add(columnAttributes.ReferencedClass, type);
                 }
             }
-
-            reader.Close();
 
             if (listToRemove.Any())
             {
@@ -356,6 +351,68 @@ namespace libDatabaseHelper.classes.mysql
             reader.Close();
             frmLoadingDialog.HideWindow();
             command.Dispose();
+        }
+
+        public override PrimaryKeyConstraintDetails GetPrimaryKeyDetails(Type type)
+        {
+            var command = GenericConnectionManager.GetConnectionManager(GetSupportedDatabase()).GetConnection(type).CreateCommand();
+            var commandString = $"SELECT INDEX_NAME, COLUMN_NAME FROM INFORMATION_SCHEMA.INDEXES WHERE PRIMARY_KEY = 1 AND TABLE_NAME = '{type.Name}'";
+
+            command.CommandText = commandString;
+
+            var reader = command.ExecuteReader();
+            var primaryKeysPerConstraint = new Dictionary<string, List<string>>();
+
+            try
+            {
+                while (reader.Read())
+                {
+                    try
+                    {
+                        var constraintName = reader.GetString(0);
+                        var fieldName = reader.GetString(1).ToLower();
+
+                        if (primaryKeysPerConstraint.ContainsKey(constraintName) == false) primaryKeysPerConstraint.Add(constraintName, new List<string>());
+
+                        primaryKeysPerConstraint[constraintName].Add(fieldName);
+                    }
+                    catch { /* IGNORED */ }
+                }
+            }
+            catch { /* IGNORED */ }
+
+            reader.Close();
+
+            if (primaryKeysPerConstraint.Any() == false) return null;
+            if (primaryKeysPerConstraint.Count > 1) throw new InvalidDataException($"Due to some reason the table '{type.Name}' has more than 1 primary key.");
+
+            var firstEntry = primaryKeysPerConstraint.First();
+            return new PrimaryKeyConstraintDetails(firstEntry.Key, firstEntry.Value.ToArray());
+        }
+
+        public override string[] GetTableFields(Type type)
+        {
+            var connection = GenericConnectionManager.GetConnectionManager(GetSupportedDatabase()).GetConnection(type);
+            var command = connection.CreateCommand();
+
+            command.CommandText = $"SELECT COLUMN_NAME, DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA='{connection.Database}' AND TABLE_NAME='{type.Name}'";
+
+            var reader = command.ExecuteReader();
+            if (reader.HasRows == false)
+            {
+                reader.Close();
+                command.Dispose();
+                return null;
+            }
+
+            var columns = new List<string>();
+            while (reader.Read())
+            {
+                var columnName = reader.GetString(0).ToLower();
+                columns.Add(columnName);
+            }
+
+            return columns.ToArray();
         }
     }
 }

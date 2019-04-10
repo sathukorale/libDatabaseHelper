@@ -13,9 +13,9 @@ using libDatabaseHelperUnitTests.mysql;
 
 namespace libDatabaseHelperUnitTests.forms.mysql
 {
-    public partial class frmInvalidSampleTable3_NoPrimaryKey : DatabaseEntityForm
+    public partial class FrmInvalidSampleTable3NoPrimaryKey : DatabaseEntityForm
     {
-        public frmInvalidSampleTable3_NoPrimaryKey()
+        public FrmInvalidSampleTable3NoPrimaryKey()
         {
             InitializeComponent();
 
@@ -23,10 +23,10 @@ namespace libDatabaseHelperUnitTests.forms.mysql
             SetResetButton(btnReset);
             SetCancelButton(btnCancel);
 			
-			txtColumn2.Tag = new TableColumnField(true, typeof(InvalidSampleTable3_NoPrimaryKey), "Column2");
-			cmbColumn3.Tag = new TableColumnField(true, typeof(InvalidSampleTable3_NoPrimaryKey), "Column3");
+			txtColumn2.Tag = new TableColumnField(true, typeof(InvalidSampleTable3NoPrimaryKey), "Column2");
+			cmbColumn3.Tag = new TableColumnField(true, typeof(InvalidSampleTable3NoPrimaryKey), "Column3");
 
-            SetEntityType(typeof(InvalidSampleTable3_NoPrimaryKey));
+            SetEntityType(typeof(InvalidSampleTable3NoPrimaryKey));
 			LoadColumns();
         }
 		

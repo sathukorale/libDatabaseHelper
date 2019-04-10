@@ -8,10 +8,10 @@ namespace libDatabaseHelper.classes.sqlce
     {
         public static string GetDbTypeString(Type type)
         {
-            return GetDbTypeString(type, false, 0);
+            return GetDbTypeString(type, 0);
         }
 
-        public static string GetDbTypeString(Type type, bool uniqueOrPrimary, int length)
+        public static string GetDbTypeString(Type type, int length)
         {
             if (type == GenericFieldTools.TypeChar || type == GenericFieldTools.TypeByte)
                 return "TINYINT";

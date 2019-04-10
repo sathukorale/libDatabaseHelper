@@ -22,7 +22,7 @@ namespace libDatabaseHelper.Properties {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Resources {
+    public class Resources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,7 +36,7 @@ namespace libDatabaseHelper.Properties {
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("libDatabaseHelper.Properties.Resources", typeof(Resources).Assembly);
@@ -51,7 +51,7 @@ namespace libDatabaseHelper.Properties {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -63,7 +63,7 @@ namespace libDatabaseHelper.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static byte[] dblocaldata {
+        public static byte[] dblocaldata {
             get {
                 object obj = ResourceManager.GetObject("dblocaldata", resourceCulture);
                 return ((byte[])(obj));
@@ -73,7 +73,7 @@ namespace libDatabaseHelper.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap ico_add_field {
+        public static System.Drawing.Bitmap ico_add_field {
             get {
                 object obj = ResourceManager.GetObject("ico_add_field", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -83,7 +83,7 @@ namespace libDatabaseHelper.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap ico_addrecord {
+        public static System.Drawing.Bitmap ico_addrecord {
             get {
                 object obj = ResourceManager.GetObject("ico_addrecord", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -93,7 +93,7 @@ namespace libDatabaseHelper.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap ico_copyentity {
+        public static System.Drawing.Bitmap ico_copyentity {
             get {
                 object obj = ResourceManager.GetObject("ico_copyentity", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -103,7 +103,7 @@ namespace libDatabaseHelper.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap ico_more_options {
+        public static System.Drawing.Bitmap ico_more_options {
             get {
                 object obj = ResourceManager.GetObject("ico_more_options", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -113,7 +113,7 @@ namespace libDatabaseHelper.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap ico_remove_field {
+        public static System.Drawing.Bitmap ico_remove_field {
             get {
                 object obj = ResourceManager.GetObject("ico_remove_field", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -123,7 +123,7 @@ namespace libDatabaseHelper.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap ico_removerecord {
+        public static System.Drawing.Bitmap ico_removerecord {
             get {
                 object obj = ResourceManager.GetObject("ico_removerecord", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -133,7 +133,7 @@ namespace libDatabaseHelper.Properties {
         /// <summary>
         ///   Looks up a localized string similar to There already is a similar record by these details. Would you like to update this ?.
         /// </summary>
-        internal static string RecordExists {
+        public static string RecordExists {
             get {
                 return ResourceManager.GetString("RecordExists", resourceCulture);
             }
@@ -142,7 +142,7 @@ namespace libDatabaseHelper.Properties {
         /// <summary>
         ///   Looks up a localized string similar to The record insert successfully.
         /// </summary>
-        internal static string RecordInsertion_SUCCESS {
+        public static string RecordInsertion_SUCCESS {
             get {
                 return ResourceManager.GetString("RecordInsertion_SUCCESS", resourceCulture);
             }
@@ -151,7 +151,7 @@ namespace libDatabaseHelper.Properties {
         /// <summary>
         ///   Looks up a localized string similar to The application was unable to insert the record !.
         /// </summary>
-        internal static string RecordInsertion_UNSUCCESSFUL {
+        public static string RecordInsertion_UNSUCCESSFUL {
             get {
                 return ResourceManager.GetString("RecordInsertion_UNSUCCESSFUL", resourceCulture);
             }
@@ -160,7 +160,7 @@ namespace libDatabaseHelper.Properties {
         /// <summary>
         ///   Looks up a localized string similar to The record updated successfully.
         /// </summary>
-        internal static string RecordUpdate_SUCCESS {
+        public static string RecordUpdate_SUCCESS {
             get {
                 return ResourceManager.GetString("RecordUpdate_SUCCESS", resourceCulture);
             }
@@ -169,7 +169,7 @@ namespace libDatabaseHelper.Properties {
         /// <summary>
         ///   Looks up a localized string similar to The application was unable to update the record !.
         /// </summary>
-        internal static string RecordUpdate_UNSUCCESSFUL {
+        public static string RecordUpdate_UNSUCCESSFUL {
             get {
                 return ResourceManager.GetString("RecordUpdate_UNSUCCESSFUL", resourceCulture);
             }

@@ -13,9 +13,9 @@ using libDatabaseHelperUnitTests.sqlce;
 
 namespace libDatabaseHelperUnitTests.forms.sqlce
 {
-    public partial class frmSampleTable1 : DatabaseEntityForm
+    public partial class FrmSampleTable1 : DatabaseEntityForm
     {
-        public frmSampleTable1()
+        public FrmSampleTable1()
         {
             InitializeComponent();
 
@@ -28,9 +28,9 @@ namespace libDatabaseHelperUnitTests.forms.sqlce
             SetEntityType(typeof(SampleTable1));
         }
 
-        public void SetValues(string column2_value)
+        public void SetValues(string column2Value)
         {
-            txtColumn2.Text = column2_value;
+            txtColumn2.Text = column2Value;
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -9,6 +10,7 @@ using libDatabaseHelper.classes.generic;
 using libDatabaseHelper.forms;
 using libDatabaseHelper.classes.sqlce.entities;
 using System.Data.SqlServerCe;
+using System.IO;
 using libDatabaseHelper.forms.controls;
 
 namespace libDatabaseHelper.classes.sqlce
@@ -22,13 +24,41 @@ namespace libDatabaseHelper.classes.sqlce
             CreateTable<SearchFilterSettings>();
         }
 
+        private delegate void FillArguments(ref DbCommand command);
+
+        private bool ExecuteNonQuery(DbConnection connection, string commandString, FillArguments argumentFiller = null)
+        {
+            var command = connection.CreateCommand();
+            var transaction = (SqlCeTransaction) connection.BeginTransaction(IsolationLevel.ReadCommitted);
+
+            try
+            {
+                command.Transaction = transaction;
+                command.CommandText = commandString;
+
+                argumentFiller?.Invoke(ref command);
+
+                command.ExecuteNonQuery();
+
+                transaction.Commit(CommitMode.Immediate);
+            }
+            catch (System.Exception)
+            {
+                transaction.Rollback();
+                return false;
+            }
+
+            return true;
+        }
+
         public override bool TableExist(Type type)
         {
             var entity = GenericDatabaseEntity.GetNonDisposableRefenceObject(type);
             if (entity == null)
                 return false;
 
-            var fields = entity.GetColumns(true).GetOtherColumns().ToList();
+            var columns = entity.GetColumns(true);
+            var fields = columns.GetOtherColumns().ToList();
 
             var manager = GenericConnectionManager.GetConnectionManager(GetSupportedDatabase());
             var connection = manager.GetConnection(type);
@@ -38,36 +68,27 @@ namespace libDatabaseHelper.classes.sqlce
             }
 
             var command = connection.CreateCommand();
-            command.CommandText = "SELECT COLUMN_NAME, DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='" + (entity.GetType().Name) + "'";
-            var reader = command.ExecuteReader();
-
-            if (!reader.Read())
-            {
-                reader.Close();
-                command.Dispose();
-
-                return false;
-            }
-
+            var availableColumns = GetTableFields(type);
             var listToRemove = new List<string>();
-            do
-            {
-                var columnName = reader.GetString(0).ToLower();
-                {
-                    List<FieldInfo> found;
-                    var existing = (found = fields.Where(i => i.Name.ToLower() == columnName).ToList()).Any();
 
-                    if (existing)
-                    {
-                        fields.Remove(found[0]);
-                    }
-                    else
-                        listToRemove.Add(columnName);
+            if (availableColumns == null || availableColumns.Any() == false) return false;
+
+            foreach (var columnName in availableColumns)
+            {
+                List<FieldInfo> found;
+                var existing = (found = fields.Where(i => i.Name.ToLower() == columnName).ToList()).Any();
+
+                if (existing)
+                {
+                    fields.Remove(found[0]);
+                }
+                else
+                {
+                    listToRemove.Add(columnName);
                 }
             }
-            while (reader.Read());
 
-            foreach (var fieldInfo in entity.GetColumns(true).GetOtherColumns().ToList())
+            foreach (var fieldInfo in columns.GetOtherColumns().ToList())
             {
                 var columnAttributes = (TableColumn)fieldInfo.GetCustomAttributes(typeof(TableColumn), true)[0];
 
@@ -77,26 +98,27 @@ namespace libDatabaseHelper.classes.sqlce
                 }
             }
 
-            reader.Close();
+            var currentPrimaryKeyDetails = GetPrimaryKeyDetails(type);
+            var hasThePrimaryKeyChanged = columns.GetPrimaryKeys().Any(i => currentPrimaryKeyDetails.PrimaryKeyFields.Contains(i.Name.ToLower()) == false) ||
+                                          currentPrimaryKeyDetails.PrimaryKeyFields.Any(i => columns.GetPrimaryKeys().Any(ii => ii.Name.ToLower() == i) == false);
+
+            if (hasThePrimaryKeyChanged)
+            {
+                DeleteAll(type);
+
+                var commandToDropConstraint = $"ALTER TABLE {type.Name} DROP CONSTRAINT {currentPrimaryKeyDetails.ConstraintName}";
+                if (ExecuteNonQuery(connection, commandToDropConstraint) == false)
+                {
+                    throw new Exception($"Failed to drop the primary key constraint, '{currentPrimaryKeyDetails.ConstraintName}', which is a required step to imprint the current table structure.");
+                }
+            }
 
             if (listToRemove.Any())
             {
                 foreach (var column in listToRemove)
                 {
-                    var commandToRemove = "ALTER TABLE " + type.Name + " DROP COLUMN " + column;
-                    var transaction = connection.BeginTransaction(IsolationLevel.ReadCommitted) as SqlCeTransaction;
-                    try
-                    {
-                        command.Transaction = transaction;
-                        command.CommandText = commandToRemove;
-                        command.ExecuteNonQuery();
-
-                        transaction.Commit(CommitMode.Immediate);
-                    }
-                    catch (System.Exception)
-                    {
-                        transaction.Rollback();
-                    }
+                    var commandToRemove = $"ALTER TABLE {type.Name} DROP COLUMN {column}";
+                    ExecuteNonQuery(connection, commandToRemove);
                 }
             }
 
@@ -105,10 +127,7 @@ namespace libDatabaseHelper.classes.sqlce
                 foreach (var column in fields)
                 {
                     var columnAttributes = (TableColumn)column.GetCustomAttributes(typeof(TableColumn), true)[0];
-                    var columnToAdd =   column.Name + " " +
-                                        FieldTools.GetDbTypeString(column.FieldType,
-                                        columnAttributes.IsAutogenerated || columnAttributes.IsUnique || columnAttributes.IsPrimaryKey,
-                                        columnAttributes.Length);
+                    var columnToAdd =   column.Name + " " + FieldTools.GetDbTypeString(column.FieldType, columnAttributes.Length);
                     if (GenericFieldTools.IsTypeNumber(column.FieldType) && columnAttributes.IsAutogenerated &&
                         columnAttributes.AutogenrationMethod == null)
                     {
@@ -119,39 +138,25 @@ namespace libDatabaseHelper.classes.sqlce
                         columnToAdd += " UNIQUE ";
                     }
 
-                    var transaction = connection.BeginTransaction(IsolationLevel.ReadCommitted) as SqlCeTransaction;
-                    try
+                    if (ExecuteNonQuery(connection, $"ALTER TABLE {type.Name} ADD COLUMN {columnToAdd}"))
                     {
-                        command.Transaction = transaction;
-                        command.CommandText = "ALTER TABLE " + type.Name + " ADD COLUMN " + columnToAdd;
-                        command.ExecuteNonQuery();
-
-                        transaction.Commit(CommitMode.Immediate);
-                    }
-                    catch (System.Exception)
-                    {
-                        transaction.Rollback();
-                        continue;
-                    }
-
-                    transaction = connection.BeginTransaction(IsolationLevel.ReadCommitted) as SqlCeTransaction;
-                    try
-                    {
-                        command.Transaction = transaction;
-                        command.CommandText = "UPDATE " + type.Name + " SET " + column.Name + "=@" + column.Name;
-
-                        GenericUtils.AddWithValue(ref command, "@" + column.Name, GenericFieldTools.GetDefaultValue(column.FieldType, columnAttributes.DefaultValue));
-
-                        command.ExecuteNonQuery();
-
-                        transaction.Commit(CommitMode.Immediate);
-                    }
-                    catch (System.Exception)
-                    {
-                        transaction.Rollback();
-                        continue;
+                        ExecuteNonQuery(connection, $"UPDATE {type.Name} SET {column.Name}=@{column.Name}", (ref DbCommand dbCommand) => { GenericUtils.AddWithValue(ref dbCommand, "@" + column.Name, GenericFieldTools.GetDefaultValue(column.FieldType, columnAttributes.DefaultValue)); });
                     }
                 }
+            }
+
+            if (hasThePrimaryKeyChanged)
+            {
+                foreach (var primaryKey in columns.GetPrimaryKeys())
+                {
+                    var columnAttributes = (TableColumn) primaryKey.GetCustomAttributes(typeof(TableColumn), true)[0];
+                    var dataType = FieldTools.GetDbTypeString(primaryKey.FieldType, columnAttributes.Length);
+
+                    ExecuteNonQuery(connection, $"ALTER TABLE {type.Name} ALTER COLUMN {primaryKey.Name} {dataType} NOT NULL");
+                }
+
+                var primaryKeyFieldString = columns.GetPrimaryKeys().Select(i => i.Name).Aggregate((a, b) => a + ", " + b);
+                ExecuteNonQuery(connection, $"ALTER TABLE {type.Name} ADD CONSTRAINT pk_{DateTime.Now.Ticks} PRIMARY KEY({primaryKeyFieldString})");
             }
 
             command.Dispose();
@@ -204,10 +209,7 @@ namespace libDatabaseHelper.classes.sqlce
             {
                 var columnAttributes = (TableColumn)column.GetCustomAttributes(typeof(TableColumn), true)[0];
                 variabeDeclarations += (variabeDeclarations == "" ? " " : ", ") + column.Name + " " +
-                                       FieldTools.GetDbTypeString(column.FieldType,
-                                           columnAttributes.IsAutogenerated || columnAttributes.IsUnique ||
-                                           columnAttributes.IsPrimaryKey,
-                                           columnAttributes.Length);
+                                       FieldTools.GetDbTypeString(column.FieldType, columnAttributes.Length);
                 if (GenericFieldTools.IsTypeNumber(column.FieldType) && columnAttributes.IsAutogenerated &&
                     columnAttributes.AutogenrationMethod == null)
                 {
@@ -225,7 +227,7 @@ namespace libDatabaseHelper.classes.sqlce
             }
 
             var createStatement = "CREATE TABLE " + obj.GetType().Name + "(" + variabeDeclarations + primaryVariabeDeclarations + ")";
-            var transaction = connection.BeginTransaction(IsolationLevel.ReadCommitted) as SqlCeTransaction;
+            var transaction = (SqlCeTransaction) connection.BeginTransaction(IsolationLevel.ReadCommitted);
             try
             {
                 command.Transaction = transaction;
@@ -272,7 +274,7 @@ namespace libDatabaseHelper.classes.sqlce
             var command = connection.CreateCommand();
 
             var createStatement = "DROP TABLE " + type.Name;
-            var transaction = connection.BeginTransaction(IsolationLevel.ReadCommitted) as SqlCeTransaction;
+            var transaction = (SqlCeTransaction) connection.BeginTransaction(IsolationLevel.ReadCommitted);
             try
             {
                 command.Transaction = transaction;
@@ -294,7 +296,7 @@ namespace libDatabaseHelper.classes.sqlce
         public override GenericDatabaseEntity[] Select(Type type, Selector[] selectors)
         {
             var obj = GenericDatabaseEntity.GetNonDisposableRefenceObject(type);
-            if (obj == null) return new DatabaseEntity[0];
+            if (obj == null) return new GenericDatabaseEntity[0];
             var result = obj.GetColumns(true);
             if (result == null || result.GetPrimaryKeys() == null || !result.GetPrimaryKeys().Any())
             {
@@ -349,7 +351,7 @@ namespace libDatabaseHelper.classes.sqlce
 
             var selectStatement = "DELETE FROM " + obj.GetType().Name +
                                      (selectors != null && selectors.Any() ? (" WHERE " + whereStatement) : "");
-            var transaction = connection.BeginTransaction(IsolationLevel.ReadCommitted) as SqlCeTransaction;
+            var transaction = (SqlCeTransaction) connection.BeginTransaction(IsolationLevel.ReadCommitted);
 
             try
             {
@@ -397,7 +399,6 @@ namespace libDatabaseHelper.classes.sqlce
             command.CommandText = commandString + (whereQuery != "" ? (" WHERE " + whereQuery) : "");
 
             var reader = command.ExecuteReader();
-
             var fieldInfos = obj.GetColumns(true).GetOtherColumns().Where(i => ((TableColumn)i.GetCustomAttributes(typeof(TableColumn), true)[0]).IsRetrievableFromDatabase).ToArray();
 
             table.Rows.Clear();
@@ -425,10 +426,12 @@ namespace libDatabaseHelper.classes.sqlce
             }
 
             frmLoadingDialog.ShowWindow();
+
             do
             {
                 if (frmLoadingDialog.GetStatus())
                     break;
+
                 var row = table.Rows.Add();
                 for (var i = 0; i < table.Columns.Count; i++)
                 {
@@ -442,13 +445,72 @@ namespace libDatabaseHelper.classes.sqlce
                         else
                             row[i] = reader[i];
                     }
-                    catch { }
+                    catch { /* IGNORED */ }
                 }
             }
             while (reader.Read());
             reader.Close();
             frmLoadingDialog.HideWindow();
             command.Dispose();
+        }
+
+        public override PrimaryKeyConstraintDetails GetPrimaryKeyDetails(Type type)
+        {
+            var command = GenericConnectionManager.GetConnectionManager(GetSupportedDatabase()).GetConnection(type).CreateCommand();
+            var commandString = $"SELECT INDEX_NAME, COLUMN_NAME FROM INFORMATION_SCHEMA.INDEXES WHERE PRIMARY_KEY = 1 AND TABLE_NAME = '{type.Name}'";
+
+            command.CommandText = commandString;
+
+            var reader = command.ExecuteReader();
+            var primaryKeysPerConstraint = new Dictionary<string, List<string>>();
+
+            try
+            {
+                while (reader.Read())
+                {
+                    try
+                    {
+                        var constraintName = reader.GetString(0);
+                        var fieldName = reader.GetString(1).ToLower();
+
+                        if (primaryKeysPerConstraint.ContainsKey(constraintName) == false) primaryKeysPerConstraint.Add(constraintName, new List<string>());
+
+                        primaryKeysPerConstraint[constraintName].Add(fieldName);
+                    }
+                    catch { /* IGNORED */ }
+                }
+            }
+            catch { /* IGNORED */ }
+
+            reader.Close();
+
+            if (primaryKeysPerConstraint.Any() == false) return null;
+            if (primaryKeysPerConstraint.Count > 1) throw new InvalidDataException($"Due to some reason the table '{type.Name}' has more than 1 primary key.");
+
+            var firstEntry = primaryKeysPerConstraint.First();
+            return new PrimaryKeyConstraintDetails(firstEntry.Key, firstEntry.Value.ToArray());
+        }
+
+        public override string[] GetTableFields(Type type)
+        {
+            var connection = GenericConnectionManager.GetConnectionManager(GetSupportedDatabase()).GetConnection(type);
+            var command = connection.CreateCommand();
+
+            command.CommandText = $"SELECT COLUMN_NAME, DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='{type.Name}'";
+
+            var reader = command.ExecuteReader();
+            var columns = new List<string>();
+
+            while (reader.Read())
+            {
+                var columnName = reader.GetString(0).ToLower();
+                columns.Add(columnName);
+            }
+
+            reader.Close();
+            command.Dispose();
+
+            return columns.ToArray();
         }
     }
 }

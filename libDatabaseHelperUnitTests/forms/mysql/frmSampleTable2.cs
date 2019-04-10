@@ -13,9 +13,9 @@ using libDatabaseHelperUnitTests.mysql;
 
 namespace libDatabaseHelperUnitTests.forms.mysql
 {
-    public partial class frmSampleTable2 : DatabaseEntityForm
+    public partial class FrmSampleTable2 : DatabaseEntityForm
     {
-        public frmSampleTable2()
+        public FrmSampleTable2()
         {
             InitializeComponent();
 

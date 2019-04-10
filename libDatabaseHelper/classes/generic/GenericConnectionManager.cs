@@ -187,7 +187,7 @@ namespace libDatabaseHelper.classes.generic
                             return;
                         }
                     }
-                    catch { Console.WriteLine(""); }
+                    catch { /* IGNORED */ }
                 }
 
                 try
@@ -207,7 +207,7 @@ namespace libDatabaseHelper.classes.generic
                         connectionData.Update();
                     }
                 }
-                catch (System.Exception ex) { Console.WriteLine(ex.Message); }
+                catch (System.Exception ex) { /* IGNORED */ }
             }
         }
         #endregion

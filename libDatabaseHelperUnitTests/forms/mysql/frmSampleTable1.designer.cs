@@ -2,7 +2,7 @@ using libDatabaseHelper.classes.generic;
 
 namespace libDatabaseHelperUnitTests.forms.mysql
 {
-    partial class frmSampleTable1
+    partial class FrmSampleTable1
     {
         /// <summary>
         /// Required designer variable.
@@ -98,7 +98,7 @@ this.lblColumn2.Text = "Column 2";
             this.Controls.Add(this.btnReset);
             this.Controls.Add(this.btnOK);
             this.Controls.Add(this.btnCancel);
-            this.Name = "frmSampleTable1";
+            this.Name = "FrmSampleTable1";
             this.Text = "Form1";
             this.pnlControlContainer.ResumeLayout(false);
             this.pnlControlContainer.PerformLayout();

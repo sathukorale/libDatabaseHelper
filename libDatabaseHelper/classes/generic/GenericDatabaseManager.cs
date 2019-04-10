@@ -319,9 +319,8 @@ namespace libDatabaseHelper.classes.generic
                     }
                 }
             }
-            catch
-            {
-            }
+            catch { /* IGNORED */ }
+
             reader.Close();
             return list.ToArray();
         }
@@ -484,9 +483,9 @@ namespace libDatabaseHelper.classes.generic
             {
                 try
                 {
-                    (GenericConnectionManager.GetConnectionManager(DatabaseType.SqlCE) as libDatabaseHelper.classes.sqlce.ConnectionManager).LoadConnectionData();
+                    (GenericConnectionManager.GetConnectionManager(DatabaseType.SqlCE) as sqlce.ConnectionManager)?.LoadConnectionData();
                 }
-                catch {}
+                catch { /* IGNORED */ }
             }
         }
 
@@ -502,6 +501,38 @@ namespace libDatabaseHelper.classes.generic
         public static void UnregisterAllDatabaseManagers()
         {
             _registeredDatabaseManagers.Clear();
+        }
+
+        public PrimaryKeyConstraintDetails GetPrimaryKeyDetails<T>()
+        {
+            return GetPrimaryKeyDetails(typeof(T));
+        }
+
+        public string[] GetTableFields<T>()
+        {
+            return GetTableFields(typeof(T));
+        }
+
+        public virtual PrimaryKeyConstraintDetails GetPrimaryKeyDetails(Type t)
+        {
+            throw new NotImplementedException("The 'GetPrimaryKeyDetails' should be implemented by the corresponding per database type 'DatabaseManager'.");
+        }
+
+        public virtual string[] GetTableFields(Type type)
+        {
+            throw new NotImplementedException("The 'GetTableFields' method should be implemented on the corresponding per-database type 'DatabaseManager'.s");
+        }
+
+        public class PrimaryKeyConstraintDetails
+        {
+            public readonly string ConstraintName;
+            public readonly string[] PrimaryKeyFields;
+
+            public PrimaryKeyConstraintDetails(string constraintName, string[] primaryKeyFields)
+            {
+                ConstraintName = constraintName;
+                PrimaryKeyFields = primaryKeyFields;
+            }
         }
     }
 }
