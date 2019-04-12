@@ -326,70 +326,77 @@ namespace libDatabaseHelper.classes.mysql
             if (obj == null)
                 return;
 
-            var commandString = DatabaseEntity.GetSelectCommandString(type);
-            var whereQuery = "";
-            var command = GenericConnectionManager.GetConnectionManager(GetSupportedDatabase()).GetConnection(type).CreateCommand();
-
-            if (selectors != null && selectors.Any())
+            using (var command = GenericConnectionManager.GetConnectionManager(GetSupportedDatabase()).GetConnection(type).CreateCommand())
             {
-                whereQuery = selectors.Aggregate(whereQuery, (current, selector) => current + ((current == "" ? "" : " AND ") + selector.SetToCommand(ref command)));
-            }
+                var commandString = DatabaseEntity.GetSelectCommandString(type);
+                var whereQuery = "";
 
-            command.CommandText = commandString + (whereQuery != "" ? (" WHERE " + whereQuery) : "") + (limit > 0 ? (" LIMIT " + limit) : "");
-
-            var reader = command.ExecuteReader();
-
-            var fieldInfos = obj.GetColumns(true).GetOtherColumns().Where(i => ((TableColumn)i.GetCustomAttributes(typeof(TableColumn), true)[0]).IsRetrievableFromDatabase).ToArray();
-
-            table.Rows.Clear();
-            table.Columns.Clear();
-
-            var translators = new List<ITranslator>();
-
-            foreach (var fieldInfo in fieldInfos)
-            {
-                var cInfo = ((TableColumn)fieldInfo.GetCustomAttributes(typeof(TableColumn), true)[0]);
-                if (fieldInfo.FieldType == typeof(bool))
-                    table.Columns.Add(cInfo.GridDisplayName ?? fieldInfo.Name, typeof(bool));
-                else
-                    table.Columns.Add(cInfo.GridDisplayName ?? fieldInfo.Name);
-
-                var translator = cInfo.TranslatorType == null ? null : TranslatorRegistry.Instance.Get(cInfo.TranslatorType);
-                translators.Add(translator);
-            }
-
-            if (!reader.Read())
-            {
-                try { reader.Close(); } catch { /* IGNORED */ }
-                command.Dispose();
-                return;
-            }
-
-            frmLoadingDialog.ShowWindow();
-            do
-            {
-                if (frmLoadingDialog.GetStatus())
-                    break;
-                var row = table.Rows.Add();
-                for (var i = 0; i < table.Columns.Count; i++)
+                if (selectors != null && selectors.Any())
                 {
-                    try
+                    whereQuery = selectors.Aggregate(whereQuery, (current, selector) =>
                     {
-                        if (translators[i] != null)
-                        {
-                            var value = reader[i];
-                            row[i] = (translators.Count > i && i >= 0) ? translators[i].ToTranslated(value) : value.ToString();
-                        }
-                        else
-                            row[i] = reader[i];
-                    }
-                    catch { }
+                        var dbCommand = command;
+                        return current + ((current == "" ? "" : " AND ") + selector.SetToCommand(ref dbCommand));
+                    });
                 }
+
+                command.CommandText = commandString + (whereQuery != "" ? (" WHERE " + whereQuery) : "") + (limit > 0 ? (" LIMIT " + limit) : "");
+
+                var reader = command.ExecuteReader();
+
+                var fieldInfos = obj.GetColumns(true).GetOtherColumns().Where(i => ((TableColumn)i.GetCustomAttributes(typeof(TableColumn), true)[0]).IsRetrievableFromDatabase).ToArray();
+
+                table.Rows.Clear();
+                table.Columns.Clear();
+
+                var translators = new List<ITranslator>();
+
+                foreach (var fieldInfo in fieldInfos)
+                {
+                    var cInfo = ((TableColumn)fieldInfo.GetCustomAttributes(typeof(TableColumn), true)[0]);
+                    if (fieldInfo.FieldType == typeof(bool))
+                        table.Columns.Add(cInfo.GridDisplayName ?? fieldInfo.Name, typeof(bool));
+                    else
+                        table.Columns.Add(cInfo.GridDisplayName ?? fieldInfo.Name);
+
+                    var translator = cInfo.TranslatorType == null ? null : TranslatorRegistry.Instance.Get(cInfo.TranslatorType);
+                    translators.Add(translator);
+                }
+
+                if (!reader.Read())
+                {
+                    reader.Close();
+                    return;
+                }
+
+                frmLoadingDialog.ShowWindow();
+
+                do
+                {
+                    if (frmLoadingDialog.GetStatus())
+                        break;
+
+                    var row = table.Rows.Add();
+                    for (var i = 0; i < table.Columns.Count; i++)
+                    {
+                        try
+                        {
+                            if (translators[i] != null)
+                            {
+                                var value = reader[i];
+                                row[i] = (translators.Count > i && i >= 0) ? translators[i].ToTranslated(value) : value.ToString();
+                            }
+                            else
+                                row[i] = reader[i];
+                        }
+                        catch { /* IGNORED */ }
+                    }
+                }
+                while (reader.Read());
+
+                reader.Close();
+                frmLoadingDialog.HideWindow();
             }
-            while (reader.Read());
-            try { reader.Close(); } catch { /* IGNORED */ }
-            frmLoadingDialog.HideWindow();
-            command.Dispose();
         }
 
         public override PrimaryKeyConstraintDetails GetPrimaryKeyDetails(Type type)
