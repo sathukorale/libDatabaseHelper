@@ -97,30 +97,26 @@ namespace libDatabaseHelper.classes.generic
 
         public static void AddToolTip(Control control, string toolTip, ToolTipIcon icon)
         {
-            var form = GetParentForm(control);
-            if (form == null)
-            {
-                return;
-            }
-
             ToolTip toolTipElement = null;
-            if (_createdToolTips.ContainsKey(form.Handle))
+            if (_createdToolTips.ContainsKey(control.Handle))
             {
-                toolTipElement = _createdToolTips[form.Handle];
+                toolTipElement = _createdToolTips[control.Handle];
             }
             else
             {
-                toolTipElement = new ToolTip();
-                toolTipElement.Active = true;
-                toolTipElement.AutomaticDelay = 0;
-                toolTipElement.AutoPopDelay = 10000;
-                toolTipElement.IsBalloon = false;
-                toolTipElement.ShowAlways = true;
-                toolTipElement.UseAnimation = false;
-                toolTipElement.ReshowDelay = 0;
-                toolTipElement.ToolTipIcon = icon;
+                toolTipElement = new ToolTip
+                {
+                    Active = true,
+                    AutomaticDelay = 0,
+                    AutoPopDelay = 10000,
+                    IsBalloon = false,
+                    ShowAlways = true,
+                    UseAnimation = false,
+                    ReshowDelay = 0,
+                    ToolTipIcon = icon
+                };
 
-                _createdToolTips.Add(form.Handle, toolTipElement);
+                _createdToolTips.Add(control.Handle, toolTipElement);
             }
 
             toolTipElement.SetToolTip(control, toolTip);
@@ -132,6 +128,7 @@ namespace libDatabaseHelper.classes.generic
             {
                 control = control.Parent;
             }
+
             return control as Form;
         }
 
@@ -170,7 +167,7 @@ namespace libDatabaseHelper.classes.generic
                 {
                     foreach (var key in _sensibleKeys[control].key)
                     {
-                        if (key == e.KeyCode)
+                        if (key == e.KeyData)
                         {
                             _sensibleKeys[control_sent].method(e.KeyCode);
                         }
