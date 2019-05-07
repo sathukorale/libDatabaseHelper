@@ -6,7 +6,10 @@ namespace libDatabaseHelper.classes.generic
     public class TranslatorRegistry
     {
         private static TranslatorRegistry _instance = null;
-        public static TranslatorRegistry Instance => _instance ?? (_instance = new TranslatorRegistry());
+        public static TranslatorRegistry Instance
+        {
+            get { return _instance ?? (_instance = new TranslatorRegistry()); }
+        }
         
         private readonly Dictionary<Type, ITranslator> _translatorRegistry = new Dictionary<Type, ITranslator>();
 
