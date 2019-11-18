@@ -51,7 +51,7 @@ namespace DatabaseEntityFormCreator
 
                 foreach (var type in matchingTypes)
                 {
-                    var instance = GenericDatabaseEntity.GetNonDisposableRefenceObject(type);
+                    var instance = GenericDatabaseEntity.GetNonDisposableReferenceObject(type);
 
                     if (instance == null) continue;
 
