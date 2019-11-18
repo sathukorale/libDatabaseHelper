@@ -65,7 +65,13 @@ namespace libDatabaseHelper.forms.controls
             cntxSearchFilters.Items.AddRange(filteredColumnsSimpleSearch);
             cntxAdvancedSearchFilters.Items.AddRange(filteredColumnsAdvancedSearch);
 
-            var filterSettings = GenericDatabaseManager.GetDatabaseManager(DatabaseType.SqlCE).Select<SearchFilterSettings>(new Selector[] { new Selector("ClassName", classType.FullName) });
+            var databaseManager = GenericDatabaseManager.GetDatabaseManager(DatabaseType.SqlCE);
+            if (databaseManager == null)
+            {
+                throw new Exception("Failed to obtain the default SQL CE database. The application may not have been initialized correctly.");
+            }
+
+            var filterSettings = databaseManager.Select<SearchFilterSettings>(new Selector[] { new Selector("ClassName", classType.FullName) });
             if (filterSettings.Any())
             {
                 FilterSettings = (SearchFilterSettings) filterSettings.First();

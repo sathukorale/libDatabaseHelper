@@ -36,6 +36,8 @@ namespace libDatabaseHelper.classes.generic
 
     public class GenericDatabaseManager
     {
+        private const string DatabaseEntityDataTableColumnName = "libDatabaseHelper-entity-obj"; // Hidden Data Column Name
+
         private static Dictionary<DatabaseType, GenericDatabaseManager> _registeredDatabaseManagers = new Dictionary<DatabaseType, GenericDatabaseManager>();
 
         public delegate void BulkDelete(Type type, Selector[] selectors); 
@@ -273,15 +275,13 @@ namespace libDatabaseHelper.classes.generic
                 catch { /* IGNORED */ }
             }
 
-            const string hdcn = "libDatabaseHelper-entity-obj"; // Hidden Data Column Name
-
             if (shouldAddColumns)
             {
-                table.Columns.Add(hdcn, typeof(GenericDatabaseEntity));
-                table.Columns[hdcn].ColumnMapping = MappingType.Hidden;
+                table.Columns.Add(DatabaseEntityDataTableColumnName, typeof(GenericDatabaseEntity));
+                table.Columns[DatabaseEntityDataTableColumnName].ColumnMapping = MappingType.Hidden;
             }
 
-            var entries = table.Rows.OfType<DataRow>().Select((row) => new KeyValuePair<GenericDatabaseEntity, DataRow>(row[hdcn] as GenericDatabaseEntity, row)).ToDictionary(i => i.Key, i => i.Value);
+            var entries = table.Rows.OfType<DataRow>().Select((row) => new KeyValuePair<GenericDatabaseEntity, DataRow>(row[DatabaseEntityDataTableColumnName] as GenericDatabaseEntity, row)).ToDictionary(i => i.Key, i => i.Value);
             var entriesToRemove = entries.Where(i => collection.Contains(i.Key) == false).Select(i => i.Value);
 
             foreach (var item in collection)
@@ -311,7 +311,7 @@ namespace libDatabaseHelper.classes.generic
                     fieldIndex++;
                 }
 
-                row[hdcn] = item;
+                row[DatabaseEntityDataTableColumnName] = item;
             }
 
             foreach (var row in entriesToRemove) table.Rows.Remove(row);
@@ -643,13 +643,14 @@ namespace libDatabaseHelper.classes.generic
 
         internal static List<GenericDatabaseEntity> FindMatchingEntities(List<GenericDatabaseEntity> list, Selector[] selectors)
         {
-            Regex regexFilter = null;
+            var regexFilters = new List<Regex>();
             var collected = new List<GenericDatabaseEntity>();
             for (int i = 0; i < list.Count; i++)
             {
                 var entity = list[i];
-
                 var isEntityValid = true;
+                var regexIndex = 0;
+
                 foreach (var selector in selectors)
                 {
                     if (selector.OpeartorType == Selector.Operator.Equal)
@@ -688,14 +689,18 @@ namespace libDatabaseHelper.classes.generic
                     else if (selector.OpeartorType == Selector.Operator.Like)
                     {
                         var strFieldValue = entity.GetFieldValue(selector.Field).ToString();
+                        var regexFilter = (regexFilters.Count <= regexIndex) ? null : regexFilters[regexIndex];
 
                         if (regexFilter == null)
                         {
                             var strSentFilter = selector.FieldValue1.ToString();
                             regexFilter = new Regex(Regex.Escape(strSentFilter).Replace("%", "(.*)"));
+
+                            regexFilters.Add(regexFilter);
                         }
 
-                        isEntityValid = regexFilter.IsMatch(strFieldValue);
+                        isEntityValid &= regexFilter.IsMatch(strFieldValue);
+                        regexIndex++;
                     }
                 }
 
@@ -806,6 +811,17 @@ namespace libDatabaseHelper.classes.generic
         public virtual string[] GetTableFields(Type type)
         {
             throw new NotImplementedException("The 'GetTableFields' method should be implemented on the corresponding per-database type 'DatabaseManager'.s");
+        }
+
+        public static T GetDatabaseEntityFromDataTable<T>(DataTable table, int rowIndex) where T : GenericDatabaseEntity
+        {
+            if (table.Rows.Count <= rowIndex) throw new ArgumentOutOfRangeException("The DataTable only has '" + table.Rows.Count + "' row(s). Thus unable to fetch row by the index '" + rowIndex + "'.");
+            return GetDatabaseEntityFromDataTable<T>(table.Rows[rowIndex]);
+        }
+
+        public static T GetDatabaseEntityFromDataTable<T>(DataRow row) where T : GenericDatabaseEntity
+        {
+            return row[DatabaseEntityDataTableColumnName] as T;
         }
 
         public class PrimaryKeyConstraintDetails
