@@ -63,7 +63,7 @@ namespace libDatabaseHelper.classes.sqlce
 
         public override bool TableExist(Type type)
         {
-            var entity = GenericDatabaseEntity.GetNonDisposableRefenceObject(type);
+            var entity = GenericDatabaseEntity.GetNonDisposableReferenceObject(type);
             if (entity == null)
                 return false;
 
@@ -178,7 +178,7 @@ namespace libDatabaseHelper.classes.sqlce
 
         public override bool CreateTable(Type type)
         {
-            var obj = GenericDatabaseEntity.GetNonDisposableRefenceObject(type);
+            var obj = GenericDatabaseEntity.GetNonDisposableReferenceObject(type);
             if (obj == null)
             {
                 return false;
@@ -265,7 +265,7 @@ namespace libDatabaseHelper.classes.sqlce
 
         public override bool DropTable(Type type)
         {
-            var obj = GenericDatabaseEntity.GetNonDisposableRefenceObject(type);
+            var obj = GenericDatabaseEntity.GetNonDisposableReferenceObject(type);
             if (obj == null)
             {
                 return false;
@@ -314,7 +314,7 @@ namespace libDatabaseHelper.classes.sqlce
 
         public override GenericDatabaseEntity[] Select(Type type, Selector[] selectors)
         {
-            var obj = GenericDatabaseEntity.GetNonDisposableRefenceObject(type);
+            var obj = GenericDatabaseEntity.GetNonDisposableReferenceObject(type);
             if (obj == null) return new GenericDatabaseEntity[0];
 
             var result = obj.GetColumns(true);
@@ -354,7 +354,7 @@ namespace libDatabaseHelper.classes.sqlce
 
         public override bool DeleteMatching(Type type, Selector[] selectors)
         {
-            var obj = GenericDatabaseEntity.GetNonDisposableRefenceObject(type);
+            var obj = GenericDatabaseEntity.GetNonDisposableReferenceObject(type);
             if (obj == null) return false;
             var result = obj.GetColumns(true);
 
@@ -405,7 +405,7 @@ namespace libDatabaseHelper.classes.sqlce
 
         public override void FillDataTable(Type type, ref DataTable table, Selector[] selectors, int limit)
         {
-            var obj = GenericDatabaseEntity.GetNonDisposableRefenceObject(type);
+            var obj = GenericDatabaseEntity.GetNonDisposableReferenceObject(type);
             if (obj == null)
                 return;
 

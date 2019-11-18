@@ -21,12 +21,13 @@ namespace libDatabaseHelper.forms
         private bool _isUpdated;
         private Selector[] _selectors;
         private Type _currentType = null;
+        private DatabaseEntity _selectedItem;
 
         private DatabaseEntityViewer()
         {
             InitializeComponent();
             FormUtils.MakeControlAndSubControlsSensitiveToKey(this, new[] { Keys.Escape }, o => { Close(); return true; });
-            DatabaseEntity.OnDatabaseEntityUpdated += DatabaseEntity_OnDatabaseEntityUpdated;
+            GenericDatabaseEntity.OnDatabaseEntityUpdated += DatabaseEntity_OnDatabaseEntityUpdated;
         }
 
         private void DatabaseEntity_OnDatabaseEntityUpdated(GenericDatabaseEntity updatedEntity, Type type, GenericDatabaseEntity.UpdateEventType event_type)
@@ -52,10 +53,7 @@ namespace libDatabaseHelper.forms
 
         public DatabaseEntity GetSelectedItem()
         {
-            if (dgvDatabaseEntities.SelectedRows.Count <= 0)
-                return null;
-
-            return dgvDatabaseEntities.SelectedRows[0].Tag as DatabaseEntity;
+            return _selectedItem;
         }
 
         public void ViewItems<T>(Selector[] selectors, IWin32Window owner = null)
@@ -94,8 +92,11 @@ namespace libDatabaseHelper.forms
             if (presentedForm == null || presentedForm.IsDisposed)
                 presentedForm = new DatabaseEntityViewer();
             _presentedForms[type] = presentedForm;
+
+            presentedForm.InitAsSelectorDialog();
             presentedForm.ViewItems(type, selectors);
             presentedForm.ShowDialog();
+
             return presentedForm.GetSelectedItem();
         }
 
@@ -107,6 +108,7 @@ namespace libDatabaseHelper.forms
             _isUpdated = false;
             _currentType = type;
             _selectors = selectors;
+            _selectedItem = null;
             var typeName = _currentType.Name;
             try
             {
@@ -126,11 +128,21 @@ namespace libDatabaseHelper.forms
             btnAddDatabaseEntity.Enabled = _registeredEditorTypes.ContainsKey(type);
             btnCopyEntity.Enabled = _registeredEditorTypes.ContainsKey(type);
 
-            var instance = GenericDatabaseEntity.GetNonDisposableRefenceObject(type);
+            var instance = GenericDatabaseEntity.GetNonDisposableReferenceObject(type);
             if (instance != null)
             {
                 GenericDatabaseManager.GetDatabaseManager(instance.GetSupportedDatabaseType()).FillDataGridViewAsItems(_currentType, ref dgvDatabaseEntities, selectors);
             }
+        }
+
+        private void InitAsSelectorDialog()
+        {
+            btnClose.Text = @"Select";
+        }
+
+        private void InitAsRegularDialog()
+        {
+            btnClose.Text = @"Close";
         }
 
         public static void ShowWindow(Type type, Selector[] selectors, IWin32Window owner = null)
@@ -140,6 +152,8 @@ namespace libDatabaseHelper.forms
                 presentedForm = new DatabaseEntityViewer();
             _presentedForms[type] = presentedForm;
             presentedForm.ShowInTaskbar = owner == null;
+
+            presentedForm.InitAsRegularDialog();
             presentedForm.ViewItems(type, selectors);
             presentedForm.ShowDialog(owner);
         }
@@ -150,7 +164,9 @@ namespace libDatabaseHelper.forms
             if (presentedForm == null || presentedForm.IsDisposed)
                 presentedForm = new DatabaseEntityViewer();
             _presentedForms[type] = presentedForm;
+
             presentedForm.ShowInTaskbar = owner == null;
+            presentedForm.InitAsRegularDialog();
             presentedForm.ViewItems(type, selectors);
             presentedForm.Show(owner);
             return presentedForm;
@@ -162,7 +178,9 @@ namespace libDatabaseHelper.forms
             if (presentedForm == null || presentedForm.IsDisposed)
                 presentedForm = new DatabaseEntityViewer();
             _presentedForms[type] = presentedForm;
+
             presentedForm.ShowInTaskbar = owner == null;
+            presentedForm.InitAsRegularDialog();
             presentedForm.ViewItems(type, selectors);
             presentedForm.ShowDialog(owner);
             return presentedForm.GetItems();
@@ -306,6 +324,7 @@ namespace libDatabaseHelper.forms
 
         private void btnClose_Click(object sender, EventArgs e)
         {
+            _selectedItem = dgvDatabaseEntities.SelectedRows[0].Tag as DatabaseEntity;
             Close();
         }
 

@@ -57,6 +57,7 @@ namespace libDatabaseHelper.classes.generic
             {
                 return _entitiesPerType[type];
             }
+
             return FindMatchingEntities(type, selectors);
         }
         #endregion
@@ -88,11 +89,11 @@ namespace libDatabaseHelper.classes.generic
             if (!_entitiesPerType.ContainsKey(type))
                 return;
 
-            if (event_type == DatabaseEntity.UpdateEventType.Add)
+            if (event_type == GenericDatabaseEntity.UpdateEventType.Add)
             {
                 _entitiesPerType[type].Add(updatedEntity);
             }
-            else if (event_type == DatabaseEntity.UpdateEventType.Remove)
+            else if (event_type == GenericDatabaseEntity.UpdateEventType.Remove)
             {
                 _entitiesPerType[type].RemoveAll(i => i.Equals(updatedEntity));
             }
@@ -125,68 +126,7 @@ namespace libDatabaseHelper.classes.generic
         private static List<GenericDatabaseEntity> FindMatchingEntities(Type type, Selector[] selectors)
         {
             var list = _entitiesPerType[type];
-            Regex regexFilter = null;
-            var collected = new List<GenericDatabaseEntity>();
-            for (int i = 0; i < list.Count; i++)
-            {
-                var entity = list[i];
-
-                bool is_entity_valid = true;
-                foreach (var selector in selectors)
-                {
-                    if (selector.OpeartorType == Selector.Operator.Equal)
-                    {
-                        if (!entity.GetFieldValue(selector.Field).Equals(selector.FieldValue1))
-                        {
-                            is_entity_valid = false;
-                        }
-                    }
-                    else if (selector.OpeartorType == Selector.Operator.LessThan)
-                    {
-                        var present_val = entity.GetFieldValue(selector.Field);
-                        var sent_val = selector.FieldValue1;
-                        if (GenericFieldTools.Compare(present_val, sent_val) != -1)
-                        {
-                            is_entity_valid = false;
-                        }
-                    }
-                    else if (selector.OpeartorType == Selector.Operator.MoreThan)
-                    {
-                        var present_val = entity.GetFieldValue(selector.Field);
-                        var sent_val = selector.FieldValue1;
-                        if (GenericFieldTools.Compare(present_val, sent_val) != 1)
-                        {
-                            is_entity_valid = false;
-                        }
-                    }
-                    else if (selector.OpeartorType == Selector.Operator.Between)
-                    {
-                        var present_val = entity.GetFieldValue(selector.Field);
-                        if (GenericFieldTools.Compare(present_val, selector.FieldValue1) != 1 && GenericFieldTools.Compare(present_val, selector.FieldValue2) != -1)
-                        {
-                            is_entity_valid = false;
-                        }
-                    }
-                    else if (selector.OpeartorType == Selector.Operator.Like)
-                    {
-                        var str_field_value = entity.GetFieldValue(selector.Field).ToString();
-
-                        if (regexFilter == null)
-                        {
-                            var strSentFilter = selector.FieldValue1.ToString();
-                            regexFilter = new Regex(Regex.Escape(strSentFilter).Replace("%", "(.*)"));
-                        }
-
-                        is_entity_valid = regexFilter.IsMatch(str_field_value);
-                    }
-                }
-
-                if (is_entity_valid)
-                {
-                    collected.Add(entity);
-                }
-            }
-            return collected;
+            return GenericDatabaseManager.FindMatchingEntities(list, selectors);
         }
         #endregion
 
@@ -206,7 +146,7 @@ namespace libDatabaseHelper.classes.generic
             if (_entitiesPerType.ContainsKey(t)) return;
 
             var allCurrentEntities = new List<GenericDatabaseEntity>();
-            var referenceEntity = GenericDatabaseEntity.GetNonDisposableRefenceObject(t);
+            var referenceEntity = GenericDatabaseEntity.GetNonDisposableReferenceObject(t);
 
             if (referenceEntity == null) return;
 
@@ -230,7 +170,7 @@ namespace libDatabaseHelper.classes.generic
             worker.DoWork += (sender, e) =>
             {
                 var type = (Type)e.Argument;
-                var tmpInstance = GenericDatabaseEntity.GetNonDisposableRefenceObject(typeof(T));
+                var tmpInstance = GenericDatabaseEntity.GetNonDisposableReferenceObject(typeof(T));
 
                 if (_entitiesPerType.ContainsKey(type)) return;
                 if (tmpInstance == null) return;

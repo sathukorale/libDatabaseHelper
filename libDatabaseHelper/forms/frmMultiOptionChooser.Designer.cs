@@ -37,7 +37,7 @@
             // btnCancel
             // 
             this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnCancel.Location = new System.Drawing.Point(293, 353);
+            this.btnCancel.Location = new System.Drawing.Point(264, 334);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 26);
             this.btnCancel.TabIndex = 0;
@@ -48,7 +48,7 @@
             // btnOK
             // 
             this.btnOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnOK.Location = new System.Drawing.Point(212, 353);
+            this.btnOK.Location = new System.Drawing.Point(183, 334);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(75, 26);
             this.btnOK.TabIndex = 0;
@@ -61,10 +61,11 @@
             this.lstOptions.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.lstOptions.CheckOnClick = true;
             this.lstOptions.FormattingEnabled = true;
             this.lstOptions.Location = new System.Drawing.Point(13, 58);
             this.lstOptions.Name = "lstOptions";
-            this.lstOptions.Size = new System.Drawing.Size(355, 284);
+            this.lstOptions.Size = new System.Drawing.Size(326, 264);
             this.lstOptions.TabIndex = 1;
             this.lstOptions.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.lstOptions_ItemCheck);
             // 
@@ -72,17 +73,19 @@
             // 
             this.lblDescription.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblDescription.AutoEllipsis = true;
             this.lblDescription.Location = new System.Drawing.Point(13, 13);
             this.lblDescription.Name = "lblDescription";
-            this.lblDescription.Size = new System.Drawing.Size(355, 42);
+            this.lblDescription.Size = new System.Drawing.Size(326, 42);
             this.lblDescription.TabIndex = 2;
-            this.lblDescription.Text = "<This is the sample description>";
+            this.lblDescription.Text = "This is a sample description. And this is the second line in that. And this is th" +
+    "e third. Why no the 4th as well. Hopefully everything goes well.";
             // 
             // frmMultiOptionChooser
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(380, 391);
+            this.ClientSize = new System.Drawing.Size(351, 372);
             this.ControlBox = false;
             this.Controls.Add(this.lblDescription);
             this.Controls.Add(this.lstOptions);

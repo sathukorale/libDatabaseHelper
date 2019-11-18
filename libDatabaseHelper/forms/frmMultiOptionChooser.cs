@@ -13,18 +13,22 @@ namespace libDatabaseHelper.forms
     {
         private static string[] _selectedOptions = null;
         private static string[] _disabledOptions = null;
+        private static bool _enableMultipleChoices = false;
+
         private frmMultiOptionChooser()
         {
             InitializeComponent();
         }
 
-        private void Setup(string title, string description, string[] options, string[] selectedOptions = null, string[] disabledOptions = null, bool cancellable = true)
+        private void Setup(string title, string description, string[] options, string[] selectedOptions = null, string[] disabledOptions = null, bool cancellable = true, bool enableMultipleChoices = false)
         {
             Text = title;
             lblDescription.Text = description;
             btnCancel.Enabled = cancellable;
+
             _selectedOptions = selectedOptions ?? new string[0];
             _disabledOptions = disabledOptions ?? new string[0];
+            _enableMultipleChoices = enableMultipleChoices;
 
             lstOptions.Items.Clear();
             lstOptions.Items.AddRange(options);
@@ -56,10 +60,10 @@ namespace libDatabaseHelper.forms
             }
         }
 
-        public static string[] ShowWindow(string title, string description, string[] options, string[] selectedOptions = null, string[] disabledOptions = null, bool cancellable = true, IWin32Window owner = null)
+        public static string[] ShowWindow(string title, string description, string[] options, string[] selectedOptions = null, string[] disabledOptions = null, bool cancellable = true, bool enableMultipleChoices = false, IWin32Window owner = null)
         {
             var presentedDialog = new frmMultiOptionChooser();
-            presentedDialog.Setup(title, description, options, selectedOptions, disabledOptions, cancellable);
+            presentedDialog.Setup(title, description, options, selectedOptions, disabledOptions, cancellable, enableMultipleChoices);
             presentedDialog.ShowDialog();
             presentedDialog.Close();
 
@@ -83,6 +87,16 @@ namespace libDatabaseHelper.forms
             if (e.CurrentValue == CheckState.Indeterminate)
             {
                 e.NewValue = CheckState.Indeterminate;
+            }
+
+            if (_enableMultipleChoices == false)
+            {
+                lstOptions.ItemCheck -= lstOptions_ItemCheck;
+
+                for (int ix = 0; ix < lstOptions.Items.Count; ++ix)
+                    if (ix != e.Index) lstOptions.SetItemChecked(ix, false);
+
+                lstOptions.ItemCheck += lstOptions_ItemCheck;
             }
         }
     }

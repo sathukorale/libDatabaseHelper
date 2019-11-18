@@ -344,6 +344,8 @@ namespace libDatabaseHelper.forms
             if (createNew || LoadedEntity == null)
             {
                 entity = Activator.CreateInstance(_type) as GenericDatabaseEntity;
+                if (entity == null) throw new Exception(string.Format("The type '{0}' isn't a type of 'GenericDatabaseEntity'.", _type.FullName));
+
                 if (LoadedEntity != null)
                 {
                     entity.Set(LoadedEntity, true, false);

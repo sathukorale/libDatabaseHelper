@@ -250,7 +250,7 @@ namespace libDatabaseHelper.classes.sqlce
 
             var cInstanceName = type.Name + "_1";
 
-            var obj = GenericDatabaseEntity.GetNonDisposableRefenceObject(type);
+            var obj = GenericDatabaseEntity.GetNonDisposableReferenceObject(type);
             if (obj == null) return "";
 
             var fields = obj.GetColumns(true).GetOtherColumns().Where(i => ((TableColumn)i.GetCustomAttributes(typeof(TableColumn), true)[0]).IsRetrievableFromDatabase);

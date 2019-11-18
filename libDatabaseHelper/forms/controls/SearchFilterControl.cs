@@ -34,7 +34,7 @@ namespace libDatabaseHelper.forms.controls
 
         protected void ValidateFieldInfo(Type classType, string fieldName)
         {
-            var classInstance = GenericDatabaseEntity.GetNonDisposableRefenceObject(classType);
+            var classInstance = GenericDatabaseEntity.GetNonDisposableReferenceObject(classType);
             if (classInstance == null)
             {
                 throw new Exception("The class type '" + classType.FullName + "' should be derived from 'GenericDatabaseEntity' for it to be used with 'SearchFilterControl'");

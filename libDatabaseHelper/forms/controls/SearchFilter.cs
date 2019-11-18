@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
@@ -24,6 +25,8 @@ namespace libDatabaseHelper.forms.controls
         private int HeightOnSimpleMode;
         private int HeightOnAdvancedMode;
 
+        private Selector[] _previousSearchFilters;
+
         public delegate void SearchEventTriggeredEventHandler(SearchFilter sender, Type classType, Selector[] selectors);
         public event SearchEventTriggeredEventHandler OnSearchEventTriggered;
 
@@ -31,6 +34,8 @@ namespace libDatabaseHelper.forms.controls
         [Description("The DataGridView which is to show the results.")]
         [Browsable(true), EditorBrowsable(EditorBrowsableState.Always)]
         public DataGridView ResultsView { get; set; }
+
+        public ICollection<GenericDatabaseEntity> CustomDataSet { get; set; }
 
         public SearchFilter()
         {
@@ -44,7 +49,7 @@ namespace libDatabaseHelper.forms.controls
 
         public void SetClassType(Type classType)
         {
-            var classInstance = GenericDatabaseEntity.GetNonDisposableRefenceObject(classType);
+            var classInstance = GenericDatabaseEntity.GetNonDisposableReferenceObject(classType);
             if (classInstance == null)
             {
                 throw new Exception("The class type '" + classType.FullName + "' should be derived from 'GenericDatabaseEntity' for it to be used with 'SearchFilterControl'");
@@ -111,6 +116,11 @@ namespace libDatabaseHelper.forms.controls
 
         private void btnSearch_Click(object sender, EventArgs e)
         {
+            Search();
+        }
+
+        public Selector[] GetCurrentSearchFilters()
+        {
             Selector[] selectors = null;
             if (Mode == SearchMode.Simple)
             {
@@ -121,13 +131,35 @@ namespace libDatabaseHelper.forms.controls
                 selectors = flpAdvancedSettings.Controls.OfType<SearchFilterControl>().Select(i => i.GetSearchFilter()).ToArray();
             }
 
-            var instance = GenericDatabaseEntity.GetNonDisposableRefenceObject(ClassType);
+            return selectors;
+        }
+
+        public void Search()
+        {
+            var filters = GetCurrentSearchFilters();
+            UpdateSearchResults(filters);
+        }
+
+        public void UpdateSearchResults()
+        {
+            UpdateSearchResults(_previousSearchFilters);
+        }
+
+        private void UpdateSearchResults(Selector[] searchFilters)
+        {
+            _previousSearchFilters = searchFilters ?? new Selector[0];
+
+            var instance = GenericDatabaseEntity.GetNonDisposableReferenceObject(ClassType);
             if (instance == null) return;
 
-            if (OnSearchEventTriggered != null) OnSearchEventTriggered.Invoke(this, ClassType, selectors);
+            if (OnSearchEventTriggered != null) OnSearchEventTriggered.Invoke(this, ClassType, _previousSearchFilters);
 
             var resultsView = ResultsView;
-            GenericDatabaseManager.GetDatabaseManager(instance.GetSupportedDatabaseType()).FillDataGridViewAsItems(ClassType, ref resultsView, selectors);
+
+            if (CustomDataSet == null)
+                GenericDatabaseManager.GetDatabaseManager(instance.GetSupportedDatabaseType()).FillDataGridViewAsItems(ClassType, ref resultsView, _previousSearchFilters);
+            else
+                GenericDatabaseManager.GetDatabaseManager(instance.GetSupportedDatabaseType()).UpdateDataGridViewAsItems(ref resultsView, CustomDataSet, _previousSearchFilters);
         }
 
         private void btnChangeDefaultFilter_Click(object sender, EventArgs e)
@@ -188,7 +220,7 @@ namespace libDatabaseHelper.forms.controls
 
         private SearchFilterControl GetSearchFilterControl(Type classType, string fieldName)
         {
-            var classInstance = GenericDatabaseEntity.GetNonDisposableRefenceObject(classType);
+            var classInstance = GenericDatabaseEntity.GetNonDisposableReferenceObject(classType);
             if (classInstance == null)
             {
                 throw new Exception("The class type '" + classType.FullName + "' should be derived from 'GenericDatabaseEntity' for it to be used with 'SearchFilterControl'");
@@ -238,6 +270,7 @@ namespace libDatabaseHelper.forms.controls
         {
             Mode = SearchMode.Simple;
             txtMainSearchFilter.Enabled = true;
+            txtMainSearchFilter.ReadOnly = false;
             btnChangeDefaultFilter.Enabled = true;
             Height = HeightOnSimpleMode;
             lnkAdvancedSettings.Text = "Show More Options";
@@ -249,6 +282,7 @@ namespace libDatabaseHelper.forms.controls
         {
             Mode = SearchMode.Advanced;
             txtMainSearchFilter.Enabled = false;
+            txtMainSearchFilter.ReadOnly = true;
             btnChangeDefaultFilter.Enabled = false;
             Height = HeightOnAdvancedMode;
             lnkAdvancedSettings.Text = "Show Less Options";

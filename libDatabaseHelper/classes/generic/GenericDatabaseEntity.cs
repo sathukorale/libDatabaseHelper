@@ -9,13 +9,13 @@ using libDatabaseHelper.forms.controls;
 
 namespace libDatabaseHelper.classes.generic
 {
-    public class FieldInfomation
+    public class FieldInformation
     {
         private List<FieldInfo> AllFields;
         private List<FieldInfo> KeyFields;
         private List<FieldInfo> NonKeyFields;
 
-        public FieldInfomation(List<FieldInfo> allFields)
+        public FieldInformation(List<FieldInfo> allFields)
         {
             AllFields = allFields;
             KeyFields = AllFields.Where(i => 
@@ -73,7 +73,7 @@ namespace libDatabaseHelper.classes.generic
     public class GenericDatabaseEntity
     {
         protected static Dictionary<Type, List<Reference>> referenceMap = new Dictionary<Type, List<Reference>>();
-        protected static Dictionary<Type, FieldInfomation> fieldInfos = new Dictionary<Type, FieldInfomation>();
+        protected static Dictionary<Type, FieldInformation> fieldInfos = new Dictionary<Type, FieldInformation>();
         protected static Dictionary<Type, string> selectCommandStrings = new Dictionary<Type, string>();
         protected static Dictionary<Type, string> insertCommandStrings = new Dictionary<Type, string>();
         protected static Dictionary<Type, string> updateCommandStrings = new Dictionary<Type, string>();
@@ -382,7 +382,7 @@ namespace libDatabaseHelper.classes.generic
         public ColumnResult GetColumns(bool includeAllColumns)
         {
             var contains = fieldInfos.ContainsKey(GetType());
-            var fieldInfomation = contains ? fieldInfos[GetType()] : new FieldInfomation(GetType().GetFields().Where(i => (i.GetCustomAttributes(typeof(TableColumn), true).Count() != 0)).ToList());
+            var fieldInfomation = contains ? fieldInfos[GetType()] : new FieldInformation(GetType().GetFields().Where(i => (i.GetCustomAttributes(typeof(TableColumn), true).Count() != 0)).ToList());
 
             if (contains == false)
             {
@@ -803,7 +803,7 @@ namespace libDatabaseHelper.classes.generic
             return true;
         }
 
-        private void CreateDataGridViewHeader(DataGridView grid)
+        internal void CreateDataGridViewHeader(DataGridView grid)
         {
             var allFields = GetColumns(true);
             if (allFields == null) return;
@@ -822,14 +822,24 @@ namespace libDatabaseHelper.classes.generic
             Application.DoEvents();
         }
 
-        public void AddToDataGridViewRow(DataGridView grid)
+        public bool AddToDataGridViewRow(DataGridView grid)
+        {
+            var index = 0;
+            var entries = grid.Rows.OfType<DataGridViewRow>().Select(i => new KeyValuePair<GenericDatabaseEntity, int>()).ToDictionary(i => i.Key, i => i.Value);
+            if (entries.TryGetValue(this, out index) == false)
+                index = grid.Rows.Add();
+
+            return AddToDataGridViewRow(grid, index);
+        }
+
+        internal bool AddToDataGridViewRow(DataGridView grid, int index)
         {
             var allFields = GetColumns(true);
-            if (allFields == null) return;
+            if (allFields == null) return false;
 
             if (grid.ColumnCount <= 0) CreateDataGridViewHeader(grid);
+            if (index < 0 || index >= grid.Rows.Count) index = grid.Rows.Add();
 
-            var index  = grid.Rows.Add();
             var fields = allFields.GetOtherColumns().Where(i => ((TableColumn)i.GetCustomAttributes(typeof(TableColumn), true)[0]).IsRetrievableFromDatabase);
 
             foreach (var fieldInfo in fields)
@@ -874,15 +884,12 @@ namespace libDatabaseHelper.classes.generic
                 catch
                 {
                     grid.Rows.RemoveAt(index);
-                    index = -1;
-                    break;
+                    return false;
                 }
             }
-
-            if (index >= 0)
-            {
-                grid.Rows[index].Tag = this;
-            }
+            
+            grid.Rows[index].Tag = this;
+            return true;
         }
 
         protected void _OnDatabaseEntityUpdated(GenericDatabaseEntity updatedEntity, Type type, GenericDatabaseEntity.UpdateEventType event_type)
@@ -968,12 +975,29 @@ namespace libDatabaseHelper.classes.generic
             }
         }
 
-        public bool Equals(GenericDatabaseEntity obj)
+        public override int GetHashCode()
         {
+            var columns = GetColumns().GetPrimaryKeys().ToArray();
+            var strHash = GetType().FullName ?? "";
+
+            for (var i = 0; i < columns.Count(); i++)
+            {
+                var value = columns[i].GetValue(this);
+                strHash += "|" + columns[i].Name + "=" + value;
+            }
+
+            return strHash.GetHashCode();
+        }
+
+        public override bool Equals(object objOther)
+        {
+            var obj = objOther as GenericDatabaseEntity;
             if (obj == null)
                 return false;
+
             if (obj.GetType() != GetType())
                 return false;
+
             var columns1 = GetColumns().GetPrimaryKeys().ToArray();
             var columns2 = obj.GetColumns().GetPrimaryKeys().ToArray();
 
@@ -991,15 +1015,16 @@ namespace libDatabaseHelper.classes.generic
                 if (!value1.Equals(value2))
                     return false;
             }
+
             return true;
         }
 
-        public static GenericDatabaseEntity GetNonDisposableRefenceObject<T>()
+        public static GenericDatabaseEntity GetNonDisposableReferenceObject<T>()
         {
-            return GetNonDisposableRefenceObject(typeof(T));
+            return GetNonDisposableReferenceObject(typeof(T));
         }
 
-        public static GenericDatabaseEntity GetNonDisposableRefenceObject(Type type)
+        public static GenericDatabaseEntity GetNonDisposableReferenceObject(Type type)
         {
             if (_nonDisposableReferenceObjects.ContainsKey(type))
             {

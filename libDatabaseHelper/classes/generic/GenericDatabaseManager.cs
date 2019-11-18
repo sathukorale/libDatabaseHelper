@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Data;
 using System.Windows.Forms;
 using System.Data.Common;
+using System.Text.RegularExpressions;
 
 namespace libDatabaseHelper.classes.generic
 {
@@ -181,6 +183,141 @@ namespace libDatabaseHelper.classes.generic
         {
             throw new NotImplementedException("The class of type GenericDatabaseManager is not intended for direct use and should be extended by a fellow DatabaseManager");
         }
+
+        public void FillDataTable<T>(ICollection<T> collection, ref DataTable table)where T : GenericDatabaseEntity
+        {
+            var obj = GenericDatabaseEntity.GetNonDisposableReferenceObject(typeof(T));
+            if (obj == null)
+                return;
+
+            var fieldInfos = obj.GetColumns(true).GetOtherColumns().Where(i => ((TableColumn)i.GetCustomAttributes(typeof(TableColumn), true)[0]).IsRetrievableFromDatabase).ToArray();
+
+            table.Rows.Clear();
+            table.Columns.Clear();
+
+            var translators = new List<ITranslator>();
+
+            foreach (var fieldInfo in fieldInfos)
+            {
+                try
+                {
+                    var cInfo = ((TableColumn)fieldInfo.GetCustomAttributes(typeof(TableColumn), true)[0]);
+
+                    if (fieldInfo.FieldType == typeof(bool))
+                        table.Columns.Add(cInfo.GridDisplayName ?? fieldInfo.Name, typeof(bool));
+                    else
+                        table.Columns.Add(cInfo.GridDisplayName ?? fieldInfo.Name);
+
+                    var translator = cInfo.TranslatorType == null ? null : TranslatorRegistry.Instance.Get(cInfo.TranslatorType);
+                    translators.Add(translator);
+                }
+                catch { /* IGNORED */ }
+            }
+
+            foreach (var item in collection)
+            {
+                var row = table.Rows.Add();
+                var fieldIndex = 0;
+                foreach (var fieldInfo in fieldInfos)
+                {
+                    try
+                    {
+                        var value = fieldInfo.GetValue(item);
+
+                        if (translators[fieldIndex] != null)
+                        {
+                            row[fieldIndex] = (translators.Count > fieldIndex && fieldIndex >= 0) ? translators[fieldIndex].ToTranslated(value) : value.ToString();
+                        }
+                        else
+                        {
+                            row[fieldIndex] = value;
+                        }
+                    }
+                    catch { /* IGNORED */ }
+
+                    fieldIndex++;
+                }
+            }
+        }
+
+        public void UpdateDataTable(ICollection<GenericDatabaseEntity> collection, ref DataTable table)
+        {
+            if (collection.Count == 0) return;
+
+            var obj = collection.First();
+            var fieldInfos = obj.GetColumns(true).GetOtherColumns().Where(i => ((TableColumn)i.GetCustomAttributes(typeof(TableColumn), true)[0]).IsRetrievableFromDatabase).ToArray();
+            
+            table.BeginLoadData();
+
+            var translators = new List<ITranslator>();
+            var shouldAddColumns = table.Columns.Count == 0;
+
+            foreach (var fieldInfo in fieldInfos)
+            {
+                try
+                {
+                    var cInfo = ((TableColumn)fieldInfo.GetCustomAttributes(typeof(TableColumn), true)[0]);
+                    var translator = cInfo.TranslatorType == null ? null : TranslatorRegistry.Instance.Get(cInfo.TranslatorType);
+                    translators.Add(translator);
+
+                    if (shouldAddColumns)
+                    {
+                        var columnName = cInfo.GridDisplayName ?? fieldInfo.Name;
+
+                        if (fieldInfo.FieldType == typeof(bool))
+                            table.Columns.Add(columnName, typeof(bool));
+                        else
+                            table.Columns.Add(columnName);
+                    }
+                }
+                catch { /* IGNORED */ }
+            }
+
+            const string hdcn = "libDatabaseHelper-entity-obj"; // Hidden Data Column Name
+
+            if (shouldAddColumns)
+            {
+                table.Columns.Add(hdcn, typeof(GenericDatabaseEntity));
+                table.Columns[hdcn].ColumnMapping = MappingType.Hidden;
+            }
+
+            var entries = table.Rows.OfType<DataRow>().Select((row) => new KeyValuePair<GenericDatabaseEntity, DataRow>(row[hdcn] as GenericDatabaseEntity, row)).ToDictionary(i => i.Key, i => i.Value);
+            var entriesToRemove = entries.Where(i => collection.Contains(i.Key) == false).Select(i => i.Value);
+
+            foreach (var item in collection)
+            {
+                var row = null as DataRow;
+                if (entries.TryGetValue(item, out row) == false)
+                    row = table.Rows.Add();
+
+                var fieldIndex = 0;
+                foreach (var fieldInfo in fieldInfos)
+                {
+                    try
+                    {
+                        var value = fieldInfo.GetValue(item);
+
+                        if (translators[fieldIndex] != null)
+                        {
+                            row[fieldIndex] = (translators.Count > fieldIndex && fieldIndex >= 0) ? translators[fieldIndex].ToTranslated(value) : value.ToString();
+                        }
+                        else
+                        {
+                            row[fieldIndex] = value;
+                        }
+                    }
+                    catch { /* IGNORED */ }
+
+                    fieldIndex++;
+                }
+
+                row[hdcn] = item;
+            }
+
+            foreach (var row in entriesToRemove) table.Rows.Remove(row);
+
+            table.EndLoadData();
+        }
         #endregion
 
         #region "DatabaseManager::FillDataGridView()"
@@ -227,7 +364,7 @@ namespace libDatabaseHelper.classes.generic
             FillDataTable(type, ref table, selectors, limit);
             grid.DataSource = table;
 
-            var databaseEntity = GenericDatabaseEntity.GetNonDisposableRefenceObject(type);
+            var databaseEntity = GenericDatabaseEntity.GetNonDisposableReferenceObject(type);
             if (databaseEntity != null)
             {
                 var fields = databaseEntity.GetColumns(true).GetOtherColumns().Where(i => false);
@@ -281,20 +418,98 @@ namespace libDatabaseHelper.classes.generic
         public void FillDataGridViewAsItems(Type type, ref DataGridView grid, Selector[] selectors, int limit)
         {
             grid.Rows.Clear();
+            UpdateDataGridViewAsItems(type, ref grid, selectors, limit);
+        }
+        #endregion
+
+        #region "DatabaseManager::UpdateDataGridViewAsItems()"
+        public void UpdateDataGridViewAsItems<T>(ref DataGridView grid)
+        {
+            UpdateDataGridViewAsItems(typeof(T), ref grid, null, 0);
+        }
+
+        public void UpdateDataGridViewAsItems<T>(ref DataGridView grid, int limit)
+        {
+            UpdateDataGridViewAsItems(typeof(T), ref grid, null, limit);
+        }
+
+        public void UpdateDataGridViewAsItems<T>(ref DataGridView grid, Selector[] selectors)
+        {
+            UpdateDataGridViewAsItems(typeof(T), ref grid, selectors, 0);
+        }
+
+        public void UpdateDataGridViewAsItems<T>(ref DataGridView grid, Selector[] selectors, int limit)
+        {
+            UpdateDataGridViewAsItems(typeof(T), ref grid, selectors, limit);
+        }
+
+        public void UpdateDataGridViewAsItems(Type type, ref DataGridView grid)
+        {
+            UpdateDataGridViewAsItems(type, ref grid, null, 0);
+        }
+
+        public void UpdateDataGridViewAsItems(Type type, ref DataGridView grid, int limit)
+        {
+            UpdateDataGridViewAsItems(type, ref grid, null, limit);
+        }
+
+        public void UpdateDataGridViewAsItems(Type type, ref DataGridView grid, Selector[] selectors)
+        {
+            UpdateDataGridViewAsItems(type, ref grid, selectors, 0);
+        }
+
+        public void UpdateDataGridViewAsItems(Type type, ref DataGridView grid, Selector[] selectors, int limit)
+        {
+            var entries = grid.Rows.OfType<DataGridViewRow>().Select(i => new KeyValuePair<GenericDatabaseEntity, int>()).ToDictionary(i => i.Key, i => i.Value);
             var results = Select(type, selectors);
 
-            if (results != null && results.Length > 0)
+            if (results == null || results.Length <= 0) return;
+
+            var gridView = grid;
+            var removedRows = entries.Where(i => results.Contains(i.Key) == false).Select(i => gridView.Rows[i.Value]);
+
+            var noOfItemsAdded = 0;
+            foreach (var entity in results)
             {
-                int no_of_items_added = 0;
-                foreach (var entity in results)
-                {
-                    if (limit <= 0 || no_of_items_added < limit)
-                    {
-                        entity.AddToDataGridViewRow(grid);
-                        no_of_items_added++;
-                    }
-                }
+                if (limit > 0 && noOfItemsAdded >= limit) continue;
+                if (grid.ColumnCount <= 0) entity.CreateDataGridViewHeader(grid);
+
+                var index = 0;
+                if (entries.TryGetValue(entity, out index) == false)
+                    index = grid.Rows.Add();
+
+                entity.AddToDataGridViewRow(grid, index);
+                noOfItemsAdded++;
             }
+            
+            foreach (var row in removedRows) grid.Rows.Remove(row);
+        }
+
+        public void UpdateDataGridViewAsItems<T>(ref DataGridView grid, ICollection<T> collection, Selector[] selectors) where T : GenericDatabaseEntity
+        {
+            var list = FindMatchingEntities(collection.OfType<GenericDatabaseEntity>().ToList(), selectors);
+            UpdateDataGridViewAsItems(ref grid, list);
+        }
+
+        public void UpdateDataGridViewAsItems(ref DataGridView grid, ICollection<GenericDatabaseEntity> collection, Selector[] selectors)
+        {
+            var list = FindMatchingEntities(collection.ToList(), selectors);
+            UpdateDataGridViewAsItems(ref grid, list);
+        }
+
+        public void UpdateDataGridViewAsItems(ref DataGridView grid, ICollection<GenericDatabaseEntity> collection)
+        {
+            var results = collection.ToArray();
+            var table = grid.DataSource as DataTable ?? new DataTable();
+
+            UpdateDataTable(results, ref table);
+
+            grid.DataSource = table;
+
+            // TODO : For the moment sorting will be disabled as enabling this option will cause the
+            // data grid view to crash when its updated (only happens when a column is sorted)
+            foreach (DataGridViewColumn col in grid.Columns)
+                col.SortMode = DataGridViewColumnSortMode.NotSortable;
         }
         #endregion
 
@@ -425,6 +640,72 @@ namespace libDatabaseHelper.classes.generic
             return failedEntities;
         }
         #endregion
+
+        internal static List<GenericDatabaseEntity> FindMatchingEntities(List<GenericDatabaseEntity> list, Selector[] selectors)
+        {
+            Regex regexFilter = null;
+            var collected = new List<GenericDatabaseEntity>();
+            for (int i = 0; i < list.Count; i++)
+            {
+                var entity = list[i];
+
+                var isEntityValid = true;
+                foreach (var selector in selectors)
+                {
+                    if (selector.OpeartorType == Selector.Operator.Equal)
+                    {
+                        if (!entity.GetFieldValue(selector.Field).Equals(selector.FieldValue1))
+                        {
+                            isEntityValid = false;
+                        }
+                    }
+                    else if (selector.OpeartorType == Selector.Operator.LessThan)
+                    {
+                        var presentVal = entity.GetFieldValue(selector.Field);
+                        var sentVal = selector.FieldValue1;
+                        if (GenericFieldTools.Compare(presentVal, sentVal) != -1)
+                        {
+                            isEntityValid = false;
+                        }
+                    }
+                    else if (selector.OpeartorType == Selector.Operator.MoreThan)
+                    {
+                        var presentVal = entity.GetFieldValue(selector.Field);
+                        var sentVal = selector.FieldValue1;
+                        if (GenericFieldTools.Compare(presentVal, sentVal) != 1)
+                        {
+                            isEntityValid = false;
+                        }
+                    }
+                    else if (selector.OpeartorType == Selector.Operator.Between)
+                    {
+                        var presentVal = entity.GetFieldValue(selector.Field);
+                        if (GenericFieldTools.Compare(presentVal, selector.FieldValue1) != 1 && GenericFieldTools.Compare(presentVal, selector.FieldValue2) != -1)
+                        {
+                            isEntityValid = false;
+                        }
+                    }
+                    else if (selector.OpeartorType == Selector.Operator.Like)
+                    {
+                        var strFieldValue = entity.GetFieldValue(selector.Field).ToString();
+
+                        if (regexFilter == null)
+                        {
+                            var strSentFilter = selector.FieldValue1.ToString();
+                            regexFilter = new Regex(Regex.Escape(strSentFilter).Replace("%", "(.*)"));
+                        }
+
+                        isEntityValid = regexFilter.IsMatch(strFieldValue);
+                    }
+                }
+
+                if (isEntityValid)
+                {
+                    collected.Add(entity);
+                }
+            }
+            return collected;
+        }
 
         protected void _OnBulkDelete(Type type, Selector[] selectors)
         { 

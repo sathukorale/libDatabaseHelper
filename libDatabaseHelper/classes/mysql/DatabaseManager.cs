@@ -20,7 +20,7 @@ namespace libDatabaseHelper.classes.mysql
 
         public override bool TableExist(Type type)
         {
-            var entity = GenericDatabaseEntity.GetNonDisposableRefenceObject(type);
+            var entity = GenericDatabaseEntity.GetNonDisposableReferenceObject(type);
             if (entity == null)
                 return false;
 
@@ -142,7 +142,7 @@ namespace libDatabaseHelper.classes.mysql
 
         public override bool CreateTable(Type type)
         {
-            var obj = GenericDatabaseEntity.GetNonDisposableRefenceObject(type);
+            var obj = GenericDatabaseEntity.GetNonDisposableReferenceObject(type);
             if (obj == null)
             {
                 return false;
@@ -210,7 +210,7 @@ namespace libDatabaseHelper.classes.mysql
 
         public override bool DropTable(Type type)
         {
-            var obj = GenericDatabaseEntity.GetNonDisposableRefenceObject(type);
+            var obj = GenericDatabaseEntity.GetNonDisposableReferenceObject(type);
             if (obj == null)
             {
                 return false;
@@ -246,7 +246,7 @@ namespace libDatabaseHelper.classes.mysql
 
         public override GenericDatabaseEntity[] Select(Type type, Selector[] selectors)
         {
-            var obj = GenericDatabaseEntity.GetNonDisposableRefenceObject(type);
+            var obj = GenericDatabaseEntity.GetNonDisposableReferenceObject(type);
             if (obj == null) return new GenericDatabaseEntity[0];
             var result = obj.GetColumns(true);
             if (result == null || result.GetPrimaryKeys() == null || !result.GetPrimaryKeys().Any())
@@ -287,7 +287,7 @@ namespace libDatabaseHelper.classes.mysql
 
         public override bool DeleteMatching(Type type, Selector[] selectors)
         {
-            var obj = GenericDatabaseEntity.GetNonDisposableRefenceObject(type);
+            var obj = GenericDatabaseEntity.GetNonDisposableReferenceObject(type);
             if (obj == null) return false;
 
             var result = obj.GetColumns(true);
@@ -322,7 +322,7 @@ namespace libDatabaseHelper.classes.mysql
 
         public override void FillDataTable(Type type, ref DataTable table, Selector[] selectors, int limit)
         {
-            var obj = GenericDatabaseEntity.GetNonDisposableRefenceObject(type);
+            var obj = GenericDatabaseEntity.GetNonDisposableReferenceObject(type);
             if (obj == null)
                 return;
 
